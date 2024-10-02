@@ -22,6 +22,7 @@ const Navbar = () => {
           <li><Link to="/estado">Estado</Link></li>
           <li><Link to="/productos">Productos</Link></li>
           <li><Link to="/login">Iniciar Sesión</Link></li>
+          <li><Link to="/peluquero">Peluquero</Link></li>
         </ul>
       </div>
       <div className="navbar-hamburguer" onClick={toggleMenu}>

@@ -3,6 +3,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar/Navbar';
 import ReservaPage from './pages/ReservaPage';
+import Peluquero from './pages/Peluquero';
 
 const Home = () => <h2>Inicio (Calendario de Turnos)</h2>;
 const Estado = () => <h2>Estado del Peluquero</h2>;
@@ -20,6 +21,7 @@ function App() {
           <Route path="/estado" element={<Estado />} />
           <Route path="/productos" element={<Productos />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/peluquero" element={<Peluquero />} />
         </Routes>
       </div>
     </Router>

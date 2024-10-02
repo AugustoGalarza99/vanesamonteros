@@ -1,0 +1,129 @@
+/* Calendario.css */
+
+/* Contenedor principal del calendario */
+.calendario {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Arial', sans-serif;
+    padding: 20px;
+}
+
+/* Título del calendario */
+.calendario h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+/* Grid principal que organiza los turnos por horas */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7 columnas para cada día de la semana */
+    grid-template-rows: repeat(12, 60px); /* 12 filas de 60px, una para cada hora */
+    gap: 5px;
+    width: 100%;
+}
+
+/* Estilos para cada turno */
+.turno {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 14px;
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.turno:hover {
+    transform: scale(1.05); /* Efecto al pasar el cursor por encima */
+}
+
+/* Colores para los diferentes estados de los turnos */
+.turno.reservado {
+    background-color: #f28b82; /* Rojo claro */
+    color: white;
+}
+
+.turno.disponible {
+    background-color: #81c995; /* Verde claro */
+    color: white;
+}
+
+.turno.enProceso {
+    background-color: #fbbc04; /* Amarillo claro */
+    color: black;
+}
+
+/* Estilos para turnos vacíos */
+.turno.vacio {
+    background-color: #e8e8e8;
+    color: #999999;
+}
+
+/* Estilos adicionales */
+.grid .turno p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Opciones de gestión del turno */
+.options {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.options button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #1976d2;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.options button:hover {
+    background-color: #1565c0;
+}
+
+/* Estilos de bloqueo de horarios */
+.bloquear-horario {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.bloquear-horario input {
+    margin-right: 10px;
+    padding: 5px;
+    font-size: 16px;
+}
+
+.bloquear-horario button {
+    padding: 5px 10px;
+    font-size: 16px;
+    color: white;
+    background-color: #d32f2f;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.bloquear-horario button:hover {
+    background-color: #c62828;
+}
+
+/* Estilos responsivos para pantallas pequeñas */
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr); /* Ajusta la cantidad de columnas en pantallas pequeñas */
+    }
+}

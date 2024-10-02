@@ -1,0 +1,19 @@
+/* Estilo personalizado para FullCalendar */
+.fullcalendar-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.fc .fc-toolbar {
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.fc .fc-daygrid-day {
+    cursor: pointer;
+}
+
+.fc .fc-day-today {
+    background-color: #ffe082 !important; /* Marca el día actual */
+}
