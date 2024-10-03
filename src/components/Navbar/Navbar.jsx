@@ -7,7 +7,6 @@ import { Link } from 'react-router-dom'; // Necesario cuando configures rutas
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
