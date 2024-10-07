@@ -1,5 +1,5 @@
 // Importar las funciones necesarias de Firebase
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db } from '../../firebaseConfig';
 import { doc, getDoc, collection, getDocs, query, where, addDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
@@ -12,18 +12,40 @@ const ReservasForm = () => {
     const [telefono, setTelefono] = useState('');
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
-    const [servicio, setServicio] = useState('Corte pelo + barba');
-    const [profesional, setProfesional] = useState('Matias');
+    const [servicio, setServicio] = useState('');
+    const [profesional, setProfesional] = useState(''); // Deberías asignar el valor inicial correcto
     const [fecha, setFecha] = useState('');
     const [hora, setHora] = useState('');
     const [verificado, setVerificado] = useState(false);
     const [mostrarSolicitarCodigo, setMostrarSolicitarCodigo] = useState(false);
     const [whatsapp, setWhatsapp] = useState('');
-    const peluqueros = [
-        { nombre: 'Jorge', uid: 'QIXu19fLpYW2IqLlrFE62fAJfPb2' },
-        { nombre: 'Augusto', uid: 'dNa3yYUXAwX5AWualdzbtNa9TmA2' },
-    ];
+    const [servicios, setServicios] = useState([]); // Estado para almacenar servicios
+
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchServicios = async () => {
+            try {
+                const serviciosRef = collection(db, 'servicios');
+                const querySnapshot = await getDocs(serviciosRef);
+                const serviciosList = [];
+                
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    serviciosList.push({ nombre: data.nombre, duracion: data.duracion });
+                });
+
+                setServicios(serviciosList); // Guarda los servicios en el estado
+                if (serviciosList.length > 0) {
+                    setServicio(serviciosList[0].nombre); // Selecciona el primer servicio por defecto
+                }
+            } catch (error) {
+                console.error('Error obteniendo servicios:', error);
+            }
+        };
+
+        fetchServicios(); // Llama a la función para obtener los servicios
+    }, []); // El array vacío asegura que solo se ejecute una vez al montar el componente
 
     const handleAgendar = async (e) => {
         e.preventDefault(); // Previene el comportamiento predeterminado del formulario
@@ -48,7 +70,7 @@ const ReservasForm = () => {
                             servicio,
                             fecha,
                             hora,
-                            uidPeluquero: profesional // Guarda el ID del peluquero para referencia
+                            uidPeluquero: profesional // Asegúrate de que esto contenga el uid correcto
                         });
     
                         alert('Turno reservado exitosamente.'); // Mensaje de éxito
@@ -69,29 +91,27 @@ const ReservasForm = () => {
         }
     };
 
-const handleSolicitarCodigo = async () => {
-    if (whatsapp) {
-        const whatsappUrl = `https://wa.me/${whatsapp}?text=Hola,%20necesito%20un%20código%20de%20verificación%20para%20reservar%20mi%20turno.`;
-        window.open(whatsappUrl, '_blank');
-    } else {
-        try {
-            const peluqueroDocRef = doc(db, 'peluqueros', profesional); // 'profesional' debe ser el ID del peluquero
-            const peluqueroDocSnap = await getDoc(peluqueroDocRef);
+    const handleSolicitarCodigo = async () => {
+        if (whatsapp) {
+            const whatsappUrl = `https://wa.me/${whatsapp}?text=Hola,%20necesito%20un%20código%20de%20verificación%20para%20reservar%20mi%20turno.`;
+            window.open(whatsappUrl, '_blank');
+        } else {
+            try {
+                const peluqueroDocRef = doc(db, 'peluqueros', profesional); // 'profesional' debe ser el ID del peluquero
+                const peluqueroDocSnap = await getDoc(peluqueroDocRef);
 
-            if (peluqueroDocSnap.exists()) {
-                const whatsappNumber = peluqueroDocSnap.data().whatsapp;
-                setWhatsapp(whatsappNumber);
-                window.open(`https://wa.me/${whatsappNumber}?text=Hola,%20necesito%20un%20código%20de%20verificación%20para%20reservar%20mi%20turno.`, '_blank');
-            } else {
-                alert('No se encontró el número de WhatsApp del peluquero. Verifica el ID del peluquero.');
+                if (peluqueroDocSnap.exists()) {
+                    const whatsappNumber = peluqueroDocSnap.data().whatsapp;
+                    setWhatsapp(whatsappNumber);
+                    window.open(`https://wa.me/${whatsappNumber}?text=Hola,%20necesito%20un%20código%20de%20verificación%20para%20reservar%20mi%20turno.`, '_blank');
+                } else {
+                    alert('No se encontró el número de WhatsApp del peluquero. Verifica el ID del peluquero.');
+                }
+            } catch (error) {
+                console.error('Error obteniendo el número de WhatsApp:', error);
             }
-        } catch (error) {
-            console.error('Error obteniendo el número de WhatsApp:', error);
         }
-    }
-};
-
-
+    };
 
     return (
         <form onSubmit={handleAgendar}>
@@ -106,24 +126,24 @@ const handleSolicitarCodigo = async () => {
             <div className='div-tel'>
                 <input className='input-gral2' type="text" placeholder='Ingresa tu nombre' value={nombre} onChange={(e) => setNombre(e.target.value)} required />
                 <input className='input-gral2' type="text" placeholder='Ingresa tu apellido' value={apellido} onChange={(e) => setApellido(e.target.value)} required />
-                <input className='input-gral2' type="text" placeholder='Ingresa tu numero de telefono' value={telefono} onChange={(e) => setTelefono(e.target.value)} required />
+                <input className='input-gral2' type="text" placeholder='Ingresa tu número de teléfono' value={telefono} onChange={(e) => setTelefono(e.target.value)} required />
             </div>
             <div className='seccion-2'>
                 <div>
-                    <label className='titulo-servicio'>Seleccion el servicio</label>
+                    <label className='titulo-servicio'>Selecciona el servicio</label>
                     <select className='select-seccion' value={servicio} onChange={(e) => setServicio(e.target.value)}>
-                        <option value="Corte pelo + barba">Corte pelo + barba</option>
-                        <option value="Corte solo">Corte solo</option>
-                        <option value="Barba">Barba</option>
-                        <option value="Lavado de cabello">Lavado de cabello</option>
+                        {servicios.map((servicio) => (
+                            <option key={servicio.nombre} value={servicio.nombre}>{servicio.nombre}</option>
+                        ))}
                     </select>
                 </div>
                 <div>
-                    <label className='titulo-servicio'>Seleccion tu profesional</label>
+                    <label className='titulo-servicio'>Selecciona tu profesional</label>
                     <select className='select-seccion' value={profesional} onChange={(e) => setProfesional(e.target.value)}>
-                        {peluqueros.map((peluquero) => (
-                        <option key={peluquero.uid} value={peluquero.uid}>{peluquero.nombre}</option>
-                        ))}
+                        {/* Asegúrate de tener la lista de peluqueros aquí como antes */}
+                        <option value="QIXu19fLpYW2IqLlrFE62fAJfPb2">Jorge</option>
+                        <option value="dNa3yYUXAwX5AWualdzbtNa9TmA2">Augusto</option>
+                        {/* Puedes cargar dinámicamente la lista de peluqueros desde la base de datos si lo deseas */}
                     </select>
                 </div>
                 <div className='div-date'>
