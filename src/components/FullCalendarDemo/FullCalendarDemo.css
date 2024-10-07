@@ -1,19 +1,51 @@
-/* Estilo personalizado para FullCalendar */
 .fullcalendar-wrapper {
-    max-width: 1200px;
+    max-width: 900px;
     margin: 0 auto;
-}
-
-.fc .fc-toolbar {
-    background-color: #f5f5f5;
+    padding: 20px;
+    background-color: #000000; /* Fondo del calendario */
+    border: 1px solid #000000; /* Bordes */
+    border-radius: 10px; /* Esquinas redondeadas */
+  }
+  
+  .fc {
+    font-family: Arial, sans-serif; /* Fuente del calendario */
+  }
+  
+  .fc .fc-toolbar {
+    background-color: #007bff; /* Color de fondo de la barra de herramientas */
+    color: white; /* Color del texto de la barra de herramientas */
     padding: 10px;
     border-radius: 5px;
-}
+  }
+  
+  .fc .fc-day {
+    height: 10px; /* Altura de cada celda de día */
+  }
+  
+  .fc .fc-time-grid-event {
+    background-color: #f28b82; /* Color de fondo de los eventos */
+    border: none; /* Sin borde */
+    border-radius: 5px; /* Esquinas redondeadas de los eventos */
+  }
+  
+  .fc .fc-day-grid-event {
+    background-color: #007bff; /* Color de fondo de los eventos en la vista de mes */
+  }
+  
+  .fc .fc-day.fc-day-disabled {
+    background-color: #f1f1f1; /* Color de fondo de los días no laborales */
+    opacity: 0.5; /* Opacidad para días no laborales */
+  }
 
-.fc .fc-daygrid-day {
-    cursor: pointer;
-}
 
-.fc .fc-day-today {
-    background-color: #4d4e4d !important; /* Marca el día actual */
-}
+
+
+  .fc .fc-timegrid-slot{
+    height: 100px;
+  }
+
+  .fc-timegrid-event-harness > .fc-timegrid-event{
+    margin: auto;
+    height: 80px;
+    font-size: 20px;    
+  }

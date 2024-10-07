@@ -1,4 +1,3 @@
-// Importar las funciones necesarias de Firebase
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebaseConfig';
 import { doc, getDoc, collection, getDocs, query, where, addDoc } from 'firebase/firestore';
@@ -13,16 +12,18 @@ const ReservasForm = () => {
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
     const [servicio, setServicio] = useState('');
-    const [profesional, setProfesional] = useState(''); // Deberías asignar el valor inicial correcto
+    const [profesional, setProfesional] = useState(''); // Estado para almacenar el peluquero seleccionado
     const [fecha, setFecha] = useState('');
     const [hora, setHora] = useState('');
     const [verificado, setVerificado] = useState(false);
     const [mostrarSolicitarCodigo, setMostrarSolicitarCodigo] = useState(false);
     const [whatsapp, setWhatsapp] = useState('');
-    const [servicios, setServicios] = useState([]); // Estado para almacenar servicios
+    const [servicios, setServicios] = useState([]); // Servicios disponibles
+    const [peluqueros, setPeluqueros] = useState([]); // Estado para almacenar la lista de peluqueros
 
     const navigate = useNavigate();
 
+    // Obtener servicios al montar el componente
     useEffect(() => {
         const fetchServicios = async () => {
             try {
@@ -35,33 +36,57 @@ const ReservasForm = () => {
                     serviciosList.push({ nombre: data.nombre, duracion: data.duracion });
                 });
 
-                setServicios(serviciosList); // Guarda los servicios en el estado
+                setServicios(serviciosList);
                 if (serviciosList.length > 0) {
-                    setServicio(serviciosList[0].nombre); // Selecciona el primer servicio por defecto
+                    setServicio(serviciosList[0].nombre); // Seleccionar el primer servicio por defecto
                 }
             } catch (error) {
                 console.error('Error obteniendo servicios:', error);
             }
         };
 
-        fetchServicios(); // Llama a la función para obtener los servicios
-    }, []); // El array vacío asegura que solo se ejecute una vez al montar el componente
+        fetchServicios();
+    }, []);
+
+    // Obtener peluqueros al montar el componente
+    useEffect(() => {
+        const fetchPeluqueros = async () => {
+            try {
+                const peluquerosRef = collection(db, 'peluqueros');
+                const querySnapshot = await getDocs(peluquerosRef);
+                const peluquerosList = [];
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    peluquerosList.push({ id: doc.id, nombre: data.nombre });
+                });
+
+                setPeluqueros(peluquerosList); // Guardar peluqueros en el estado
+                if (peluquerosList.length > 0) {
+                    setProfesional(peluquerosList[0].id); // Seleccionar el primer peluquero por defecto
+                }
+            } catch (error) {
+                console.error('Error obteniendo peluqueros:', error);
+            }
+        };
+
+        fetchPeluqueros();
+    }, []);
 
     const handleAgendar = async (e) => {
-        e.preventDefault(); // Previene el comportamiento predeterminado del formulario
+        e.preventDefault(); // Evitar el comportamiento predeterminado del formulario
         try {
             const clientesRef = collection(db, 'clientes'); // Referencia a la colección de clientes
-            const q = query(clientesRef, where('dni', '==', dni)); // Consulta para buscar por DNI
-            const querySnapshot = await getDocs(q); // Obtiene los documentos que coinciden con la consulta
+            const q = query(clientesRef, where('dni', '==', dni)); // Buscar cliente por DNI
+            const querySnapshot = await getDocs(q); // Obtener documentos que coinciden con la consulta
     
             if (!querySnapshot.empty) {
                 querySnapshot.forEach(async (doc) => {
-                    const userData = doc.data(); // Obtiene los datos del usuario
+                    const userData = doc.data(); // Obtener datos del usuario
                     if (userData.telefono === telefono && userData.verificado) {
-                        // Si el número de teléfono es correcto y el usuario está verificado
                         setVerificado(true);
     
-                        // Guarda la reserva en Firestore
+                        // Guardar la reserva en Firestore
                         const reservasRef = collection(db, 'reservas'); // Referencia a la colección de reservas
                         await addDoc(reservasRef, {
                             nombre,
@@ -70,24 +95,24 @@ const ReservasForm = () => {
                             servicio,
                             fecha,
                             hora,
-                            uidPeluquero: profesional // Asegúrate de que esto contenga el uid correcto
+                            uidPeluquero: profesional // Registrar el UID del peluquero seleccionado
                         });
     
-                        alert('Turno reservado exitosamente.'); // Mensaje de éxito
-                        navigate('/productos'); // Redirige al usuario
+                        alert('Turno reservado exitosamente.');
+                        navigate('/productos'); // Redirigir al usuario después de reservar
                     } else {
-                        alert('Número de teléfono incorrecto o usuario no verificado.'); // Mensaje de error
+                        alert('Número de teléfono incorrecto o usuario no verificado.');
                         setVerificado(false);
-                        setMostrarSolicitarCodigo(true); // Muestra la opción de solicitar código
+                        setMostrarSolicitarCodigo(true);
                     }
                 });
             } else {
-                alert('Usuario no encontrado, por favor solicita un código.'); // Mensaje de error si no se encuentra el usuario
+                alert('Usuario no encontrado, por favor solicita un código.');
                 setVerificado(false);
-                setMostrarSolicitarCodigo(true); // Muestra la opción de solicitar código
+                setMostrarSolicitarCodigo(true);
             }
         } catch (error) {
-            console.error('Error verificando usuario:', error); // Manejo de errores
+            console.error('Error verificando usuario:', error);
         }
     };
 
@@ -97,7 +122,7 @@ const ReservasForm = () => {
             window.open(whatsappUrl, '_blank');
         } else {
             try {
-                const peluqueroDocRef = doc(db, 'peluqueros', profesional); // 'profesional' debe ser el ID del peluquero
+                const peluqueroDocRef = doc(db, 'peluqueros', profesional); // Obtener datos del peluquero por ID
                 const peluqueroDocSnap = await getDoc(peluqueroDocRef);
 
                 if (peluqueroDocSnap.exists()) {
@@ -140,10 +165,9 @@ const ReservasForm = () => {
                 <div>
                     <label className='titulo-servicio'>Selecciona tu profesional</label>
                     <select className='select-seccion' value={profesional} onChange={(e) => setProfesional(e.target.value)}>
-                        {/* Asegúrate de tener la lista de peluqueros aquí como antes */}
-                        <option value="QIXu19fLpYW2IqLlrFE62fAJfPb2">Jorge</option>
-                        <option value="dNa3yYUXAwX5AWualdzbtNa9TmA2">Augusto</option>
-                        {/* Puedes cargar dinámicamente la lista de peluqueros desde la base de datos si lo deseas */}
+                        {peluqueros.map((peluquero) => (
+                            <option key={peluquero.id} value={peluquero.id}>{peluquero.nombre}</option>
+                        ))}
                     </select>
                 </div>
                 <div className='div-date'>
