@@ -1,38 +1,39 @@
-/* src/components/Navbar.css */
 .navbar {
+  max-width: 100%; /* Limita el ancho máximo para que no se salga del viewport */
+  box-sizing: border-box; /* Incluye paddings y bordes en el cálculo del ancho */
     display: flex;
-    justify-content: space-between;
+    justify-content: end;
+    width: 100%;
     align-items: center;
     padding: 10px 20px;
-    background-color: #333;
+    background-color: var(--titulo-color);
     color: #fff;
+    font-family: var(--font);
   }
-  
+  .navbar-logo{
+    justify-self: start;
+  }  
   .navbar-logo h1 {
     font-size: 1.5rem;
     margin: 0;
-  }
-  
+  }  
   .navbar-menu {
     display: none; /* Escondemos el menú inicialmente */
-  }
-  
+  }  
   .navbar-menu ul {
     list-style: none;
     padding: 0;
     margin: 0;
-  }
-  
+    
+  }  
   .navbar-menu ul li {
     padding: 10px 0;
-  }
-  
+  }  
   .navbar-menu ul li a {
     color: #fff;
     text-decoration: none;
     font-size: 1.2rem;
-  }
-  
+  }  
   .navbar-hamburguer {
     cursor: pointer;
     display: flex;
@@ -40,15 +41,13 @@
     justify-content: space-between;
     height: 24px;
     width: 30px;
-  }
-  
+  }  
   .navbar-hamburguer .bar {
     height: 3px;
     width: 100%;
     background-color: #fff;
     border-radius: 5px;
-  }
-  
+  }  
   .navbar-menu.open {
     display: flex;
     flex-direction: column;
@@ -60,23 +59,24 @@
     padding: 20px;
     z-index: 999;
   }
-  
+  li{
+    a{
+      cursor: pointer;
+    }
+  }  
   /* Estilos para pantallas más grandes */
   @media (min-width: 768px) {
     .navbar-menu {
       display: flex;
       flex-direction: row;
-    }
-  
+    }  
     .navbar-menu ul {
       display: flex;
       flex-direction: row;
-    }
-  
+    }  
     .navbar-menu ul li {
       margin-left: 20px;
-    }
-  
+    }  
     .navbar-hamburguer {
       display: none; /* Escondemos el botón hamburguesa en pantallas grandes */
     }

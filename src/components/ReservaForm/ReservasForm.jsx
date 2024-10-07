@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { db } from '../../firebaseConfig'; // Asegúrate de que esto sea correcto
 import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
 import './ReservaForm.css'
 
 const ReservasForm = () => {
@@ -82,53 +84,73 @@ const ReservasForm = () => {
 
     return (
         <form onSubmit={handleAgendar}>
-            <h2>Reservar Turno</h2>
+            <div className='titulo'>
+                <FontAwesomeIcon icon={faCalendarAlt}/>
+                <h1>Agenda tu cita</h1>
+            </div>            
+            <h3>Completa el siguiente formulario para reservar tu cita</h3>
+            <div className='seccion'>
+                {/*<label>DNI</label>*/}
+                <input className='input-gral' type="text" placeholder='Ingresa tu DNI' value={dni} onChange={(e) => setDni(e.target.value)} required />
+            </div>
+            <div className='div-tel'>
             <div>
-                <label>DNI</label>
-                <input type="text" value={dni} onChange={(e) => setDni(e.target.value)} required />
+                {/*<label>Nombre</label>*/}
+                <input className='input-gral2' type="text" placeholder='Ingresa tu nombre' value={nombre} onChange={(e) => setNombre(e.target.value)} required />
             </div>
             <div>
-                <label>Teléfono móvil</label>
-                <input type="text" value={telefono} onChange={(e) => setTelefono(e.target.value)} required />
+                {/*<label>Apellido</label>*/}
+                <input className='input-gral2' type="text" placeholder='Ingresa tu apellido' value={apellido} onChange={(e) => setApellido(e.target.value)} required />
             </div>
             <div>
-                <label>Nombre</label>
-                <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+                {/*<label>Teléfono móvil</label>*/}
+                <input className='input-gral2' type="text" placeholder='Ingresa tu numero de telefono' value={telefono} onChange={(e) => setTelefono(e.target.value)} required />
             </div>
-            <div>
-                <label>Apellido</label>
-                <input type="text" value={apellido} onChange={(e) => setApellido(e.target.value)} required />
+            <br />
+            <br />
             </div>
-            <div>
-                <label>Email</label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
-            <div>
-                <label>Servicio</label>
-                <select value={servicio} onChange={(e) => setServicio(e.target.value)}>
+            <div className='seccion-2'>
+                <div>
+                    <div>
+                <label className='titulo-servicio'>Seleccion el servicio</label>
+                <select className='select-seccion' value={servicio} onChange={(e) => setServicio(e.target.value)}>
+                    <option value="Corte pelo + barba">Corte pelo + barba</option>
+                    <option value="Corte pelo + barba">Corte pelo + barba</option>
+                    <option value="Corte pelo + barba">Corte pelo + barba</option>
+                    <option value="Corte pelo + barba">Corte pelo + barba</option>
                     <option value="Corte pelo + barba">Corte pelo + barba</option>
                     <option value="Corte solo">Corte solo</option>
                     <option value="Barba">Barba</option>
                     <option value="Lavado de cabello">Lavado de cabello</option>
                 </select>
             </div>
+            <br />
             <div>
-                <label>Profesional</label>
-                <select value={profesional} onChange={(e) => setProfesional(e.target.value)}>
+                <label className='titulo-servicio' >Seleccion tu profesional</label>
+                <select className='select-seccion' value={profesional} onChange={(e) => setProfesional(e.target.value)}>
                     <option value="Matias">Matias</option>
                     <option value="Juan">Juan</option>
                     <option value="Sofia">Sofia</option>
                 </select>
             </div>
-            <div>
-                <label>Fecha</label>
-                <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} required />
+            <br />
             </div>
             <div>
-                <label>Hora</label>
-                <input type="time" value={hora} onChange={(e) => setHora(e.target.value)} required />
+            <div className='div-date'>
+                <label className='titulo-servicio' >Elige tu fecha</label>
+                <input className='select-seccion2' type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} required />
             </div>
-            <button type="submit">Agendar Turno</button>
+            <br />
+            <div className='div-date'>
+                <label className='titulo-servicio' >Elige tu hora</label>
+                <input className='select-seccion2' type="time" value={hora} onChange={(e) => setHora(e.target.value)} required />
+            </div>
+            </div>
+            </div>
+            <div>            
+                <button className='button-agendar' type="submit"><FontAwesomeIcon icon={faCalendarAlt}/>Agendar Turno</button>
+            </div>
+            
 
             {!verificado && mostrarSolicitarCodigo && (
                 <div>
