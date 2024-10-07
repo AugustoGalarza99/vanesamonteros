@@ -30,6 +30,7 @@ const FullCalendarDemo = () => {
         console.error('Error al cargar las reservas:', error);
       }
     };
+    
 
     fetchReservations();
   }, []);
