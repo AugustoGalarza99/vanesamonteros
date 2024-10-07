@@ -1,18 +1,44 @@
-// GeneradorCodigo.jsx
-import React from 'react';
+// src/components/GeneradorCodigo/GeneradorCodigo.jsx
+import React, { useState } from 'react';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../../firebaseConfig'; // Asegúrate de que la ruta sea correcta
 
-const GeneradorCodigo = ({ telefono }) => {
-    const generarCodigo = () => {
-        const codigo = Math.floor(100000 + Math.random() * 900000); // Código de 6 dígitos
-        const mensaje = `Tu código de verificación es: ${codigo}`;
-        const whatsappUrl = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
-        window.open(whatsappUrl, '_blank');
+const GeneradorCodigo = () => {
+    const [codigo, setCodigo] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    // Función para generar y almacenar el código
+    const generarCodigo = async () => {
+        setLoading(true);
+        const codigoGenerado = Math.floor(100000 + Math.random() * 900000); // Código aleatorio de 6 dígitos
+        setCodigo(codigoGenerado); // Mostrar el código generado al peluquero
+
+        try {
+            // Guardar el código en Firestore
+            await setDoc(doc(db, 'codigos_verificacion', 'codigo_actual'), {
+                codigoVerificacion: codigoGenerado,
+            });
+            console.log("Código guardado en Firebase");
+        } catch (error) {
+            console.error("Error al guardar el código en Firebase:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
-        <button onClick={generarCodigo}>
-            Enviar Código de Verificación
-        </button>
+        <div>
+            <h3>Generar Código de Verificación</h3>
+            <button onClick={generarCodigo} disabled={loading}>
+                {loading ? 'Generando...' : 'Generar Código'}
+            </button>
+            {codigo && (
+                <div>
+                    <p><strong>Código generado:</strong> {codigo}</p>
+                    <p>Este código debe ser compartido con el cliente para su verificación.</p>
+                </div>
+            )}
+        </div>
     );
 };
 

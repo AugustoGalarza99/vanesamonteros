@@ -1,32 +1,40 @@
-// FullCalendarDemo.jsx
-
-import React, { useState } from 'react';
-import FullCalendar from '@fullcalendar/react'; // Importa el componente FullCalendar
-import dayGridPlugin from '@fullcalendar/daygrid'; // Vista de día
-import timeGridPlugin from '@fullcalendar/timegrid'; // Vista de semana y día
-import interactionPlugin from '@fullcalendar/interaction'; // Permite interactuar con los eventos (arrastrar, hacer clic)
-import './FullCalendarDemo.css'
+import React, { useState, useEffect } from 'react';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import { db } from '../../firebaseConfig'; // Asegúrate de que la ruta sea correcta
+import { collection, getDocs } from 'firebase/firestore';
+import './FullCalendarDemo.css';
 
 const FullCalendarDemo = () => {
-  const [events, setEvents] = useState([
-    {
-      id: 1,
-      title: 'Cita con Juan Pérez',
-      start: '2024-09-26T10:00:00',
-      end: '2024-09-26T11:00:00',
-      color: '#f28b82' // rojo (para turnos reservados)
-    },
-    {
-      id: 2,
-      title: 'Disponible',
-      start: '2024-09-26T13:00:00',
-      end: '2024-09-26T14:00:00',
-      color: '#81c995' // verde (para turnos disponibles)
-    }
-  ]);
+  const [events, setEvents] = useState([]);
+
+  useEffect(() => {
+    const fetchReservations = async () => {
+      try {
+        const reservasRef = collection(db, 'reservas');
+        const querySnapshot = await getDocs(reservasRef);
+        const fetchedEvents = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id, // Guarda el ID del documento para futuras referencias
+            title: `${data.nombre} ${data.apellido} - ${data.servicio}`, // Título con el nombre, apellido y servicio
+            start: `${data.fecha}T${data.hora}:00`, // Asegúrate de que la fecha y hora están bien formateadas
+            end: `${data.fecha}T${data.hora}:00`, // Puedes ajustar esto si es necesario
+            color: '#f28b82' // Color para las reservas
+          };
+        });
+        setEvents(fetchedEvents);
+      } catch (error) {
+        console.error('Error al cargar las reservas:', error);
+      }
+    };
+
+    fetchReservations();
+  }, []);
 
   const handleDateClick = (info) => {
-    // Puedes manejar eventos cuando el usuario hace clic en una fecha
     alert('Turno reservado en: ' + info.dateStr);
   };
 
@@ -35,20 +43,21 @@ const FullCalendarDemo = () => {
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="timeGridWeek"
-        events={events} // Eventos a mostrar
-        dateClick={handleDateClick} // Maneja clic en fechas
-        editable={true} // Habilita edición de eventos
-        droppable={true} // Habilita arrastrar y soltar eventos
+        events={events}
+        dateClick={handleDateClick}
+        editable={true}
+        droppable={true}
         headerToolbar={{
           left: 'prev,next today',
           center: 'title',
           right: 'dayGridMonth,timeGridWeek,timeGridDay'
         }}
-        locale="es" // Cambia el idioma a español
-        slotDuration="01:00:00" // Duración del slot (1 hora)
+        locale="es"
+        slotDuration="01:00:00"
       />
     </div>
   );
 };
 
 export default FullCalendarDemo;
+

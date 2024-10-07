@@ -11,4 +11,5 @@ html, body, #root {
   --font: "Noto Sans", sans-serif;
   color-scheme: light dark;
   color: rgb(245, 245, 245);
+  background-color: black;
 }

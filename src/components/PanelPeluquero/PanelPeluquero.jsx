@@ -11,7 +11,7 @@ const PanelPeluquero = () => {
             <BloquearHorario />
             <FullCalendarDemo />
             {/* Asegúrate de pasar el número de teléfono del cliente que se está gestionando */}
-            <GeneradorCodigo telefono="123456789" />
+            <GeneradorCodigo />
         </div>
     );
 };
