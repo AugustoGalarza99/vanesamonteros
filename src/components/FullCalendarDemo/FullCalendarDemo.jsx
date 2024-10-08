@@ -4,14 +4,16 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { db } from '../../firebaseConfig';
-import { collection, getDocs, query, where, doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, onSnapshot, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import './FullCalendarDemo.css';
+import TurnDurationConfig from '../TurnDurationConfig/TurnDurationConfig';
 
-const FullCalendarDemo = () => {
+const FullCalendarDemo = ({ blockedTimes, extraShifts }) => {
   const [events, setEvents] = useState([]);
   const [uidPeluquero, setUidPeluquero] = useState(null);
   const [workSchedule, setWorkSchedule] = useState({});
+  const [slotDuration, setSlotDuration] = useState('01:00:00'); // Duración por defecto de 1 hora
 
   useEffect(() => {
     const auth = getAuth();
@@ -20,11 +22,13 @@ const FullCalendarDemo = () => {
     if (user) {
       setUidPeluquero(user.uid);
       loadWorkSchedule(user.uid);
+      fetchTurnDuration(user.uid); // Cargar la duración del turno desde Firebase
     } else {
       console.log('No hay usuario autenticado.');
     }
   }, []);
 
+  // Cargar el horario de trabajo del peluquero
   const loadWorkSchedule = async (uid) => {
     const scheduleDocRef = doc(db, 'horarios', uid);
     const unsubscribe = onSnapshot(scheduleDocRef, (scheduleDoc) => {
@@ -35,7 +39,19 @@ const FullCalendarDemo = () => {
       }
     });
 
-    return () => unsubscribe(); // Cleanup subscription on unmount
+    return () => unsubscribe();
+  };
+
+  // Cargar la duración del turno desde Firebase
+  const fetchTurnDuration = async (uid) => {
+    const docRef = doc(db, 'peluqueros', uid);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      if (data.turnDuration) {
+        setSlotDuration(data.turnDuration); // Actualiza la duración de los slots en el calendario
+      }
+    }
   };
 
   useEffect(() => {
@@ -75,7 +91,7 @@ const FullCalendarDemo = () => {
 
     Object.keys(workSchedule).forEach((day) => {
       if (!workSchedule[day].isWorking) {
-        nonWorkingDays.push(dayToNumber(day)); // Bloquea días no laborales
+        nonWorkingDays.push(dayToNumber(day));
       }
     });
 
@@ -97,12 +113,20 @@ const FullCalendarDemo = () => {
 
   const { nonWorkingDays } = getNonWorkingDaysAndHours();
 
+  const combinedEvents = [...events, ...blockedTimes, ...extraShifts]; // Recibe eventos de turnos y bloqueos
+
+  const handleDurationChange = (newDuration) => {
+    setSlotDuration(newDuration); // Cambiamos la duración de los turnos en el calendario
+  };
+
   return (
     <div className="fullcalendar-wrapper">
+      <TurnDurationConfig onDurationChange={handleDurationChange} />
+
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="timeGridWeek"
-        events={events}
+        events={combinedEvents}
         editable={true}
         droppable={true}
         headerToolbar={{
@@ -111,8 +135,8 @@ const FullCalendarDemo = () => {
           right: 'dayGridMonth,timeGridWeek,timeGridDay',
         }}
         locale="es"
-        hiddenDays={nonWorkingDays} // Oculta los días no laborales
-        slotDuration="01:00:00"
+        hiddenDays={nonWorkingDays}
+        slotDuration={slotDuration} // Actualiza la duración del slot según lo seleccionado por el peluquero
       />
     </div>
   );

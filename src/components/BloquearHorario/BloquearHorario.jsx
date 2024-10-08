@@ -1,28 +1,29 @@
-// BloquearHorario.jsx
 import React, { useState } from 'react';
-import { db } from '../../firebaseConfig';
-import { doc, setDoc } from 'firebase/firestore';
 
-const BloquearHorario = () => {
-    const [horario, setHorario] = useState('');
+const BloquearHorario = ({ onAddBlockedTime }) => {
+  const [fecha, setFecha] = useState('');
+  const [hora, setHora] = useState('');
 
-    const handleBloquear = async () => {
-        const nuevoBloqueo = {
-            horario,
-            estado: 'bloqueado',
-        };
+  const handleBloquear = () => {
+    if (fecha && hora) {
+      const bloqueado = {
+        title: 'Bloqueado',
+        start: `${fecha}T${hora}`,
+        color: '#ff0000', // Color rojo para bloqueos
+        display: 'background',
+      };
+      onAddBlockedTime(bloqueado); // Enviar el bloqueo al calendario
+    }
+  };
 
-        await setDoc(doc(db, 'bloqueos', horario), nuevoBloqueo);
-        alert('Horario bloqueado.');
-    };
-
-    return (
-        <div>
-            <h2>Bloquear Horario</h2>
-            <input type="time" value={horario} onChange={(e) => setHorario(e.target.value)} required />
-            <button onClick={handleBloquear}>Bloquear</button>
-        </div>
-    );
+  return (
+    <div>
+      <h3>Bloquear Horario</h3>
+      <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
+      <input type="time" value={hora} onChange={(e) => setHora(e.target.value)} />
+      <button onClick={handleBloquear}>Bloquear</button>
+    </div>
+  );
 };
 
 export default BloquearHorario;
