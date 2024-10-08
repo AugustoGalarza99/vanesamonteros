@@ -15,8 +15,11 @@ const AgregarTurnoExtra = ({ uidPeluquero }) => {
         uidPeluquero,
         fecha,
         hora,
+        duracion: 60, // Duración en minutos por defecto
       });
       setMensaje('Turno extra añadido exitosamente.');
+      setFecha('');
+      setHora('');
     } catch (error) {
       console.error('Error al agregar turno extra:', error);
       setMensaje('Error al agregar turno extra.');

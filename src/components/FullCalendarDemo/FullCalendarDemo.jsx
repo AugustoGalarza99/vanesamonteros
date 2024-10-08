@@ -4,10 +4,11 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { db } from '../../firebaseConfig';
-import { collection, getDocs, query, where, doc, onSnapshot, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, onSnapshot, getDoc, addDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import './FullCalendarDemo.css';
 import TurnDurationConfig from '../TurnDurationConfig/TurnDurationConfig';
+import BloquearHorario from '../BloquearHorario/BloquearHorario'; // Importar el nuevo componente
 
 const FullCalendarDemo = ({ blockedTimes, extraShifts }) => {
   const [events, setEvents] = useState([]);
@@ -23,6 +24,8 @@ const FullCalendarDemo = ({ blockedTimes, extraShifts }) => {
       setUidPeluquero(user.uid);
       loadWorkSchedule(user.uid);
       fetchTurnDuration(user.uid); // Cargar la duración del turno desde Firebase
+      fetchReservasAndTurnosExtras(user.uid); // Cargar reservas y turnos extra desde Firebase
+      fetchBlockedTimes(user.uid); // Cargar horarios bloqueados desde Firebase
     } else {
       console.log('No hay usuario autenticado.');
     }
@@ -54,37 +57,70 @@ const FullCalendarDemo = ({ blockedTimes, extraShifts }) => {
     }
   };
 
-  useEffect(() => {
-    const fetchReservas = async () => {
-      if (uidPeluquero) {
-        const reservasRef = collection(db, 'reservas');
-        const q = query(reservasRef, where('uidPeluquero', '==', uidPeluquero));
-        const querySnapshot = await getDocs(q);
-        const eventos = [];
+  // Cargar reservas y turnos extra desde Firebase
+  const fetchReservasAndTurnosExtras = async (uid) => {
+    const reservasRef = collection(db, 'reservas');
+    const qReservas = query(reservasRef, where('uidPeluquero', '==', uid));
+    const querySnapshotReservas = await getDocs(qReservas);
+    
+    const turnosRef = collection(db, 'turnosExtras');
+    const qTurnos = query(turnosRef, where('uidPeluquero', '==', uid));
+    const querySnapshotTurnos = await getDocs(qTurnos);
 
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          const start = `${data.fecha}T${data.hora}`;
-          const [hours, minutes] = data.hora.split(':');
-          const endHour = parseInt(hours) + Math.floor(data.duracion / 60);
-          const endMinute = parseInt(minutes) + (data.duracion % 60);
+    const eventos = new Set(); // Usar un Set para evitar duplicados
 
-          const end = `${data.fecha}T${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}:00`;
+    // Agregar las reservas
+    querySnapshotReservas.forEach((doc) => {
+      const data = doc.data();
+      const start = `${data.fecha}T${data.hora}`;
+      const [hours, minutes] = data.hora.split(':');
+      const endHour = parseInt(hours) + Math.floor(data.duracion / 60);
+      const endMinute = parseInt(minutes) + (data.duracion % 60);
 
-          eventos.push({
-            title: `${data.servicio} - ${data.nombre} ${data.apellido}`,
-            start,
-            end,
-            color: '#f28b82',
-          });
-        });
+      const end = `${data.fecha}T${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}:00`;
 
-        setEvents(eventos);
-      }
-    };
+      eventos.add(JSON.stringify({ // Usar JSON.stringify para evitar duplicados
+        title: `${data.servicio} - ${data.nombre} ${data.apellido}`,
+        start,
+        end,
+        color: '#f28b82',
+      }));
+    });
 
-    fetchReservas();
-  }, [uidPeluquero]);
+    // Agregar los turnos extra
+    querySnapshotTurnos.forEach((doc) => {
+      const data = doc.data();
+      eventos.add(JSON.stringify({ // Usar JSON.stringify para evitar duplicados
+        title: `${data.servicio} - ${data.nombre}`,
+        start: `${data.fecha}T${data.hora}`,
+        color: '#00ff00', // Color verde para turnos extra
+      }));
+    });
+
+    setEvents(Array.from(eventos).map(event => JSON.parse(event))); // Convertir de vuelta a objeto
+  };
+
+  // Cargar los horarios bloqueados desde Firebase
+  const fetchBlockedTimes = async (uid) => {
+    const bloqueosRef = collection(db, 'bloqueos');
+    const qBloqueos = query(bloqueosRef, where('uidPeluquero', '==', uid));
+    const querySnapshotBloqueos = await getDocs(qBloqueos);
+
+    const bloqueos = [];
+
+    querySnapshotBloqueos.forEach((doc) => {
+      const data = doc.data();
+      bloqueos.push({
+        title: data.title,
+        start: data.start,
+        end: data.end,
+        color: data.color,
+      });
+    });
+
+    // Añadir los bloqueos a los eventos
+    setEvents((prevEvents) => [...prevEvents, ...bloqueos]);
+  };
 
   const getNonWorkingDaysAndHours = () => {
     const nonWorkingDays = [];
@@ -119,9 +155,30 @@ const FullCalendarDemo = ({ blockedTimes, extraShifts }) => {
     setSlotDuration(newDuration); // Cambiamos la duración de los turnos en el calendario
   };
 
+// Función para agregar horarios bloqueados a Firebase
+const handleAddBlockedTime = async (bloqueado) => {
+  try {
+    const bloqueosRef = collection(db, 'bloqueos'); // Asegúrate de tener la colección "bloqueos" en Firestore
+    const dataToSave = {
+      uidPeluquero: bloqueado.uidPeluquero, // Asegúrate de que uidPeluquero está definido
+      title: bloqueado.title,
+      start: new Date(bloqueado.start).toISOString(), // Convertir a formato ISO
+      end: new Date(bloqueado.end).toISOString(), // Convertir a formato ISO
+      color: bloqueado.color,
+      display: bloqueado.display,
+    };
+    await addDoc(bloqueosRef, dataToSave);
+    // Luego puedes volver a cargar los eventos para reflejar los cambios
+    fetchBlockedTimes(uidPeluquero); // Cargar los bloqueos nuevamente después de agregar uno nuevo
+  } catch (error) {
+    console.error('Error al agregar horario bloqueado:', error);
+  }
+};
+
   return (
     <div className="fullcalendar-wrapper">
       <TurnDurationConfig onDurationChange={handleDurationChange} />
+      <BloquearHorario uidPeluquero={uidPeluquero} onAddBlockedTime={handleAddBlockedTime} /> {/* Incluir el nuevo componente */}
 
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
