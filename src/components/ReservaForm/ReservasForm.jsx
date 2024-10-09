@@ -20,6 +20,7 @@ const ReservasForm = () => {
     const [whatsapp, setWhatsapp] = useState('');
     const [servicios, setServicios] = useState([]); // Servicios disponibles
     const [peluqueros, setPeluqueros] = useState([]); // Estado para almacenar la lista de peluqueros
+    const [horariosDisponibles, setHorariosDisponibles] = useState([]); // Horarios disponibles
 
     const navigate = useNavigate();
 
@@ -72,6 +73,93 @@ const ReservasForm = () => {
 
         fetchPeluqueros();
     }, []);
+
+    // Obtener horarios disponibles del peluquero seleccionado
+// Obtener horarios disponibles del peluquero seleccionado
+useEffect(() => {
+    const fetchHorariosDisponibles = async () => {
+        if (profesional && fecha) {
+            try {
+                // Obtener el documento del peluquero
+                const peluqueroRef = doc(db, 'peluqueros', profesional);
+                const peluqueroDoc = await getDoc(peluqueroRef);
+
+                if (peluqueroDoc.exists()) {
+                    const peluqueroData = peluqueroDoc.data();
+                    const uidPeluquero = peluqueroData.uid; // Obtener el UID
+
+                    // Buscar horarios usando el UID del peluquero
+                    const horariosRef = doc(db, 'horarios', uidPeluquero);
+                    const horariosDoc = await getDoc(horariosRef);
+
+                    if (horariosDoc.exists()) {
+                        const horariosData = horariosDoc.data();
+                        const dia = new Date(fecha).toLocaleString('es-ES', { weekday: 'long' }).toLowerCase(); // Obtener el día seleccionado
+                        console.log('Día seleccionado:', dia); // Log para verificar el día
+
+                        const horariosDelDia = horariosData[dia]; // Obtener horarios de ese día
+                        console.log('Horarios del día:', horariosDelDia); // Log para verificar horarios del día
+
+                        if (horariosDelDia && horariosDelDia.isWorking) {
+                            const availableSlots = []; // Arreglo para los horarios disponibles
+                            
+                            // Horarios de la mañana
+                            const startHour1 = horariosDelDia.start1; // Inicio de la mañana
+                            const endHour1 = horariosDelDia.end1; // Fin de la mañana
+                            
+                            let startTime = new Date(`1970-01-01T${startHour1}:00`);
+                            let endTime = new Date(`1970-01-01T${endHour1}:00`);
+                            
+                            while (startTime < endTime) {
+                                const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                availableSlots.push(slotTime);
+                                startTime.setMinutes(startTime.getMinutes() + 30); // Incrementar 30 minutos
+                            }
+
+                            // Horarios de la tarde
+                            const startHour2 = horariosDelDia.start2; // Inicio de la tarde
+                            const endHour2 = horariosDelDia.end2; // Fin de la tarde
+
+                            startTime = new Date(`1970-01-01T${startHour2}:00`);
+                            endTime = new Date(`1970-01-01T${endHour2}:00`);
+
+                            while (startTime < endTime) {
+                                const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                availableSlots.push(slotTime);
+                                startTime.setMinutes(startTime.getMinutes() + 30); // Incrementar 30 minutos
+                            }
+
+                            // Filtrar horarios ocupados
+                            const reservasRef = collection(db, 'reservas');
+                            const queryReservas = query(reservasRef, where('fecha', '==', fecha), where('uidPeluquero', '==', uidPeluquero));
+                            const querySnapshot = await getDocs(queryReservas);
+                            const ocupados = querySnapshot.docs.map(doc => doc.data().hora); // Obtener las horas ocupadas
+
+                            const horariosFiltrados = availableSlots.filter(slot => !ocupados.includes(slot)); // Filtrar los ocupados
+                            setHorariosDisponibles(horariosFiltrados); // Guardar los horarios disponibles en el estado
+                        } else {
+                            console.log('El peluquero no trabaja este día.');
+                            setHorariosDisponibles([]); // Sin horarios disponibles
+                        }
+                    } else {
+                        console.log('No se encontró horario para el peluquero seleccionado.');
+                    }
+                } else {
+                    console.log('No se encontró el peluquero seleccionado.');
+                }
+            } catch (error) {
+                console.error('Error obteniendo horarios:', error);
+            }
+        }
+    };
+
+    fetchHorariosDisponibles();
+}, [profesional, fecha]); // Dependencias para volver a ejecutar la consulta
+
+
+
+
+
 
     const handleAgendar = async (e) => {
         e.preventDefault(); // Evitar el comportamiento predeterminado del formulario
@@ -175,9 +263,18 @@ const ReservasForm = () => {
                     <input className='select-seccion2' type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} required />
                 </div>
                 <div className='div-date'>
-                    <label className='titulo-servicio'>Elige tu hora</label>
-                    <input className='select-seccion2' type="time" value={hora} onChange={(e) => setHora(e.target.value)} required />
-                </div>
+    <label className='titulo-servicio'>Elige tu hora</label>
+    <select className='select-seccion2' value={hora} onChange={(e) => setHora(e.target.value)} required>
+        <option value="" disabled>Seleccione un horario</option>
+        {horariosDisponibles.length > 0 ? (
+            horariosDisponibles.map((slot, index) => (
+                <option key={index} value={slot}>{slot}</option>
+            ))
+        ) : (
+            <option value="" disabled>No hay horarios disponibles</option>
+        )}
+    </select>
+</div>
             </div>
             <div>
                 <button className='button-agendar' type="submit">

@@ -5,13 +5,13 @@ import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 const WorkScheduleConfig = () => {
   const [workDays, setWorkDays] = useState({
-    monday: { start: '', end: '', isWorking: false },
-    tuesday: { start: '', end: '', isWorking: false },
-    wednesday: { start: '', end: '', isWorking: false },
-    thursday: { start: '', end: '', isWorking: false },
-    friday: { start: '', end: '', isWorking: false },
-    saturday: { start: '', end: '', isWorking: false },
-    sunday: { start: '', end: '', isWorking: false },
+    lunes: { start1: '', end1: '', start2: '', end2: '', isWorking: false },
+    martes: { start1: '', end1: '', start2: '', end2: '', isWorking: false },
+    miércoles: { start1: '', end1: '', start2: '', end2: '', isWorking: false },
+    jueves: { start1: '', end1: '', start2: '', end2: '', isWorking: false },
+    viernes: { start1: '', end1: '', start2: '', end2: '', isWorking: false },
+    sábado: { start1: '', end1: '', start2: '', end2: '', isWorking: false },
+    domingo: { start1: '', end1: '', start2: '', end2: '', isWorking: false },
   });
   const [uidPeluquero, setUidPeluquero] = useState(null);
 
@@ -71,20 +71,38 @@ const WorkScheduleConfig = () => {
           </label>
           {workDays[day].isWorking && (
             <>
+              {/* Primer rango horario */}
               <label>
-                Hora de inicio:
+                Hora de inicio 1:
                 <input
                   type="time"
-                  value={workDays[day].start}
-                  onChange={(e) => handleChange(day, 'start', e.target.value)}
+                  value={workDays[day].start1}
+                  onChange={(e) => handleChange(day, 'start1', e.target.value)}
                 />
               </label>
               <label>
-                Hora de fin:
+                Hora de fin 1:
                 <input
                   type="time"
-                  value={workDays[day].end}
-                  onChange={(e) => handleChange(day, 'end', e.target.value)}
+                  value={workDays[day].end1}
+                  onChange={(e) => handleChange(day, 'end1', e.target.value)}
+                />
+              </label>
+              {/* Segundo rango horario */}
+              <label>
+                Hora de inicio 2:
+                <input
+                  type="time"
+                  value={workDays[day].start2}
+                  onChange={(e) => handleChange(day, 'start2', e.target.value)}
+                />
+              </label>
+              <label>
+                Hora de fin 2:
+                <input
+                  type="time"
+                  value={workDays[day].end2}
+                  onChange={(e) => handleChange(day, 'end2', e.target.value)}
                 />
               </label>
             </>
