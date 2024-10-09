@@ -1,20 +1,25 @@
+// FullCalendarDemo.jsx
+
 import React, { useEffect, useState } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { db } from '../../firebaseConfig';
-import { collection, getDocs, query, where, doc, onSnapshot, getDoc, addDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, onSnapshot, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import './FullCalendarDemo.css';
 import TurnDurationConfig from '../TurnDurationConfig/TurnDurationConfig';
-import BloquearHorario from '../BloquearHorario/BloquearHorario'; // Importar el nuevo componente
+import ReservarTurnoManual from '../ReservaTurnoManual/ReservaTurnoManual';
+import EventActions from '../EventActions/EventActions'; // Importar el nuevo componente
 
-const FullCalendarDemo = ({ blockedTimes, extraShifts }) => {
+const FullCalendarDemo = ({ extraShifts }) => {
   const [events, setEvents] = useState([]);
   const [uidPeluquero, setUidPeluquero] = useState(null);
   const [workSchedule, setWorkSchedule] = useState({});
   const [slotDuration, setSlotDuration] = useState('01:00:00'); // Duración por defecto de 1 hora
+  const [reservas, setReservas] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null); // Estado para el evento seleccionado
 
   useEffect(() => {
     const auth = getAuth();
@@ -25,7 +30,6 @@ const FullCalendarDemo = ({ blockedTimes, extraShifts }) => {
       loadWorkSchedule(user.uid);
       fetchTurnDuration(user.uid); // Cargar la duración del turno desde Firebase
       fetchReservasAndTurnosExtras(user.uid); // Cargar reservas y turnos extra desde Firebase
-      fetchBlockedTimes(user.uid); // Cargar horarios bloqueados desde Firebase
     } else {
       console.log('No hay usuario autenticado.');
     }
@@ -79,47 +83,30 @@ const FullCalendarDemo = ({ blockedTimes, extraShifts }) => {
 
       const end = `${data.fecha}T${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}:00`;
 
-      eventos.add(JSON.stringify({ // Usar JSON.stringify para evitar duplicados
+      eventos.add(JSON.stringify({
+        id: doc.id, // Almacenar el ID del documento
         title: `${data.servicio} - ${data.nombre} ${data.apellido}`,
         start,
         end,
-        color: '#f28b82',
+        color: '#f28b82', // Color por defecto para reservas
+        status: 'reservado' // Estado por defecto
       }));
     });
 
     // Agregar los turnos extra
     querySnapshotTurnos.forEach((doc) => {
       const data = doc.data();
-      eventos.add(JSON.stringify({ // Usar JSON.stringify para evitar duplicados
+      eventos.add(JSON.stringify({
+        id: doc.id, // Almacenar el ID del documento
         title: `${data.servicio} - ${data.nombre}`,
         start: `${data.fecha}T${data.hora}`,
         color: '#00ff00', // Color verde para turnos extra
+        status: 'extra' // Estado para turnos extra
       }));
     });
 
     setEvents(Array.from(eventos).map(event => JSON.parse(event))); // Convertir de vuelta a objeto
-  };
-
-  // Cargar los horarios bloqueados desde Firebase
-  const fetchBlockedTimes = async (uid) => {
-    const bloqueosRef = collection(db, 'bloqueos');
-    const qBloqueos = query(bloqueosRef, where('uidPeluquero', '==', uid));
-    const querySnapshotBloqueos = await getDocs(qBloqueos);
-
-    const bloqueos = [];
-
-    querySnapshotBloqueos.forEach((doc) => {
-      const data = doc.data();
-      bloqueos.push({
-        title: data.title,
-        start: data.start,
-        end: data.end,
-        color: data.color,
-      });
-    });
-
-    // Añadir los bloqueos a los eventos
-    setEvents((prevEvents) => [...prevEvents, ...bloqueos]);
+    setReservas(Array.from(eventos).map(event => JSON.parse(event))); // Guardamos las reservas para el bloqueo
   };
 
   const getNonWorkingDaysAndHours = () => {
@@ -149,37 +136,29 @@ const FullCalendarDemo = ({ blockedTimes, extraShifts }) => {
 
   const { nonWorkingDays } = getNonWorkingDaysAndHours();
 
-  const combinedEvents = [...events, ...blockedTimes, ...extraShifts]; // Recibe eventos de turnos y bloqueos
+  const combinedEvents = [...events, ...extraShifts]; // Recibe eventos de turnos y turnos extra
 
   const handleDurationChange = (newDuration) => {
     setSlotDuration(newDuration); // Cambiamos la duración de los turnos en el calendario
   };
 
-// Función para agregar horarios bloqueados a Firebase
-const handleAddBlockedTime = async (bloqueado) => {
-  try {
-    const bloqueosRef = collection(db, 'bloqueos'); // Asegúrate de tener la colección "bloqueos" en Firestore
-    const dataToSave = {
-      uidPeluquero: bloqueado.uidPeluquero, // Asegúrate de que uidPeluquero está definido
-      title: bloqueado.title,
-      start: new Date(bloqueado.start).toISOString(), // Convertir a formato ISO
-      end: new Date(bloqueado.end).toISOString(), // Convertir a formato ISO
-      color: bloqueado.color,
-      display: bloqueado.display,
-    };
-    await addDoc(bloqueosRef, dataToSave);
-    // Luego puedes volver a cargar los eventos para reflejar los cambios
-    fetchBlockedTimes(uidPeluquero); // Cargar los bloqueos nuevamente después de agregar uno nuevo
-  } catch (error) {
-    console.error('Error al agregar horario bloqueado:', error);
-  }
-};
+  const handleEventClick = (info) => {
+    setSelectedEvent({
+      id: info.event.id, // Almacenar el ID del evento
+      title: info.event.title,
+      start: info.event.start,
+      end: info.event.end,
+      color: info.event.color,
+      status: info.event.extendedProps.status // Almacenar el estado del evento
+    });
+  };
 
   return (
     <div className="fullcalendar-wrapper">
       <TurnDurationConfig onDurationChange={handleDurationChange} />
-      <BloquearHorario uidPeluquero={uidPeluquero} onAddBlockedTime={handleAddBlockedTime} /> {/* Incluir el nuevo componente */}
-
+      {/* Pasamos workSchedule como prop a ReservarTurnoManual */}
+      <ReservarTurnoManual uidPeluquero={uidPeluquero} workSchedule={workSchedule} />
+      
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="timeGridWeek"
@@ -194,7 +173,18 @@ const handleAddBlockedTime = async (bloqueado) => {
         locale="es"
         hiddenDays={nonWorkingDays}
         slotDuration={slotDuration} // Actualiza la duración del slot según lo seleccionado por el peluquero
+        eventClick={handleEventClick} // Manejar clic en eventos
       />
+      
+      {selectedEvent && (
+       <EventActions 
+       selectedEvent={selectedEvent} 
+       setSelectedEvent={setSelectedEvent} 
+       events={events} 
+       setEvents={setEvents} 
+       fetchReservasAndTurnosExtras={fetchReservasAndTurnosExtras} 
+     />          
+      )}
     </div>
   );
 };

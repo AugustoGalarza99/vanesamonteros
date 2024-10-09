@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
 import GeneradorCodigo from '../GeneradorCodigo/GeneradorCodigo';
-import BloquearHorario from '../BloquearHorario/BloquearHorario';
+
 import FullCalendarDemo from '../FullCalendarDemo/FullCalendarDemo';
 import AgregarServicios from '../AgregarServicios/AgregarServicios';
 import WorkScheduleConfig from '../WorkScheduleConfig/WorkScheduleConfig';
-import AgregarTurnoManual from '../AgendarTurnoManual/AgendarTurnoManual'; // Componente para turnos manuales
+
 
 
 const PanelPeluquero = () => {
@@ -38,14 +38,7 @@ const PanelPeluquero = () => {
             <h1>Panel del Peluquero</h1>
             <AgregarServicios />
             <WorkScheduleConfig />
-            
-            {/* Componente para bloquear horarios */}
-            <BloquearHorario uidPeluquero={uidPeluquero} onAddBlockedTime={handleAddBlockedTime} />
-
-
-            {/* Componente para agregar turnos extra manualmente */}
-            <AgregarTurnoManual uidPeluquero={uidPeluquero} onAddExtraShift={handleAddExtraShift} />
-
+ 
             {/* Pasar los eventos bloqueados y turnos extra a FullCalendarDemo */}
             <FullCalendarDemo 
                 blockedTimes={blockedTimes} 
