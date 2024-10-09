@@ -39,7 +39,7 @@ function App() {
   }, [user]);
 
   return (
-    <Router basename="/turnero" >
+    <Router>
       <Navbar isPeluquero={isPeluquero} /> {/* Pasamos el estado isPeluquero al Navbar */}
       <div>
         <Routes>
