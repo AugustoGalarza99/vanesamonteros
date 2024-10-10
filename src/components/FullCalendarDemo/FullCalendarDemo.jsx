@@ -1,5 +1,3 @@
-// FullCalendarDemo.jsx
-
 import React, { useEffect, useState } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -11,15 +9,15 @@ import { getAuth } from 'firebase/auth';
 import './FullCalendarDemo.css';
 import TurnDurationConfig from '../TurnDurationConfig/TurnDurationConfig';
 import ReservarTurnoManual from '../ReservaTurnoManual/ReservaTurnoManual';
-import EventActions from '../EventActions/EventActions'; // Importar el nuevo componente
+import EventActions from '../EventActions/EventActions';
 
 const FullCalendarDemo = ({ extraShifts }) => {
   const [events, setEvents] = useState([]);
   const [uidPeluquero, setUidPeluquero] = useState(null);
   const [workSchedule, setWorkSchedule] = useState({});
-  const [slotDuration, setSlotDuration] = useState('01:00:00'); // Duración por defecto de 1 hora
+  const [slotDuration, setSlotDuration] = useState('01:00:00');
   const [reservas, setReservas] = useState([]);
-  const [selectedEvent, setSelectedEvent] = useState(null); // Estado para el evento seleccionado
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   useEffect(() => {
     const auth = getAuth();
@@ -28,14 +26,13 @@ const FullCalendarDemo = ({ extraShifts }) => {
     if (user) {
       setUidPeluquero(user.uid);
       loadWorkSchedule(user.uid);
-      fetchTurnDuration(user.uid); // Cargar la duración del turno desde Firebase
-      fetchReservasAndTurnosExtras(user.uid); // Cargar reservas y turnos extra desde Firebase
+      fetchTurnDuration(user.uid);
+      fetchReservasAndTurnosExtras(user.uid);
     } else {
       console.log('No hay usuario autenticado.');
     }
   }, []);
 
-  // Cargar el horario de trabajo del peluquero
   const loadWorkSchedule = async (uid) => {
     const scheduleDocRef = doc(db, 'horarios', uid);
     const unsubscribe = onSnapshot(scheduleDocRef, (scheduleDoc) => {
@@ -49,65 +46,67 @@ const FullCalendarDemo = ({ extraShifts }) => {
     return () => unsubscribe();
   };
 
-  // Cargar la duración del turno desde Firebase
   const fetchTurnDuration = async (uid) => {
     const docRef = doc(db, 'peluqueros', uid);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       const data = docSnap.data();
       if (data.turnDuration) {
-        setSlotDuration(data.turnDuration); // Actualiza la duración de los slots en el calendario
+        setSlotDuration(data.turnDuration);
       }
     }
   };
 
-  // Cargar reservas y turnos extra desde Firebase
-  const fetchReservasAndTurnosExtras = async (uid) => {
-    const reservasRef = collection(db, 'reservas');
-    const qReservas = query(reservasRef, where('uidPeluquero', '==', uid));
-    const querySnapshotReservas = await getDocs(qReservas);
+// Cargar reservas y turnos extra desde Firebase
+const fetchReservasAndTurnosExtras = async (uid) => {
+  const reservasRef = collection(db, 'reservas');
+  const qReservas = query(reservasRef, where('uidPeluquero', '==', uid));
+  const querySnapshotReservas = await getDocs(qReservas);
+  
+  const turnosRef = collection(db, 'turnosExtras');
+  const qTurnos = query(turnosRef, where('uidPeluquero', '==', uid));
+  const querySnapshotTurnos = await getDocs(qTurnos);
+
+  const eventos = new Set(); // Usar un Set para evitar duplicados
+
+  // Agregar las reservas
+  querySnapshotReservas.forEach((doc) => {
+    const data = doc.data();
+    console.log("Reserva obtenida de Firebase:", data); // <-- Log para ver todos los campos, incluido `telefono`
+
+    const start = `${data.fecha}T${data.hora}`;
+    const [hours, minutes] = data.hora.split(':');
+    const endHour = parseInt(hours) + Math.floor(data.duracion / 60);
+    const endMinute = parseInt(minutes) + (data.duracion % 60);
     
-    const turnosRef = collection(db, 'turnosExtras');
-    const qTurnos = query(turnosRef, where('uidPeluquero', '==', uid));
-    const querySnapshotTurnos = await getDocs(qTurnos);
+    const end = `${data.fecha}T${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}:00`;
 
-    const eventos = new Set(); // Usar un Set para evitar duplicados
+    eventos.add(JSON.stringify({
+      id: doc.id, 
+      title: `${data.servicio} - ${data.nombre} ${data.apellido}`,
+      start,
+      end,
+      color: '#f28b82', 
+      status: 'reservado',
+      phoneNumber: data.telefono // Asegúrate de que el número de teléfono esté aquí
+    }));
+  });
 
-    // Agregar las reservas
-    querySnapshotReservas.forEach((doc) => {
-      const data = doc.data();
-      const start = `${data.fecha}T${data.hora}`;
-      const [hours, minutes] = data.hora.split(':');
-      const endHour = parseInt(hours) + Math.floor(data.duracion / 60);
-      const endMinute = parseInt(minutes) + (data.duracion % 60);
+  // Agregar los turnos extra
+  querySnapshotTurnos.forEach((doc) => {
+    const data = doc.data();
+    eventos.add(JSON.stringify({
+      id: doc.id, 
+      title: `${data.servicio} - ${data.nombre}`,
+      start: `${data.fecha}T${data.hora}`,
+      color: '#00ff00', 
+      status: 'extra'
+    }));
+  });
 
-      const end = `${data.fecha}T${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}:00`;
-
-      eventos.add(JSON.stringify({
-        id: doc.id, // Almacenar el ID del documento
-        title: `${data.servicio} - ${data.nombre} ${data.apellido}`,
-        start,
-        end,
-        color: '#f28b82', // Color por defecto para reservas
-        status: 'reservado' // Estado por defecto
-      }));
-    });
-
-    // Agregar los turnos extra
-    querySnapshotTurnos.forEach((doc) => {
-      const data = doc.data();
-      eventos.add(JSON.stringify({
-        id: doc.id, // Almacenar el ID del documento
-        title: `${data.servicio} - ${data.nombre}`,
-        start: `${data.fecha}T${data.hora}`,
-        color: '#00ff00', // Color verde para turnos extra
-        status: 'extra' // Estado para turnos extra
-      }));
-    });
-
-    setEvents(Array.from(eventos).map(event => JSON.parse(event))); // Convertir de vuelta a objeto
-    setReservas(Array.from(eventos).map(event => JSON.parse(event))); // Guardamos las reservas para el bloqueo
-  };
+  setEvents(Array.from(eventos).map(event => JSON.parse(event))); // Convertir de vuelta a objeto
+  setReservas(Array.from(eventos).map(event => JSON.parse(event))); // Guardamos las reservas para el bloqueo
+};
 
   const getNonWorkingDaysAndHours = () => {
     const nonWorkingDays = [];
@@ -136,27 +135,30 @@ const FullCalendarDemo = ({ extraShifts }) => {
 
   const { nonWorkingDays } = getNonWorkingDaysAndHours();
 
-  const combinedEvents = [...events, ...extraShifts]; // Recibe eventos de turnos y turnos extra
+  const combinedEvents = [...events, ...extraShifts];
 
   const handleDurationChange = (newDuration) => {
-    setSlotDuration(newDuration); // Cambiamos la duración de los turnos en el calendario
+    setSlotDuration(newDuration);
   };
 
   const handleEventClick = (info) => {
+    console.log("Evento seleccionado en el calendario:", info.event);
     setSelectedEvent({
-      id: info.event.id, // Almacenar el ID del evento
+      id: info.event.id,
       title: info.event.title,
       start: info.event.start,
       end: info.event.end,
       color: info.event.color,
-      status: info.event.extendedProps.status // Almacenar el estado del evento
+      status: info.event.extendedProps.status, // Asegurarse de acceder a extendedProps
+      phoneNumber: info.event.extendedProps.phoneNumber // Acceso correcto al número de teléfono
     });
   };
+  
+  
 
   return (
     <div className="fullcalendar-wrapper">
       <TurnDurationConfig onDurationChange={handleDurationChange} />
-      {/* Pasamos workSchedule como prop a ReservarTurnoManual */}
       <ReservarTurnoManual uidPeluquero={uidPeluquero} workSchedule={workSchedule} />
       
       <FullCalendar
@@ -172,18 +174,17 @@ const FullCalendarDemo = ({ extraShifts }) => {
         }}
         locale="es"
         hiddenDays={nonWorkingDays}
-        slotDuration={slotDuration} // Actualiza la duración del slot según lo seleccionado por el peluquero
-        eventClick={handleEventClick} // Manejar clic en eventos
+        slotDuration={slotDuration}
+        eventClick={handleEventClick}
       />
       
       {selectedEvent && (
-       <EventActions 
-       selectedEvent={selectedEvent} 
-       setSelectedEvent={setSelectedEvent} 
-       events={events} 
-       setEvents={setEvents} 
-       fetchReservasAndTurnosExtras={fetchReservasAndTurnosExtras} 
-     />          
+        <EventActions 
+          selectedEvent={selectedEvent} 
+          setSelectedEvent={setSelectedEvent} 
+          events={events} 
+          setEvents={setEvents} 
+        />
       )}
     </div>
   );
