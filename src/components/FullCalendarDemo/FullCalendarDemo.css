@@ -48,3 +48,10 @@
     margin: auto;
     height: 80px;
   }
+
+
+  .primer-fraccion{
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+  }

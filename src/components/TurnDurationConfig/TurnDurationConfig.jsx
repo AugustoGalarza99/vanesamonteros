@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../firebaseConfig';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import './TurnDurationConfig.css'
 
 const TurnDurationConfig = ({ onDurationChange }) => {
   const [duration, setDuration] = useState('01:00:00'); // Duración por defecto
@@ -53,7 +54,7 @@ const TurnDurationConfig = ({ onDurationChange }) => {
   };
 
   return (
-    <div>
+    <div className='turn'>
       <label htmlFor="turn-duration">Duración del turno: </label>
       <select
         id="turn-duration"

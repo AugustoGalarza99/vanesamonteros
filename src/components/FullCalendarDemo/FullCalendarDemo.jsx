@@ -8,15 +8,16 @@ import { collection, getDocs, query, where, doc, onSnapshot, getDoc } from 'fire
 import { getAuth } from 'firebase/auth';
 import './FullCalendarDemo.css';
 import TurnDurationConfig from '../TurnDurationConfig/TurnDurationConfig';
-import ReservarTurnoManual from '../ReservaTurnoManual/ReservaTurnoManual';
+import ReservarTurnoManual from '../ReservaTurnoManual/ReservaTUrnoManual';
 import EventActions from '../EventActions/EventActions';
+import GeneradorCodigo from '../GeneradorCodigo/GeneradorCodigo';
 
 const FullCalendarDemo = ({ extraShifts }) => {
   const [events, setEvents] = useState([]);
   const [uidPeluquero, setUidPeluquero] = useState(null);
   const [workSchedule, setWorkSchedule] = useState({});
   const [slotDuration, setSlotDuration] = useState('01:00:00');
-  const [reservas, setReservas] = useState([]);
+  const [workingHours, setWorkingHours] = useState({ min: '09:00', max: '18:00' });
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   useEffect(() => {
@@ -38,6 +39,8 @@ const FullCalendarDemo = ({ extraShifts }) => {
     const unsubscribe = onSnapshot(scheduleDocRef, (scheduleDoc) => {
       if (scheduleDoc.exists()) {
         setWorkSchedule(scheduleDoc.data());
+        // Después de obtener el horario, calcular las horas de trabajo
+        calculateWorkingHours(scheduleDoc.data());
       } else {
         console.log('No se encontró el horario.');
       }
@@ -57,88 +60,79 @@ const FullCalendarDemo = ({ extraShifts }) => {
     }
   };
 
-// Cargar reservas y turnos extra desde Firebase
-const fetchReservasAndTurnosExtras = async (uid) => {
-  const reservasRef = collection(db, 'reservas');
-  const qReservas = query(reservasRef, where('uidPeluquero', '==', uid));
-  const querySnapshotReservas = await getDocs(qReservas);
+  // Cargar reservas y turnos extra desde Firebase
+  const fetchReservasAndTurnosExtras = async (uid) => {
+    const reservasRef = collection(db, 'reservas');
+    const qReservas = query(reservasRef, where('uidPeluquero', '==', uid));
+    const querySnapshotReservas = await getDocs(qReservas);
   
-  const turnosRef = collection(db, 'turnosExtras');
-  const qTurnos = query(turnosRef, where('uidPeluquero', '==', uid));
-  const querySnapshotTurnos = await getDocs(qTurnos);
+    const turnosRef = collection(db, 'turnosExtras');
+    const qTurnos = query(turnosRef, where('uidPeluquero', '==', uid));
+    const querySnapshotTurnos = await getDocs(qTurnos);
 
-  const eventos = new Set(); // Usar un Set para evitar duplicados
+    const eventos = new Set(); // Usar un Set para evitar duplicados
 
-  // Agregar las reservas
-  querySnapshotReservas.forEach((doc) => {
-    const data = doc.data();
-    console.log("Reserva obtenida de Firebase:", data); // <-- Log para ver todos los campos, incluido `telefono`
+    // Agregar las reservas
+    querySnapshotReservas.forEach((doc) => {
+      const data = doc.data();
+      console.log("Reserva obtenida de Firebase:", data);
 
-    const start = `${data.fecha}T${data.hora}`;
-    const [hours, minutes] = data.hora.split(':');
-    const endHour = parseInt(hours) + Math.floor(data.duracion / 60);
-    const endMinute = parseInt(minutes) + (data.duracion % 60);
-    
-    const end = `${data.fecha}T${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}:00`;
+      const start = `${data.fecha}T${data.hora}`;
+      const [hours, minutes] = data.hora.split(':');
+      const endHour = parseInt(hours) + Math.floor(data.duracion / 60);
+      const endMinute = parseInt(minutes) + (data.duracion % 60);
+      
+      const end = `${data.fecha}T${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}:00`;
 
-    eventos.add(JSON.stringify({
-      id: doc.id, 
-      title: `${data.servicio} - ${data.nombre} ${data.apellido}`,
-      start,
-      end,
-      color: '#f28b82', 
-      status: 'reservado',
-      phoneNumber: data.telefono // Asegúrate de que el número de teléfono esté aquí
-    }));
-  });
+      eventos.add(JSON.stringify({
+        id: doc.id, 
+        title: `${data.servicio} - ${data.nombre} ${data.apellido}`,
+        start,
+        end,
+        color: '#f28b82', 
+        status: 'reservado',
+        phoneNumber: data.telefono // Asegúrate de que el número de teléfono esté aquí
+      }));
+    });
 
-  // Agregar los turnos extra
-  querySnapshotTurnos.forEach((doc) => {
-    const data = doc.data();
-    eventos.add(JSON.stringify({
-      id: doc.id, 
-      title: `${data.servicio} - ${data.nombre}`,
-      start: `${data.fecha}T${data.hora}`,
-      color: '#00ff00', 
-      status: 'extra'
-    }));
-  });
+    // Agregar los turnos extra
+    querySnapshotTurnos.forEach((doc) => {
+      const data = doc.data();
+      eventos.add(JSON.stringify({
+        id: doc.id, 
+        title: `${data.servicio} - ${data.nombre}`,
+        start: `${data.fecha}T${data.hora}`,
+        color: '#00ff00', 
+        status: 'extra'
+      }));
+    });
 
-  setEvents(Array.from(eventos).map(event => JSON.parse(event))); // Convertir de vuelta a objeto
-  setReservas(Array.from(eventos).map(event => JSON.parse(event))); // Guardamos las reservas para el bloqueo
-};
+    setEvents(Array.from(eventos).map(event => JSON.parse(event))); // Convertir de vuelta a objeto
+  };
 
-  const getNonWorkingDaysAndHours = () => {
-    const nonWorkingDays = [];
+  // Calcular las horas de trabajo basado en la estructura que has proporcionado
+  const calculateWorkingHours = (scheduleData) => {
+    const daysOfWeek = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+    let minHour = '23:59'; // Valor máximo para encontrar el mínimo
+    let maxHour = '00:00'; // Valor mínimo para encontrar el máximo
 
-    Object.keys(workSchedule).forEach((day) => {
-      if (!workSchedule[day].isWorking) {
-        nonWorkingDays.push(dayToNumber(day));
+    daysOfWeek.forEach(day => {
+      if (scheduleData[day]?.isWorking) {
+        // Revisar los horarios de inicio y fin
+        const start1 = scheduleData[day].start1;
+        const end1 = scheduleData[day].end1;
+        const start2 = scheduleData[day].start2;
+        const end2 = scheduleData[day].end2;
+
+        // Comparar las horas de inicio y fin
+        if (start1 < minHour) minHour = start1;
+        if (end1 > maxHour) maxHour = end1;
+        if (start2 < minHour) minHour = start2;
+        if (end2 > maxHour) maxHour = end2;
       }
     });
 
-    return { nonWorkingDays };
-  };
-
-  const dayToNumber = (day) => {
-    const days = {
-      lunes: 1,
-      martes: 2,
-      miercoles: 3,
-      jueves: 4,
-      viernes: 5,
-      sabado: 6,
-      domingo: 0,
-    };
-    return days[day];
-  };
-
-  const { nonWorkingDays } = getNonWorkingDaysAndHours();
-
-  const combinedEvents = [...events, ...extraShifts];
-
-  const handleDurationChange = (newDuration) => {
-    setSlotDuration(newDuration);
+    setWorkingHours({ min: minHour, max: maxHour });
   };
 
   const handleEventClick = (info) => {
@@ -149,22 +143,21 @@ const fetchReservasAndTurnosExtras = async (uid) => {
       start: info.event.start,
       end: info.event.end,
       color: info.event.color,
-      status: info.event.extendedProps.status, // Asegurarse de acceder a extendedProps
-      phoneNumber: info.event.extendedProps.phoneNumber // Acceso correcto al número de teléfono
+      status: info.event.extendedProps.status,
+      phoneNumber: info.event.extendedProps.phoneNumber 
     });
   };
   
-  
-
   return (
     <div className="fullcalendar-wrapper">
-      <TurnDurationConfig onDurationChange={handleDurationChange} />
-      <ReservarTurnoManual uidPeluquero={uidPeluquero} workSchedule={workSchedule} />
-      
+      <div className='primer-fraccion'>
+        <TurnDurationConfig onDurationChange={setSlotDuration} />
+        <GeneradorCodigo />
+      </div>
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="timeGridWeek"
-        events={combinedEvents}
+        events={events}
         editable={true}
         droppable={true}
         headerToolbar={{
@@ -173,10 +166,13 @@ const fetchReservasAndTurnosExtras = async (uid) => {
           right: 'dayGridMonth,timeGridWeek,timeGridDay',
         }}
         locale="es"
-        hiddenDays={nonWorkingDays}
+        hiddenDays={[]}
         slotDuration={slotDuration}
+        slotMinTime={workingHours.min} // Usar slotMinTime
+        slotMaxTime={workingHours.max} // Usar slotMaxTime
         eventClick={handleEventClick}
       />
+      <ReservarTurnoManual uidPeluquero={uidPeluquero} workSchedule={workSchedule} />
       
       {selectedEvent && (
         <EventActions 

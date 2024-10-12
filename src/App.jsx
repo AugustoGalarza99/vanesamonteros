@@ -13,7 +13,6 @@ import Estado from './pages/Estado';
 
 // Componentes simples para las páginas
 const Home = () => <h2>Inicio (Calendario de Turnos)</h2>;
-// const Estado = () => <h2>Estado del Peluquero</h2>;
 const Productos = () => <h2>Productos</h2>;
 
 function App() {

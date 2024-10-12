@@ -55,10 +55,13 @@ const WorkScheduleConfig = () => {
     }));
   };
 
+  // Define the days of the week in the desired order
+  const daysOfWeek = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+
   return (
     <div>
       <h2>Configurar Días y Horarios de Trabajo</h2>
-      {Object.keys(workDays).map((day) => (
+      {daysOfWeek.map((day) => (
         <div key={day}>
           <h3>{day.charAt(0).toUpperCase() + day.slice(1)}</h3>
           <label>

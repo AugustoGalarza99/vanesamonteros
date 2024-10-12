@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig'; // Asegúrate de que la ruta sea correcta
+import './GeneradorCodigo.css'
 
 const GeneradorCodigo = () => {
     const [codigo, setCodigo] = useState(null);
@@ -27,7 +28,7 @@ const GeneradorCodigo = () => {
     };
 
     return (
-        <div>
+        <div className='code'>
             <h3>Generar Código de Verificación</h3>
             <button onClick={generarCodigo} disabled={loading}>
                 {loading ? 'Generando...' : 'Generar Código'}
