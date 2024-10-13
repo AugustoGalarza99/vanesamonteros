@@ -4,6 +4,7 @@ import { doc, getDoc, collection, getDocs, query, where, addDoc } from 'firebase
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
+import Swal from 'sweetalert2';
 import './ReservaForm.css';
 
 const ReservasForm = () => {
@@ -17,10 +18,12 @@ const ReservasForm = () => {
     const [hora, setHora] = useState('');
     const [verificado, setVerificado] = useState(false);
     const [mostrarSolicitarCodigo, setMostrarSolicitarCodigo] = useState(false);
+    const [whatsapp, setWhatsapp] = useState('');
     const [servicios, setServicios] = useState([]);
     const [peluqueros, setPeluqueros] = useState([]);
     const [horariosDisponibles, setHorariosDisponibles] = useState([]);
     const [duracionServicio, setDuracionServicio] = useState(0); // Para almacenar la duración del servicio
+    const [codigoVerificacion, setCodigoVerificacion] = useState(''); // Estado para almacenar el código de verificación
     const navigate = useNavigate();
 
     // Obtener servicios al montar el componente
@@ -205,18 +208,117 @@ const ReservasForm = () => {
                             console.error('Error al crear la reserva:', error);
                         }
                     } else {
-                        alert('Número de teléfono incorrecto o usuario no verificado.');
+                        Swal.fire({
+                            title: 'No estás verificado',
+                            text: 'Debes verificar tu número de DNI y Telefono para agendar un turno.',
+                            icon: 'error',
+                            showCancelButton: true,
+                            confirmButtonText: 'Solicitar Código',
+                            cancelButtonText: 'Cancelar',
+                            background: 'black', // Fondo rojo claro
+                            color: 'white', // Texto rojo oscuro
+                            customClass: {
+                                icon: 'custom-warning-icon', // Clase personalizada para el ícono de advertencia
+                            }
+                        }).then((result) => {
+                            // Aquí es donde se maneja el evento "click" del botón de confirmación
+                            if (result.isConfirmed) {
+                                // Llamar a la función para solicitar el código
+                                handleSolicitarCodigo();
+                            } else if (result.isDismissed) {
+                                console.log('El usuario canceló la solicitud de código');
+                            }
+                        });
                         setVerificado(false);
                         setMostrarSolicitarCodigo(true);
                     }
                 }
             } else {
-                alert('Usuario no encontrado, por favor solicita un código.');
+                Swal.fire({
+                    title: 'No estás verificado',
+                    text: 'Debes verificar tu número de DNI y Telefono para agendar un turno.',
+                    icon: 'error',
+                    showCancelButton: true,
+                    confirmButtonText: 'Solicitar Código',
+                    cancelButtonText: 'Cancelar',
+                    background: 'black', // Fondo rojo claro
+                    color: 'white', // Texto rojo oscuro
+                    customClass: {
+                        icon: 'custom-warning-icon', // Clase personalizada para el ícono de advertencia
+                    }
+                })
                 setVerificado(false);
                 setMostrarSolicitarCodigo(true);
             }
         } catch (error) {
             console.error('Error verificando usuario:', error);
+        }
+    };
+    
+    const handleSolicitarCodigo = async () => {
+        if (whatsapp) {
+            const whatsappUrl = `https://wa.me/${whatsapp}?text=Hola,%20necesito%20un%20código%20de%20verificación%20para%20reservar%20mi%20turno.`;
+            window.open(whatsappUrl, '_blank');
+        } else {
+            try {
+                const peluqueroDocRef = doc(db, 'peluqueros', profesional); // Obtener datos del peluquero por ID
+                const peluqueroDocSnap = await getDoc(peluqueroDocRef);
+    
+                if (peluqueroDocSnap.exists()) {
+                    const whatsappNumber = peluqueroDocSnap.data().whatsapp;
+                    setWhatsapp(whatsappNumber);
+                    window.open(`https://wa.me/${whatsappNumber}?text=Hola,%20necesito%20un%20código%20de%20verificación%20para%20reservar%20mi%20turno.`, `_blank`);
+                } else {
+                    alert('No se encontró el número de WhatsApp del peluquero. Verifica el ID del peluquero.');
+                }
+            } catch (error) {
+                console.error('Error obteniendo el número de WhatsApp:', error);
+            }
+        }
+    };
+
+    const handleVerificarCodigo = async () => {
+        // Verificar el código ingresado por el cliente
+        try {
+            const codigoDocRef = doc(db, 'codigos_verificacion', 'codigo_actual');
+            const codigoDocSnap = await getDoc(codigoDocRef);
+    
+            if (codigoDocSnap.exists()) {
+                const codigoData = codigoDocSnap.data();
+                if (codigoData.codigoVerificacion === parseInt(codigoVerificacion)) {
+                    // Si el código es correcto, guardar el cliente como verificado
+                    await guardarClienteVerificado();
+                    alert('Código verificado. Reserva exitosa.');
+                    navigate('/productos');
+                } else {
+                    Swal.fire({
+                        title: 'Codigo de verificacion incorrecto.',
+                        text: 'Vuelve a ingresar el codigo.',
+                        icon: 'error',
+                        confirmButtonText: 'Ok'
+                    });;
+                }
+            } else {
+                alert('No se encontró el código de verificación.');
+            }
+        } catch (error) {
+            console.error('Error verificando el código:', error);
+        }
+    };
+    
+    const guardarClienteVerificado = async () => {
+        // Guardar al cliente como verificado en la base de datos
+        try {
+            await setDoc(doc(db, 'clientes', telefono), {
+                dni: dni,
+                telefono: telefono,
+                nombre: nombre,
+                apellido: apellido,
+                verificado: true,
+            });
+            console.log('Cliente guardado como verificado en Firebase');
+        } catch (error) {
+            console.error('Error al guardar el cliente:', error);
         }
     };
 
@@ -230,35 +332,14 @@ const ReservasForm = () => {
                 <div className='seccion'>
                 <input className='input-gral' type="text" placeholder='Ingresa tu DNI' value={dni} onChange={(e) => setDni(e.target.value)} required />
                 </div>
+                <div className='div-tel'>
+                <input className='input-gral2' type="text" placeholder='Ingresa tu nombre' value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+                <input className='input-gral2' type="text" placeholder='Ingresa tu apellido' value={apellido} onChange={(e) => setApellido(e.target.value)} required />
+                <input className='input-gral2' type="text" placeholder='Ingresa tu número de teléfono' value={telefono} onChange={(e) => setTelefono(e.target.value)} required />
+            </div>
+            <div className='seccion-2'>
                 <div>
-                    <label>Teléfono:</label>
-                    <input
-                        type="text"
-                        value={telefono}
-                        onChange={(e) => setTelefono(e.target.value)}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Nombre:</label>
-                    <input
-                        type="text"
-                        value={nombre}
-                        onChange={(e) => setNombre(e.target.value)}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Apellido:</label>
-                    <input
-                        type="text"
-                        value={apellido}
-                        onChange={(e) => setApellido(e.target.value)}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Servicio:</label>
+                    <label className='titulo-servicio'>Selecciona el servicio</label>
                     <select className='select-seccion' value={servicio} onChange={(e) => {
                         const selectedService = servicios.find(s => s.nombre === e.target.value);
                         setServicio(selectedService.nombre);
@@ -269,8 +350,9 @@ const ReservasForm = () => {
                         ))}
                     </select>
                 </div>
-                <div>
-                    <label>Peluquero:</label>
+                </div>
+                <div className='div-date'>
+                <label className='titulo-servicio'>Selecciona tu profesional</label>
                     <select
                         className='select-seccion'
                         value={profesional}
@@ -281,19 +363,20 @@ const ReservasForm = () => {
                         ))}
                     </select>
                 </div>
-                <div>
-                    <label>Fecha:</label>
+                <div className='div-date'>
+                <label className='titulo-servicio'>Elige tu fecha</label>
                     <input
+                    className='select-seccion2'
                         type="date"
                         value={fecha}
                         onChange={(e) => setFecha(e.target.value)}
                         required
                     />
                 </div>
-                <div>
-                    <label>Hora:</label>
+                <div className='div-date'>
+                <label className='titulo-servicio'>Elige tu hora</label>
                     <select
-                        className='select-seccion'
+                        className='select-seccion2'
                         value={hora}
                         onChange={(e) => setHora(e.target.value)}
                         required
@@ -303,8 +386,30 @@ const ReservasForm = () => {
                             <option key={h} value={h}>{h}</option>
                         ))}
                     </select>
+                    </div>
+            <div>
+                <button className='buttons' type="submit">
+                    <FontAwesomeIcon icon={faCalendarAlt} /> Agendar Turno
+                </button>
+            </div>
+            {!verificado && mostrarSolicitarCodigo && (
+                <div>
+                    <input
+                        type="text"
+                        placeholder='Ingresa el código de verificación'
+                        className='input-gral2'
+                        value={codigoVerificacion}
+                        onChange={(e) => setCodigoVerificacion(e.target.value)}
+                        required
+                    />
+                    <button type="button" onClick={handleVerificarCodigo} className="buttons">
+                        Verificar Código
+                    </button>
+                    {/*<button type="button" onClick={handleSolicitarCodigo} className="btn-solicitar-codigo">
+                        Solicitar Código
+                    </button>*/}
                 </div>
-                <button type="submit">Agendar Turno</button>
+            )}
             </form>
         
     );
