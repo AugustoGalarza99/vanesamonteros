@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
-import GeneradorCodigo from '../GeneradorCodigo/GeneradorCodigo';
 import FullCalendarDemo from '../FullCalendarDemo/FullCalendarDemo';
-import AgregarServicios from '../AgregarServicios/AgregarServicios';
-import WorkScheduleConfig from '../WorkScheduleConfig/WorkScheduleConfig';
-import TurnosExtraForm from '../TurnosExtrasForm/TurnosExtrasForm';
+
+
 
 const PanelPeluquero = () => {
     const [blockedTimes, setBlockedTimes] = useState([]); // Estado para horarios bloqueados
@@ -30,10 +28,6 @@ const PanelPeluquero = () => {
                 blockedTimes={blockedTimes} 
                 extraShifts={extraShifts} 
             />
-            {/*<TurnosExtraForm  />*/}
-
-            <AgregarServicios />
-            <WorkScheduleConfig />
         </div>
     );
 };

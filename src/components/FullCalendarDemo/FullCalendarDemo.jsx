@@ -8,7 +8,6 @@ import { collection, getDocs, query, where, doc, onSnapshot, getDoc } from 'fire
 import { getAuth } from 'firebase/auth';
 import './FullCalendarDemo.css';
 import TurnDurationConfig from '../TurnDurationConfig/TurnDurationConfig';
-import ReservarTurnoManual from '../ReservaTurnoManual/ReservaTUrnoManual';
 import EventActions from '../EventActions/EventActions';
 import GeneradorCodigo from '../GeneradorCodigo/GeneradorCodigo';
 
@@ -172,7 +171,7 @@ const FullCalendarDemo = ({ extraShifts }) => {
         slotMaxTime={workingHours.max} // Usar slotMaxTime
         eventClick={handleEventClick}
       />
-      <ReservarTurnoManual uidPeluquero={uidPeluquero} workSchedule={workSchedule} />
+      
       
       {selectedEvent && (
         <EventActions 

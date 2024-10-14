@@ -39,15 +39,18 @@ function Navbar({ isPeluquero }) {
       <div className="navbar">
       <div className={`navbar-menu ${isOpen ? 'open' : ''}`}>
         <ul>
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/reservar-turno">Reservar Turno</Link></li>
+          <li><Link to="/">Reservar Turno</Link></li>
           <li><Link to="/estado">Estado</Link></li>
           <li><Link to="/productos">Productos</Link></li>
-                  {/* Mostrar la opción del Panel Peluquero solo si el usuario es peluquero */}
-        {isPeluquero && (
-          <li><Link to="/panelpeluquero">Panel Peluquero</Link></li>
-        )}
-
+          {/* Mostrar la opción del Panel Peluquero solo si el usuario es peluquero */}
+          {isPeluquero && (
+              <>
+                <li><Link to="/agenda">Agenda</Link></li>
+                <li><Link to="/servicios">Servicios</Link></li>
+                <li><Link to="/horarios">Horarios</Link></li>
+                <li><Link to="/reservamanual">Reserva Manual</Link></li>
+              </>
+          )}
         {user ? (
           <>
             
