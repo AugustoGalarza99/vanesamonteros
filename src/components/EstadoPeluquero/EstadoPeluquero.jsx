@@ -103,13 +103,14 @@ const EstadoPeluquero = () => {
         <div className="estado-peluquero">
             <h2>Consulta el estado de tu turno</h2>
             <input
+                className='input-estado'
                 type="text"
                 placeholder="Ingresa tu DNI"
                 value={dni}
                 onChange={(e) => setDni(e.target.value)}
                 required
             />
-            <button onClick={handleBuscarTurno}>Buscar Turno</button>
+            <button className='button-estado' onClick={handleBuscarTurno}>Buscar Turno</button>
 
             {mensajeDemora && <p>{mensajeDemora}</p>}
 

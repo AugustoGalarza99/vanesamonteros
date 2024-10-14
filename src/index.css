@@ -6,7 +6,7 @@ html, body, #root {
   height: 100vh; /* Altura del 100% de la ventana */
   width: 100vw;  /* Ancho del 100% de la ventana */
   overflow-x: hidden; /* Desactiva el desplazamiento horizontal */ 
-  --titulo-color: #0aa6e4;
+  --titulo-color: #1b1c3f;
   --border-input: 1.5px solid #0aa6e4;
   --font: "Noto Sans", sans-serif;
   color-scheme: light dark;

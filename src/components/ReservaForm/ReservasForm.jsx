@@ -323,12 +323,12 @@ const ReservasForm = () => {
     };
 
     return (            
-            <form onSubmit={handleAgendar}>
+            <form className='form-reserva' onSubmit={handleAgendar}>
             <div className='titulo'>
                 <FontAwesomeIcon icon={faCalendarAlt} />
-                <h1>Agenda tu cita</h1>                
+                <h1 className='titulo'>Agenda tu cita</h1>                
             </div>
-            <h3>Completa el siguiente formulario para reservar tu cita</h3>
+            <h3 className='h3'>Completa el siguiente formulario para reservar tu cita</h3>
                 <div className='seccion'>
                 <input className='input-gral' type="text" placeholder='Ingresa tu DNI' value={dni} onChange={(e) => setDni(e.target.value)} required />
                 </div>
@@ -338,7 +338,7 @@ const ReservasForm = () => {
                 <input className='input-gral2' type="text" placeholder='Ingresa tu número de teléfono' value={telefono} onChange={(e) => setTelefono(e.target.value)} required />
             </div>
             <div className='seccion-2'>
-                <div>
+                <div className='div-serv'>
                     <label className='titulo-servicio'>Selecciona el servicio</label>
                     <select className='select-seccion' value={servicio} onChange={(e) => {
                         const selectedService = servicios.find(s => s.nombre === e.target.value);
@@ -388,7 +388,7 @@ const ReservasForm = () => {
                     </select>
                     </div>
             <div>
-                <button className='buttons' type="submit">
+                <button className='button-agendar' type="submit">
                     <FontAwesomeIcon icon={faCalendarAlt} /> Agendar Turno
                 </button>
             </div>
@@ -402,7 +402,7 @@ const ReservasForm = () => {
                         onChange={(e) => setCodigoVerificacion(e.target.value)}
                         required
                     />
-                    <button type="button" onClick={handleVerificarCodigo} className="buttons">
+                    <button type="button" onClick={handleVerificarCodigo} className="button-agendar">
                         Verificar Código
                     </button>
                     {/*<button type="button" onClick={handleSolicitarCodigo} className="btn-solicitar-codigo">

@@ -1,6 +1,6 @@
   /*VISTA MOBILE*/
   @media (max-width: 600px) {
-    form {
+    .form-reserva {
       width: 80%;
       display: flex;
       flex-direction: column;
@@ -30,7 +30,7 @@
 
   /*VISTA ESCRITORIO*/
   @media (min-width: 600px) {
-    form {
+    .form-reserva {
       width: 60%;
       display: flex;
       flex-direction: column;
@@ -57,6 +57,11 @@
     }
   }
 
+  .h3{
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+
 
 .input-gral{        
   font-size: 14px;
@@ -72,6 +77,7 @@
   border: var(--border-input);
 }
 .input-gral2{
+  margin-top: 20px;
   max-width: 100%;  
   width: 100%;
   font-size: 14px;
@@ -125,11 +131,15 @@
   font-family: var(--font);
   font-weight: 400;
 }
+.div-serv{
+  margin-top: 20px;
+}
 .titulo{
   display: flex;
   justify-content: center;
   align-items: center;
   font-family: var(--font);
+  margin-top: 10px;
   svg{
     font-size: 50px;
     padding: 0px 20px;
@@ -183,4 +193,69 @@
 
 .custom-icon .swal2-success .swal2-success-ring {
   border-color: red; /* Cambiar el borde del anillo del ícono */
+}
+
+.button-agendar {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  position: relative;
+  display: inline-block;
+  /*background: linear-gradient(to bottom, #1b1c3f, #4a4e91);*/
+  background: linear-gradient(to bottom, #1b1c3f, #4a4e91);
+ /* Gradient background */
+  color: white;
+ /* White text color */
+  font-family: "Segoe UI", sans-serif;
+ /* Stylish and legible font */
+  font-weight: bold;
+  font-size: 18px;
+ /* Large font size */
+  border: none;
+ /* No border */
+  border-radius: 30px;
+ /* Rounded corners */
+  padding: 14px 28px;
+ /* Large padding */
+  cursor: pointer;
+ /* Cursor on hover */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+ /* Subtle shadow */
+  animation: button-shimmer 2s infinite;
+  transition: all 0.3s ease-in-out;
+ /* Smooth transition */
+}
+
+/* Hover animation */
+.button-agendar:hover {
+  background: linear-gradient(to bottom, #2c2f63, #5b67b7);
+  animation: button-particles 1s ease-in-out infinite;
+  transform: translateY(-2px);
+}
+
+/* Click animation */
+.button-agendar:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Shimmer animation */
+@keyframes button-shimmer {
+  0% {
+    background-position: left top;
+  }
+
+  100% {
+    background-position: right bottom;
+  }
+}
+
+/* Particle animation */
+@keyframes button-particles {
+  0% {
+    background-position: left top;
+  }
+
+  100% {
+    background-position: right bottom;
+  }
 }

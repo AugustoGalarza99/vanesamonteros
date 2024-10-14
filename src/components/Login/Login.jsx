@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebaseConfig';
 import { useNavigate } from 'react-router-dom';
+import './Login.css'
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -21,25 +22,35 @@ const Login = () => {
   };
 
   return (
-    <div>
-      <h2>Iniciar Sesión</h2>
-      <form onSubmit={handleLogin}>
+    <section>
+    <div className="form-box">
+    <div className="form-value">      
+      <form className='forms' onSubmit={handleLogin}>
+      <h2>Inicia Sesión</h2>
+      {error && <p>{error}</p>}
+      <div className="input-box">
         <input
           type="email"
-          placeholder="Correo electrónico"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
+        <label>Usuario</label>
+        </div>
+        <div className="input-box">
         <input
           type="password"
-          placeholder="Contraseña"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
-        <button type="submit">Iniciar Sesión</button>
+        <label>Contraseña</label>
+        </div>
+        <button className='button-inicio' type="submit">Iniciar Sesión</button>
       </form>
-      {error && <p>{error}</p>}
     </div>
+    </div>
+    </section>
   );
 };
 
