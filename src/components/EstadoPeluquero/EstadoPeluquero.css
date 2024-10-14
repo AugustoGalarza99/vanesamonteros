@@ -4,7 +4,11 @@
     align-items: center;
     margin-top: 20px;
 }
-
+h2{
+    font-family: var(--font);
+    font-size: 20px;
+    margin-bottom: 20px;
+}
 .input-estado{        
     font-size: 14px;
     width: 80%;
