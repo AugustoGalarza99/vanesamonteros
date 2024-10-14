@@ -45,7 +45,7 @@ function Navbar({ isPeluquero }) {
           <li><Link to="/productos">Productos</Link></li>
                   {/* Mostrar la opción del Panel Peluquero solo si el usuario es peluquero */}
         {isPeluquero && (
-          <li><a href="/panelpeluquero">Panel Peluquero</a></li>
+          <li><Link to="/panelpeluquero">Panel Peluquero</Link></li>
         )}
 
         {user ? (
@@ -54,7 +54,7 @@ function Navbar({ isPeluquero }) {
             <li><a onClick={() => auth.signOut()}>Cerrar Sesión</a></li>
           </>
         ) : (
-          <li><a href="/login">Iniciar Sesión</a></li>
+          <li><Link to="/login">Iniciar Sesión</Link></li>
         )}
         </ul>
       </div>
