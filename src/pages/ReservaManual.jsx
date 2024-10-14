@@ -1,7 +1,8 @@
 import React from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth'; // Importar hooks de autenticación
 import { auth } from '../firebaseConfig'; // Importar la configuración de Firebase
-import ReservaTurnoManual from '../components/ReservaTurnoManual/ReservaTurnoManual';
+import ReservaTurnoManual from '../components/ReservaTurnoManual/ReservaTUrnoManual';
+
 
 const ReservaManual = () => {
   const [user] = useAuthState(auth); // Obtener el usuario autenticado
