@@ -246,7 +246,15 @@ const ReservasForm = () => {
                     customClass: {
                         icon: 'custom-warning-icon', // Clase personalizada para el ícono de advertencia
                     }
-                })
+                }).then((result) => {
+                    // Aquí es donde se maneja el evento "click" del botón de confirmación
+                    if (result.isConfirmed) {
+                        // Llamar a la función para solicitar el código
+                        handleSolicitarCodigo();
+                    } else if (result.isDismissed) {
+                        console.log('El usuario canceló la solicitud de código');
+                    }
+                });
                 setVerificado(false);
                 setMostrarSolicitarCodigo(true);
             }

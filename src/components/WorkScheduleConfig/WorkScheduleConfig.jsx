@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../firebaseConfig';
 import { getAuth } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import './WorkScheduleConfig.css'
 
 const WorkScheduleConfig = () => {
   const [workDays, setWorkDays] = useState({
@@ -59,24 +60,28 @@ const WorkScheduleConfig = () => {
   const daysOfWeek = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
 
   return (
-    <div>
+    <div className='div-config'>
       <h2>Configurar Días y Horarios de Trabajo</h2>
       {daysOfWeek.map((day) => (
-        <div key={day}>
-          <h3>{day.charAt(0).toUpperCase() + day.slice(1)}</h3>
-          <label>
+        <div key={day} className='div-day'>
+          <div className='div-trabajo'>
+          <h3> ¿Trabajas el día {day.charAt(0).toUpperCase() + day.slice(1)} ?</h3>
+          <label class="cyberpunk-checkbox-label">
             <input
+              class="cyberpunk-checkbox"
               type="checkbox"
               checked={workDays[day].isWorking}
               onChange={(e) => handleChange(day, 'isWorking', e.target.checked)}
             />
-            ¿Trabaja este día?
           </label>
+          </div>
+          
           {workDays[day].isWorking && (
             <>
+            <div className='div-hora1'>
               {/* Primer rango horario */}
               <label>
-                Hora de inicio 1:
+                Turno mañana
                 <input
                   type="time"
                   value={workDays[day].start1}
@@ -84,16 +89,18 @@ const WorkScheduleConfig = () => {
                 />
               </label>
               <label>
-                Hora de fin 1:
+                a
                 <input
                   type="time"
                   value={workDays[day].end1}
                   onChange={(e) => handleChange(day, 'end1', e.target.value)}
                 />
               </label>
+              </div>
               {/* Segundo rango horario */}
+              <div className='div-hora2'>
               <label>
-                Hora de inicio 2:
+                Turno tarde
                 <input
                   type="time"
                   value={workDays[day].start2}
@@ -101,18 +108,19 @@ const WorkScheduleConfig = () => {
                 />
               </label>
               <label>
-                Hora de fin 2:
+                a
                 <input
                   type="time"
                   value={workDays[day].end2}
                   onChange={(e) => handleChange(day, 'end2', e.target.value)}
                 />
               </label>
+              </div>
             </>
           )}
         </div>
       ))}
-      <button onClick={handleSave}>Guardar Horario</button>
+      <button className='button-horario' onClick={handleSave}>Guardar Horario</button>
     </div>
   );
 };
