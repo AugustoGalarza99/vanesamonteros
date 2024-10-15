@@ -1,6 +1,6 @@
 .navbar {
-  max-width: 100%; /* Limita el ancho máximo para que no se salga del viewport */
-  box-sizing: border-box; /* Incluye paddings y bordes en el cálculo del ancho */
+    max-width: 100%; /* Limita el ancho máximo para que no se salga del viewport */
+    box-sizing: border-box; /* Incluye paddings y bordes en el cálculo del ancho */
     display: flex;
     justify-content: end;
     width: 100%;
@@ -19,7 +19,8 @@
   }  
   .navbar-menu {
     display: none; /* Escondemos el menú inicialmente */
-  }  
+    transition: max-height 0.5s ease;
+  }
   .navbar-menu ul {
     list-style: none;
     padding: 0;
@@ -29,10 +30,13 @@
   .navbar-menu ul li {
     padding: 10px 0;
   }  
+
   .navbar-menu ul li a {
+    display: flex;
     color: #fff;
     text-decoration: none;
     font-size: 1.2rem;
+    justify-content: center;
   }  
   .navbar-hamburguer {
     cursor: pointer;
@@ -55,7 +59,7 @@
     top: 60px;
     left: 0;
     right: 0;
-    background-color: #333;
+    background-color: rgba(0, 0, 0, 0.815);
     padding: 20px;
     z-index: 999;
   }
@@ -63,7 +67,8 @@
     a{
       cursor: pointer;
     }
-  }  
+  } 
+
   /* Estilos para pantallas más grandes */
   @media (min-width: 768px) {
     .navbar-menu {
@@ -81,4 +86,3 @@
       display: none; /* Escondemos el botón hamburguesa en pantallas grandes */
     }
   }
-  

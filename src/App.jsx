@@ -41,6 +41,10 @@ function App() {
     }
   }, [user]);
 
+  if (loadingAuth) {
+    return <div>Cargando...</div>; // O cualquier otro indicador de carga
+  }
+
   return (
     <Router>
       <Navbar isPeluquero={isPeluquero} /> {/* Pasamos el estado isPeluquero al Navbar */}
@@ -56,7 +60,6 @@ function App() {
           <Route path="/reservamanual" element={<ProtectedRoute isPeluquero={isPeluquero}><ReservaManual /></ProtectedRoute>} />
           <Route path="/horarios" element={<ProtectedRoute isPeluquero={isPeluquero}><Horarios /></ProtectedRoute>} />
           <Route path="/servicios" element={<ProtectedRoute isPeluquero={isPeluquero}><Servicios /></ProtectedRoute>} />
-          
 
           {/* Si el usuario intenta ir a una ruta que no existe */}
           <Route path="*" element={<Navigate to="/" />} />

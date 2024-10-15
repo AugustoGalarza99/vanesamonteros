@@ -12,7 +12,14 @@ function Navbar({ isPeluquero }) {
   // Función para alternar el estado del menú
   const toggleMenu = () => {
     setIsOpen(!isOpen);
+    const menu = document.querySelector('.navbar-menu');
+    menu.classList.toggle('open');
   };
+
+    // Función para cerrar el menú cuando se hace clic en un enlace
+    const closeMenu = () => {
+      setIsOpen(false);
+    };
 
   // Función para verificar si el usuario es peluquero
   const checkIfPeluquero = async (user) => {
@@ -30,6 +37,7 @@ function Navbar({ isPeluquero }) {
       checkIfPeluquero(user);
     }
   }, [user]);
+  
 
   return (
     <nav className="navbar">
@@ -39,25 +47,25 @@ function Navbar({ isPeluquero }) {
       <div className="navbar">
       <div className={`navbar-menu ${isOpen ? 'open' : ''}`}>
         <ul>
-          <li><Link to="/">Reservar turno</Link></li>
-          <li><Link to="/estado">Estado</Link></li>
-          <li><Link to="/productos">Productos</Link></li>
+          <li><Link to="/" onClick={closeMenu}>Reservar turno</Link></li>
+          <li><Link to="/estado" onClick={closeMenu}>Estado</Link></li>
+          <li><Link to="/productos" onClick={closeMenu}>Productos</Link></li>
           {/* Mostrar la opción del Panel Peluquero solo si el usuario es peluquero */}
           {isPeluquero && (
               <>
-                <li><Link to="/agenda">Agenda</Link></li>
-                <li><Link to="/servicios">Servicios</Link></li>
-                <li><Link to="/horarios">Horarios</Link></li>
-                <li><Link to="/reservamanual">Reserva manual</Link></li>
+                <li><Link to="/agenda" onClick={closeMenu}>Agenda</Link></li>
+                <li><Link to="/servicios" onClick={closeMenu}>Servicios</Link></li>
+                <li><Link to="/horarios" onClick={closeMenu}>Horarios</Link></li>
+                <li><Link to="/reservamanual" onClick={closeMenu}>Reserva manual</Link></li>
               </>
           )}
         {user ? (
           <>
             
-            <li><a onClick={() => auth.signOut()}>Cerrar Sesión</a></li>
+            <li><a onClick={() => {auth.signOut(); closeMenu(); }}>Cerrar Sesión</a></li>
           </>
         ) : (
-          <li><Link to="/login">Iniciar sesión</Link></li>
+          <li><Link to="/login" onClick={closeMenu}>Iniciar sesión</Link></li>
         )}
         </ul>
       </div>
