@@ -1,0 +1,148 @@
+h1{
+    font-family: var(--font);
+    font-size: 24px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+.input-carga{      
+    font-size: 14px;
+    width: 80%;
+    border: solid 1.5px #9e9e9e;
+    border-radius:1rem;
+    background: none;
+    padding: 1rem;
+    font-size: 1rem;
+    color: #f5f5f5;
+    transition: border 150ms cubic-bezier(0.4,0,0.2,1);
+    outline: none;
+    border: var(--border-input);
+    margin: 10px 10px;
+  }
+  .div-carga{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 20px;
+    .div-contenedor{
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+  }
+.div-servicios{
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    label{
+        font-family: var(--font);
+        text-align: center;
+        justify-content: center;
+    }
+    .select-servicio{
+        justify-content: center;
+    }
+}
+.div-select{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+.select-servicio{
+    outline: none;
+    border: var(--border-input);
+    width: 80%;
+    margin-top: 20px;
+    font-size: 14px;
+    border-radius:1rem;
+    background: none;
+    padding: 1rem;
+    font-size: 1rem;
+    color: #f5f5f5;
+    transition: border 150ms cubic-bezier(0.4,0,0.2,1);
+    option{
+        font-size: 14px;
+        background-color: black;
+        font-size: 1rem;
+        color: #ffffff;
+        border-radius: 5px;  
+        border: var(--border-input);
+        border-radius:1rem; 
+        padding: 1rem;
+        font-size: 1rem;
+        color: #f5f5f5;
+        transition: border 150ms cubic-bezier(0.4,0,0.2,1);
+    }
+  }
+  .button-turno{
+    margin-top: 10px;
+    position: relative;
+    display: inline-block;
+    /*background: linear-gradient(to bottom, #1b1c3f, #4a4e91);*/
+    background: linear-gradient(to bottom, #1b1c3f, #4a4e91);
+   /* Gradient background */
+    color: white;
+   /* White text color */
+    font-family: "Segoe UI", sans-serif;
+   /* Stylish and legible font */
+    font-weight: bold;
+    font-size: 18px;
+   /* Large font size */
+    border: none;
+   /* No border */
+    border-radius: 30px;
+   /* Rounded corners */
+    padding: 14px 28px;
+   /* Large padding */
+    cursor: pointer;
+   /* Cursor on hover */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+   /* Subtle shadow */
+    animation: button-shimmer 2s infinite;
+    transition: all 0.3s ease-in-out;
+   /* Smooth transition */
+  }
+  
+  /* Hover animation */
+  .button-turno:hover {
+    background: linear-gradient(to bottom, #2c2f63, #5b67b7);
+    animation: button-particles 1s ease-in-out infinite;
+    transform: translateY(-2px);
+  }
+  
+  /* Click animation */
+  .button-turno:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Shimmer animation */
+  @keyframes button-shimmer {
+    0% {
+      background-position: left top;
+    }
+  
+    100% {
+      background-position: right bottom;
+    }
+  }
+  
+  /* Particle animation */
+  @keyframes button-particles {
+    0% {
+      background-position: left top;
+    }
+  
+    100% {
+      background-position: right bottom;
+    }
+  }
+  .div-button{
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../firebaseConfig';
 import { collection, getDocs, addDoc, query, where, doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import './ReservaTurnoManual.css'
 
 const ReservaTurnoManual = () => {
     const [telefono, setTelefono] = useState('');
@@ -215,51 +216,59 @@ const ReservaTurnoManual = () => {
 
     return (
         <div className="reserva-form-container">
-            <h1>Reserva Turno Manual</h1>
+            <h1>Reservar turno</h1>
             <form onSubmit={handleAgendar}>
-                <div>
-                    <label>Teléfono:</label>
+                <div className='div-carga'>
+                <div className='div-contenedor'>
                     <input
-                        type="text"
-                        value={telefono}
-                        onChange={(e) => setTelefono(e.target.value)}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Nombre:</label>
-                    <input
+                        className='input-carga'
+                        placeholder='Nombre'
                         type="text"
                         value={nombre}
                         onChange={(e) => setNombre(e.target.value)}
                         required
                     />
                 </div>
-                <div>
-                    <label>Apellido:</label>
+                <div className='div-contenedor'>
                     <input
+                        className='input-carga'
+                        placeholder='Apellido'
                         type="text"
                         value={apellido}
                         onChange={(e) => setApellido(e.target.value)}
                         required
                     />
                 </div>
-                <div>
+                <div className='div-contenedor'>
+                    <input
+                        className='input-carga'
+                        placeholder='Telefono'
+                        type="text"
+                        value={telefono}
+                        onChange={(e) => setTelefono(e.target.value)}
+                        required
+                    />
+                </div>
+                </div>
+                <div className='div-servicios'>
                     <label>Servicio:</label>
-                    <select className='select-seccion' value={servicio} onChange={(e) => {
+                    <div className='div-select'>
+                    <select className='select-servicio' value={servicio} onChange={(e) => {
                         const selectedService = servicios.find(s => s.nombre === e.target.value);
                         setServicio(selectedService.nombre);
                         setDuracionServicio(selectedService.duracion); // Actualiza la duración del servicio
-                    }}>
+                    }}>                        
                         {servicios.map((s) => (
                             <option key={s.nombre} value={s.nombre}>{`${s.nombre} (${s.duracion} minutos)`}</option>
                         ))}
                     </select>
+                    </div>
                 </div>
-                <div>
+                <div className='div-servicios'>
                     <label>Peluquero:</label>
+                    <div className='div-select'>
                     <select
-                        className='select-seccion'
+                        className='select-servicio'
                         value={profesional}
                         onChange={(e) => setProfesional(e.target.value)}
                     >
@@ -267,20 +276,25 @@ const ReservaTurnoManual = () => {
                             <option key={p.id} value={p.id}>{p.nombre}</option>
                         ))}
                     </select>
+                    </div>
                 </div>
-                <div>
+                <div className='div-servicios'>
                     <label>Fecha:</label>
+                    <div className='div-select'>
                     <input
+                        className='select-servicio'
                         type="date"
                         value={fecha}
                         onChange={(e) => setFecha(e.target.value)}
                         required
                     />
+                    </div>
                 </div>
-                <div>
+                <div className='div-servicios'>
                     <label>Hora:</label>
+                    <div className='div-select'>
                     <select
-                        className='select-seccion'
+                        className='select-servicio'
                         value={hora}
                         onChange={(e) => setHora(e.target.value)}
                         required
@@ -290,8 +304,11 @@ const ReservaTurnoManual = () => {
                             <option key={h} value={h}>{h}</option>
                         ))}
                     </select>
+                    </div>
                 </div>
-                <button type="submit">Agendar Turno</button>
+                <div className='div-button'>
+                <button className='button-turno' type="submit">Agendar Turno</button>
+                </div>
             </form>
         </div>
     );
