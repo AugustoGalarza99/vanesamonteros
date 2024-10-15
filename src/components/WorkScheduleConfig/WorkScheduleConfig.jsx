@@ -83,6 +83,7 @@ const WorkScheduleConfig = () => {
               <label>
                 Turno mañana
                 <input
+                  className='input-hora'
                   type="time"
                   value={workDays[day].start1}
                   onChange={(e) => handleChange(day, 'start1', e.target.value)}
@@ -91,6 +92,7 @@ const WorkScheduleConfig = () => {
               <label>
                 a
                 <input
+                  className='input-hora'
                   type="time"
                   value={workDays[day].end1}
                   onChange={(e) => handleChange(day, 'end1', e.target.value)}
@@ -102,6 +104,7 @@ const WorkScheduleConfig = () => {
               <label>
                 Turno tarde
                 <input
+                className='input-hora'
                   type="time"
                   value={workDays[day].start2}
                   onChange={(e) => handleChange(day, 'start2', e.target.value)}
@@ -110,6 +113,7 @@ const WorkScheduleConfig = () => {
               <label>
                 a
                 <input
+                className='input-hora'
                   type="time"
                   value={workDays[day].end2}
                   onChange={(e) => handleChange(day, 'end2', e.target.value)}
