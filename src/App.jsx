@@ -16,6 +16,9 @@ import Servicios from './pages/Servicios';
 
 // Componentes simples para las páginas
 const Productos = () => <h2>Productos</h2>;
+const NotFound = () => {
+  return <h2>Página no encontrada</h2>;
+};
 
 function App() {
   const [user, loadingAuth] = useAuthState(auth);  // Monitoreamos el estado de autenticación
@@ -61,7 +64,7 @@ function App() {
           <Route path="/servicios" element={<ProtectedRoute isPeluquero={isPeluquero}><Servicios /></ProtectedRoute>} />
 
           {/* Si el usuario intenta ir a una ruta que no existe */}
-          <Route path="*" element={<Navigate to="/" />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </Router>
