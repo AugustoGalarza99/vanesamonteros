@@ -15,7 +15,7 @@ const Login = () => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/panelpeluquero'); // Redirige al panel del peluquero después del inicio de sesión
+      navigate('/agenda'); // Redirige al panel del peluquero después del inicio de sesión
     } catch (error) {
       setError('Error en el inicio de sesión. Verifica tus credenciales.');
     }

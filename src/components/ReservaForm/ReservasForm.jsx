@@ -18,6 +18,7 @@ const ReservasForm = () => {
     const [hora, setHora] = useState('');
     const [verificado, setVerificado] = useState(false);
     const [mostrarSolicitarCodigo, setMostrarSolicitarCodigo] = useState(false);
+    const [costoServicio, setCostoServicio] = useState(0); // Para almacenar el costo del servicio
     const [whatsapp, setWhatsapp] = useState('');
     const [servicios, setServicios] = useState([]);
     const [peluqueros, setPeluqueros] = useState([]);
@@ -36,13 +37,14 @@ const ReservasForm = () => {
 
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
-                    serviciosList.push({ nombre: data.nombre, duracion: data.duracion });
+                    serviciosList.push({ nombre: data.nombre, duracion: data.duracion, precio: data.precio }); // Agrega el costo del servicio
                 });
 
                 setServicios(serviciosList);
                 if (serviciosList.length > 0) {
                     setServicio(serviciosList[0].nombre); // Seleccionar el primer servicio por defecto
                     setDuracionServicio(serviciosList[0].duracion); // Guardar la duración del primer servicio
+                    setCostoServicio(serviciosList[0].precio); // Guardar el costo del primer servicio
                 }
             } catch (error) {
                 console.error('Error obteniendo servicios:', error);
@@ -354,7 +356,7 @@ const ReservasForm = () => {
                         setDuracionServicio(selectedService.duracion); // Actualiza la duración del servicio
                     }}>
                         {servicios.map((s) => (
-                            <option key={s.nombre} value={s.nombre}> {`${s.nombre} (${s.duracion} min)`}</option>
+                            <option key={s.nombre} value={s.nombre}> {`${s.nombre} - $${s.precio} - (${s.duracion} min)`}</option>
                         ))}
                     </select>
                 </div>
