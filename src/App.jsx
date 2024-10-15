@@ -15,7 +15,6 @@ import Horarios from './pages/Horarios';
 import Servicios from './pages/Servicios';
 
 // Componentes simples para las páginas
-const Home = () => <h2>Inicio (Calendario de Turnos)</h2>;
 const Productos = () => <h2>Productos</h2>;
 
 function App() {
