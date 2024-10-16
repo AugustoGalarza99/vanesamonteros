@@ -9,6 +9,23 @@ h2{
     font-size: 20px;
     margin-bottom: 20px;
 }
+p{
+  font-family: var(--font);
+  font-size: 14px;
+  width: 80%;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.demora{
+  font-family: var(--font);
+  margin-top: 20px;
+}
+.info-turno{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 .input-estado{        
     font-size: 14px;
     width: 80%;
@@ -85,4 +102,33 @@ h2{
     100% {
       background-position: right bottom;
     }
+  }
+
+  .button-estado2 {
+    margin-top: 20px;
+    position: relative;
+    display: inline-block;
+    /*background: linear-gradient(to bottom, #1b1c3f, #4a4e91);*/
+    background: linear-gradient(to bottom, #5a0b0b, #c01b1b);
+   /* Gradient background */
+    color: white;
+   /* White text color */
+    font-family: "Segoe UI", sans-serif;
+   /* Stylish and legible font */
+    font-weight: bold;
+    font-size: 18px;
+   /* Large font size */
+    border: none;
+   /* No border */
+    border-radius: 30px;
+   /* Rounded corners */
+    padding: 14px 28px;
+   /* Large padding */
+    cursor: pointer;
+   /* Cursor on hover */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+   /* Subtle shadow */
+    animation: button-shimmer 2s infinite;
+    transition: all 0.3s ease-in-out;
+   /* Smooth transition */
   }

@@ -102,6 +102,7 @@ const EstadoPeluquero = () => {
     return (
         <div className="estado-peluquero">
             <h2>Consulta el estado de tu turno</h2>
+            <p>En esta seccion podras consultar la informacion sobre tu turno y el estado del peluquero. Si el peluquero esta con demora ingresando tu DNI te informaremos la hora aproximada de tu corte, tambien podras cancelar tu turno </p>
             <input
                 className='input-estado'
                 type="text"
@@ -112,18 +113,17 @@ const EstadoPeluquero = () => {
             />
             <button className='button-estado' onClick={handleBuscarTurno}>Buscar Turno</button>
 
-            {mensajeDemora && <p>{mensajeDemora}</p>}
+            {mensajeDemora && <p className='demora'>{mensajeDemora}</p>}
 
             {turno && (
-                <div>
+                <div className='info-turno'>
                     <h3>Información del turno:</h3>
                     <p><strong>Nombre:</strong> {turno.nombre} {turno.apellido}</p>
                     <p><strong>Servicio:</strong> {turno.servicio}</p>
-                    <p><strong>Peluquero:</strong> {turno.uidPeluquero}</p>
                     <p><strong>Fecha:</strong> {turno.fecha}</p>
                     <p><strong>Hora:</strong> {turno.hora}</p>
 
-                    <button onClick={handleCancelarTurno}>Cancelar Turno</button>
+                    <button className='button-estado2' onClick={handleCancelarTurno}>Cancelar Turno</button>
                 </div>
             )}
         </div>
