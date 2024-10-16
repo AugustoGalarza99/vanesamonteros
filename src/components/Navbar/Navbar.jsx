@@ -49,7 +49,7 @@ function Navbar({ isPeluquero }) {
         <ul>
           <li><Link to="/" onClick={closeMenu}>Reservar turno</Link></li>
           <li><Link to="/estado" onClick={closeMenu}>Estado</Link></li>
-          <li><Link to="/productos" onClick={closeMenu}>Productos</Link></li>
+          {/*<li><Link to="/productos" onClick={closeMenu}>Productos</Link></li>*/}
           {/* Mostrar la opción del Panel Peluquero solo si el usuario es peluquero */}
           {isPeluquero && (
               <>

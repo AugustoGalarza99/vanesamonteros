@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { db } from '../../firebaseConfig';
-import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore'; // Importamos doc y deleteDoc
+import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
 import './EstadoPeluquero.css';
 
 const EstadoPeluquero = () => {
@@ -21,8 +21,8 @@ const EstadoPeluquero = () => {
             const querySnapshot = await getDocs(reservasRef);
             const reservas = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-            // Filtrar el turno del cliente por DNI
-            const turnoCliente = reservas.find(reserva => reserva.dni === dni && reserva.status === 'pendiente');
+            // Filtrar el turno del cliente por DNI y status
+            const turnoCliente = reservas.find(reserva => reserva.dni === dni && reserva.status.toLowerCase() === 'pendiente');
             
             if (turnoCliente) {
                 setTurno(turnoCliente);

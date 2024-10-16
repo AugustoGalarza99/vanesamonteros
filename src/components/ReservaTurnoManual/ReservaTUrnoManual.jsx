@@ -85,7 +85,13 @@ const ReservaTurnoManual = () => {
 
                     if (horariosDoc.exists()) {
                         const horariosData = horariosDoc.data();
-                        const dia = new Date(fecha).toLocaleString('es-ES', { weekday: 'long' }).toLowerCase();
+                        
+                        // Asegurarse de que el formato sea correcto (ISO y UTC)
+                        const selectedDate = new Date(`${fecha}T00:00:00Z`); // Fecha en UTC
+                        const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+                        const diaSeleccionado = selectedDate.getUTCDay(); // Día de la semana en UTC
+                        const dia = diasSemana[diaSeleccionado]; // Mapeo al nombre del día en español
+
                         const horariosDelDia = horariosData[dia];
 
                         if (horariosDelDia && horariosDelDia.isWorking) {
@@ -115,46 +121,41 @@ const ReservaTurnoManual = () => {
                                 startTime.setMinutes(startTime.getMinutes() + 30); // Incrementar 30 minutos
                             }
 
-                            // Filtrar horarios ocupados
+                            // Filtrar horarios ocupados y solapados
                             const reservasRef = collection(db, 'reservas');
                             const queryReservas = query(reservasRef, where('fecha', '==', fecha), where('uidPeluquero', '==', uidPeluquero));
                             const querySnapshot = await getDocs(queryReservas);
-                            const ocupados = querySnapshot.docs.map(doc => ({
-                                hora: doc.data().hora,
-                                duracion: doc.data().duracion || duracionServicio // Asegurarse de tener la duración del servicio ya reservado
-                            }));
+                            const ocupados = querySnapshot.docs.map(doc => {
+                                const data = doc.data();
+                                return { 
+                                    start: new Date(`${fecha}T${data.hora}`), 
+                                    end: new Date(new Date(`${fecha}T${data.hora}`).getTime() + data.duracion * 60000) 
+                                };
+                            });
 
                             const horariosFiltrados = availableSlots.filter(slot => {
                                 const slotStartTime = new Date(`${fecha}T${slot}`);
                                 const slotEndTime = new Date(slotStartTime.getTime() + duracionServicio * 60000);
-
-                                return !ocupados.some(ocupado => {
-                                    const ocupadoStartTime = new Date(`${fecha}T${ocupado.hora}`);
-                                    const ocupadoEndTime = new Date(ocupadoStartTime.getTime() + ocupado.duracion * 60000);
-
-                                    // Verificar solapamiento
-                                    return (
-                                        (ocupadoStartTime < slotEndTime && ocupadoEndTime > slotStartTime) // Solapamiento
-                                    );
-                                });
+                                
+                                // Verifica que no haya solapamiento
+                                return !ocupados.some(({ start, end }) => (
+                                    (start < slotEndTime && end > slotStartTime) // Solapamiento
+                                ));
                             });
 
                             setHorariosDisponibles(horariosFiltrados);
                         } else {
-                            console.log('El peluquero no trabaja este día.');
                             setHorariosDisponibles([]); // Sin horarios disponibles
                         }
-                    } else {
-                        console.log('No se encontró horario para el peluquero seleccionado.');
                     }
-                } else {
-                    console.log('No se encontró el peluquero seleccionado.');
                 }
             } catch (error) {
                 console.error('Error obteniendo horarios:', error);
             }
         }
     };
+
+    fetchHorariosDisponibles();
 
     // Actualizar horarios cuando cambian el servicio, profesional o fecha
     useEffect(() => {

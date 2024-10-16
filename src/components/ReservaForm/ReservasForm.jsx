@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebaseConfig';
-import { doc, getDoc, collection, getDocs, query, where, addDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, query, where, addDoc, setDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
@@ -206,7 +206,7 @@ const ReservasForm = () => {
                             });
 
                             alert('Reserva creada con éxito');
-                            navigate('/'); // Redirigir al inicio o a otra página después de crear la reserva
+                            navigate('/estado'); // Redirigir al inicio o a otra página después de crear la reserva
                         } catch (error) {
                             console.error('Error al crear la reserva:', error);
                         }
@@ -217,7 +217,7 @@ const ReservasForm = () => {
                             icon: 'error',
                             showCancelButton: true,
                             confirmButtonText: 'Solicitar Código',
-                            cancelButtonText: 'Cancelar',
+                            cancelButtonText: 'Tengo el codigo',
                             background: 'black', // Fondo rojo claro
                             color: 'white', // Texto rojo oscuro
                             customClass: {
@@ -243,7 +243,7 @@ const ReservasForm = () => {
                     icon: 'error',
                     showCancelButton: true,
                     confirmButtonText: 'Solicitar Código',
-                    cancelButtonText: 'Cancelar',
+                    cancelButtonText: 'Tengo el codigo',
                     background: 'black', // Fondo rojo claro
                     color: 'white', // Texto rojo oscuro
                     customClass: {
@@ -289,7 +289,6 @@ const ReservasForm = () => {
     };
 
     const handleVerificarCodigo = async () => {
-        // Verificar el código ingresado por el cliente
         try {
             const codigoDocRef = doc(db, 'codigos_verificacion', 'codigo_actual');
             const codigoDocSnap = await getDoc(codigoDocRef);
@@ -299,21 +298,73 @@ const ReservasForm = () => {
                 if (codigoData.codigoVerificacion === parseInt(codigoVerificacion)) {
                     // Si el código es correcto, guardar el cliente como verificado
                     await guardarClienteVerificado();
-                    alert('Código verificado. Reserva exitosa.');
-                    navigate('/productos');
+    
+                    // Ahora que el cliente está verificado, crear la reserva
+                    await guardarReserva();
+                    
+                    Swal.fire({
+                        title: 'Código verificado y reserva creada',
+                        text: 'Tu reserva ha sido creada exitosamente.',
+                        icon: 'success',
+                        confirmButtonText: 'Ok'
+                    });
+    
+                    // Redirigir al usuario después de la reserva
+                    navigate('/estado');
                 } else {
                     Swal.fire({
-                        title: 'Codigo de verificacion incorrecto.',
-                        text: 'Vuelve a ingresar el codigo.',
+                        title: 'Código incorrecto',
+                        text: 'El código de verificación ingresado es incorrecto. Por favor, intenta nuevamente.',
                         icon: 'error',
                         confirmButtonText: 'Ok'
-                    });;
+                    });
                 }
             } else {
                 alert('No se encontró el código de verificación.');
             }
         } catch (error) {
             console.error('Error verificando el código:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Ocurrió un error al verificar el código. Intenta nuevamente más tarde.',
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            });
+        }
+    };
+
+    const guardarReserva = async () => {
+        try {
+            const reservasRef = collection(db, 'reservas'); // Referencia a la colección de reservas
+    
+            // Calcula el tiempo de fin de la reserva
+            const startTime = new Date(`${fecha}T${hora}`);
+            const endTime = new Date(startTime.getTime() + duracionServicio * 60000); // Añade la duración
+    
+            // Guardar la reserva en Firestore
+            await addDoc(reservasRef, {
+                dni,
+                nombre,
+                apellido,
+                telefono,
+                servicio,
+                fecha,
+                hora,
+                duracion: duracionServicio, // Guarda la duración
+                horaFin: endTime.toISOString(), // Guarda la hora de fin
+                uidPeluquero: profesional, // Registrar el UID del peluquero seleccionado
+                status: 'Pendiente' // Establecer el estado de la reserva
+            });
+    
+            console.log('Reserva creada con éxito');
+        } catch (error) {
+            console.error('Error al crear la reserva:', error);
+            Swal.fire({
+                title: 'Error al crear la reserva',
+                text: 'Ocurrió un error al intentar crear la reserva. Por favor, intenta nuevamente más tarde.',
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            });
         }
     };
     
