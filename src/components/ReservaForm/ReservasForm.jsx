@@ -97,7 +97,6 @@ const ReservasForm = () => {
                         if (horariosDoc.exists()) {
                             const horariosData = horariosDoc.data();
                             const dia = new Date(fecha).toLocaleString('es-ES', { weekday: 'long' }).toLowerCase();
-
                             const horariosDelDia = horariosData[dia];
 
                             if (horariosDelDia && horariosDelDia.isWorking) {
