@@ -96,13 +96,8 @@ const ReservasForm = () => {
     
                         if (horariosDoc.exists()) {
                             const horariosData = horariosDoc.data();
-                            
-                            // Asegurarse de que el formato sea correcto (ISO y UTC)
-                            const selectedDate = new Date(`${fecha}T00:00:00Z`); // Fecha en UTC
-                            const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-                            const diaSeleccionado = selectedDate.getUTCDay(); // Día de la semana en UTC
-                            const dia = diasSemana[diaSeleccionado]; // Mapeo al nombre del día en español
-    
+                            const dia = new Date(fecha).toLocaleString('es-ES', { weekday: 'long' }).toLowerCase();
+
                             const horariosDelDia = horariosData[dia];
     
                             if (horariosDelDia && horariosDelDia.isWorking) {

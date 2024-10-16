@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
 import FullCalendarDemo from '../FullCalendarDemo/FullCalendarDemo';
+import GeneradorCodigo from '../GeneradorCodigo/GeneradorCodigo';
 
 
 
@@ -24,6 +25,7 @@ const PanelPeluquero = () => {
     return (
         <div>
             <h1>Panel del Peluquero</h1>
+            <GeneradorCodigo />
             <FullCalendarDemo 
                 blockedTimes={blockedTimes} 
                 extraShifts={extraShifts} 
