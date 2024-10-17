@@ -1,0 +1,114 @@
+.calendario {
+    display: flex;
+    flex-direction: column; 
+  }
+  
+  .calendario-navigation {
+    margin-bottom: 10px;
+  }
+  
+  .calendario-header {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .calendario-grid {
+    display: flex;
+  }
+  
+  .calendario-column {
+    position: relative;
+    flex: 1;
+  }
+  
+  .horas-container {
+    position: relative; /* Asegúrate de que el contenedor sea relativo para poder posicionar los botones */
+  }
+  
+  .calendario-hora {
+    height: 50px; /* Ajusta según lo necesites */
+    border: 1px solid #ddd;
+  }
+  
+  .reserva {
+    position: absolute; /* Permite que el botón esté sobre las horas */
+    background-color: rgba(255, 255, 255, 0.8); /* Fondo semitransparente */
+    border: none;
+    cursor: pointer;
+  }
+  
+  .reserva-pendiente {
+    background-color: red;
+  }
+  
+  .reserva-en-proceso {
+    background-color: yellow;
+  }
+  
+  .reserva-finalizada {
+    background-color: green;
+  }
+  
+  .espacio-en-blanco {
+    background-color: transparent; /* O el color que desees para los espacios en blanco */
+    height: 30px; /* Asegúrate de que tenga la misma altura que las franjas horarias */
+    color: transparent; /* Ocultar el texto si no lo necesitas */
+  }
+
+  
+
+
+
+  
+
+
+
+
+
+  /* Contenedor del calendario */
+.calendario-contenedor {
+    position: relative;
+    width: 100%;
+    max-width: 700px; /* Ajusta esto si necesitas más ancho para el calendario */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 50px); /* Cada celda será de 50px de ancho */
+    grid-auto-rows: 50px; /* Cada celda será de 50px de alto por 30 minutos */
+    border: 1px solid #ccc;
+  }
+  
+  /* Estilo para cada celda de hora */
+  .calendario-hora {
+    border-bottom: 1px solid #e0e0e0;
+    border-right: 1px solid #e0e0e0;
+    position: relative;
+    text-align: center;
+    background-color: #0a0a0a; /* Color de fondo para las horas */
+    font-size: 12px; /* Ajusta el tamaño del texto si es necesario */
+  }
+  
+  /* Estilo para los eventos */
+  .reserva {
+    position: absolute;
+    width: 100%; /* El evento cubre todo el ancho de la celda */
+    max-width: 50px; /* Máximo ancho de 50px para cada evento */
+    background-color: #3f51b5; /* Color de fondo del evento */
+    color: white;
+    padding: 2px;
+    box-sizing: border-box;
+    font-size: 12px; /* Ajusta el tamaño de texto del evento */
+    border-radius: 4px; /* Bordes redondeados */
+  }
+  
+  /* Estilo para los estados de las reservas */
+  .reserva-pendiente {
+    background-color: #ff9800;
+  }
+  
+  .reserva-en-proceso {
+    background-color: #4caf50;
+  }
+  
+  .reserva-finalizada {
+    background-color: #f44336;
+  }
+  

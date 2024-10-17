@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
 import FullCalendarDemo from '../FullCalendarDemo/FullCalendarDemo';
 import GeneradorCodigo from '../GeneradorCodigo/GeneradorCodigo';
+import CalendarioPeluquero from '../CalendarioPeluquero/CalendarioPeluquero';
 
 
 
@@ -26,10 +27,17 @@ const PanelPeluquero = () => {
         <div>
             <h1>Panel del Peluquero</h1>
             <GeneradorCodigo />
+            {uidPeluquero ? (
+                <CalendarioPeluquero uidPeluquero={uidPeluquero} />
+            ) : (
+                <p>Cargando el UID del peluquero...</p>
+            )}
+            {/*
             <FullCalendarDemo 
                 blockedTimes={blockedTimes} 
                 extraShifts={extraShifts} 
             />
+            */}
         </div>
     );
 };
