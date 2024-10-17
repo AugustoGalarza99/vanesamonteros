@@ -76,7 +76,6 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
       if (!querySnapshot.empty) {
         const reservasData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setReservas(reservasData);
-        console.log('Reservas recibidas:', reservasData);
       } else {
         console.log('No se encontraron reservas para este peluquero');
       }
@@ -103,31 +102,27 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
     calcularFechasSemana();
   }, [uidPeluquero, fechaInicial]);
 
-
-  // Función para renderizar las franjas horarias del día con los huecos vacíos
-// Función para renderizar las horas del día (cada 30 minutos)
-const renderHorasDelDia = (horarioDia) => {
+  // Función para renderizar las horas del día (cada 30 minutos)
+  const renderHorasDelDia = (horarioDia) => {
     const horas = [];
     const { start1, end1, start2, end2 } = horarioDia;
-  
+
     let currentHour = rangoHorarioGlobal.startHour;
-    let currentMinute = 0; // Empezamos desde el minuto 0
-  
+    let currentMinute = 0;
+
     while (currentHour < rangoHorarioGlobal.endHour || (currentHour === rangoHorarioGlobal.endHour && currentMinute === 0)) {
       const inFirstShift = currentHour >= parseInt(start1) && (currentHour < parseInt(end1) || (currentHour === parseInt(end1) && currentMinute === 0));
       const inSecondShift = start2 && end2 && currentHour >= parseInt(start2) && (currentHour < parseInt(end2) || (currentHour === parseInt(end2) && currentMinute === 0));
-  
-      // Formateamos la hora, ejemplo: "08:00" o "08:30"
+
+      // Formateamos la hora
       const formattedTime = `${String(currentHour).padStart(2, '0')}:${currentMinute === 0 ? '00' : '30'}`;
-  
-      // Empujamos la hora, con el formato correspondiente y un bloque de descanso si es necesario
+
       horas.push(
         <div key={formattedTime} className={`calendario-hora ${inFirstShift || inSecondShift ? 'trabajando' : 'descanso'}`}>
           {inFirstShift || inSecondShift ? formattedTime : ''}
         </div>
       );
-  
-      // Avanzar 30 minutos
+
       if (currentMinute === 0) {
         currentMinute = 30;
       } else {
@@ -135,79 +130,79 @@ const renderHorasDelDia = (horarioDia) => {
         currentHour++;
       }
     }
-  
+
     return horas;
   };
-  
+
   // Función para renderizar las reservas (eventos)
-  const renderReservas = (diaFecha) => {
-    const { gridHeight, totalMinutes, startHour } = calcularGridProperties();
-  
-    return reservas.map((reserva) => {
-      const { hora, status, duracion } = reserva;
-      const horaDate = new Date(`1970-01-01T${hora}:00`);
-      const reservaFecha = new Date(reserva.fecha);
-  
-      if (!isNaN(reservaFecha) && !isNaN(horaDate)) {
-        const esMismaFecha = isSameDay(reservaFecha, diaFecha);
-  
-        if (esMismaFecha) {
-          let estiloReserva = '';
-  
-          // Estilo del evento según su estado
-          switch (status) {
-            case 'pendiente':
-              estiloReserva = 'reserva-pendiente';
-              break;
-            case 'en proceso':
-              estiloReserva = 'reserva-en-proceso';
-              break;
-            case 'finalizado':
-              estiloReserva = 'reserva-finalizada';
-              break;
-            default:
-              estiloReserva = '';
-          }
-  
-          // Cálculo de la posición y altura del evento
-          const totalReservaMinutes = (horaDate.getHours() - startHour) * 60 + horaDate.getMinutes();
-          console.log(totalReservaMinutes);
-          const topPosition = (totalReservaMinutes * (gridHeight / totalMinutes));
-          
-          // Duración en minutos (cada 30 minutos = 50px de altura)
-          const height = (duracion / 30) * 50;
-  
-          return (
-            <div
-              key={reserva.id}
-              className={`reserva ${estiloReserva}`}
-              style={{
-                position: 'absolute',
-                left: '0',
-                top: `${topPosition}px`, // Posición superior basada en los minutos
-                height: `${height}px`, // Altura basada en la duración
-                zIndex: 1,
-              }}
-            >
-              {`${reserva.nombre} - ${hora}`}
-            </div>
-          );
+// Función para renderizar las reservas (eventos)
+const renderReservas = (diaFecha) => {
+  const { gridHeight, totalMinutes, startHour } = calcularGridProperties();
+
+  return reservas.map((reserva) => {
+    const { hora, status, duracion } = reserva;
+    const horaDate = new Date(`1970-01-01T${hora}:00`);
+    
+    // Aseguramos que la fecha de la reserva esté correctamente formateada en la zona horaria local
+    const reservaFecha = new Date(reserva.fecha); // Fecha original de Firebase
+    
+    // Convertir la fecha al día correcto eliminando la diferencia de zona horaria
+    const reservaFechaLocal = new Date(reservaFecha.getTime() + reservaFecha.getTimezoneOffset() * 60000);
+    
+    if (!isNaN(reservaFechaLocal) && !isNaN(horaDate)) {
+      const esMismaFecha = isSameDay(reservaFechaLocal, diaFecha);
+
+      if (esMismaFecha) {
+        let estiloReserva = '';
+
+        // Estilo del evento según su estado
+        switch (status) {
+          case 'Pendiente':
+            estiloReserva = 'reserva-pendiente';
+            break;
+          case 'en proceso':
+            estiloReserva = 'reserva-en-proceso';
+            break;
+          case 'finalizado':
+            estiloReserva = 'reserva-finalizada';
+            break;
+          default:
+            estiloReserva = '';
         }
+
+        // Cálculo de la posición y altura del evento
+        const totalReservaMinutes = (horaDate.getHours() - startHour) * 60 + horaDate.getMinutes();
+        const topPosition = (totalReservaMinutes * (gridHeight / totalMinutes));
+        const height = (duracion / 30) * 51;
+
+        return (
+          <button
+            key={reserva.id}
+            className={`reserva ${estiloReserva}`}
+            style={{
+              position: 'absolute',
+              left: '0',
+              top: `${topPosition}px`,
+              height: `${height}px`,
+              zIndex: 1,
+            }}
+          >
+            {`${reserva.nombre} - ${hora}`}
+          </button>
+        );
       }
-      return null;
-    });
-  };
-  
+    }
+    return null;
+  });
+};
+
+
   // Función para calcular las propiedades del grid
   const calcularGridProperties = () => {
-    const totalMinutes = (rangoHorarioGlobal.endHour - rangoHorarioGlobal.startHour) * 60; // Minutos totales en el rango horario
-    const gridHeight = 1350; // Altura total del grid en px, ajusta esto según tu diseño
+    const totalMinutes = (rangoHorarioGlobal.endHour - rangoHorarioGlobal.startHour) * 60;
+    const gridHeight = (totalMinutes / 30) * 50 + 50; // Altura del grid ajustada
     return { gridHeight, totalMinutes, startHour: rangoHorarioGlobal.startHour };
   };
-  
-
-  
-  
 
   return (
     <div className="calendario">

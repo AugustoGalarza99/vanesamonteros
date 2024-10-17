@@ -30,24 +30,7 @@
     border: 1px solid #ddd;
   }
   
-  .reserva {
-    position: absolute; /* Permite que el botón esté sobre las horas */
-    background-color: rgba(255, 255, 255, 0.8); /* Fondo semitransparente */
-    border: none;
-    cursor: pointer;
-  }
-  
-  .reserva-pendiente {
-    background-color: red;
-  }
-  
-  .reserva-en-proceso {
-    background-color: yellow;
-  }
-  
-  .reserva-finalizada {
-    background-color: green;
-  }
+
   
   .espacio-en-blanco {
     background-color: transparent; /* O el color que desees para los espacios en blanco */
@@ -88,27 +71,60 @@
   
   /* Estilo para los eventos */
   .reserva {
+    text-align: center;
     position: absolute;
     width: 100%; /* El evento cubre todo el ancho de la celda */
-    max-width: 50px; /* Máximo ancho de 50px para cada evento */
-    background-color: #3f51b5; /* Color de fondo del evento */
+    max-width: 100%; /* Máximo ancho de 50px para cada evento */
+    background-color: #f50505; /* Color de fondo del evento */
     color: white;
-    padding: 2px;
+    padding: 5px;
     box-sizing: border-box;
     font-size: 12px; /* Ajusta el tamaño de texto del evento */
-    border-radius: 4px; /* Bordes redondeados */
+    border: none;
+    cursor: pointer;
   }
   
   /* Estilo para los estados de las reservas */
   .reserva-pendiente {
-    background-color: #ff9800;
+    background-color: #f50505; /* Color de fondo del evento */
+    text-align: center;
+    position: absolute;
+    width: 100%; /* El evento cubre todo el ancho de la celda */
+    max-width: 100%; /* Máximo ancho de 50px para cada evento */
+    color: white;
+    padding: 5px;
+    box-sizing: border-box;
+    font-size: 12px; /* Ajusta el tamaño de texto del evento */
+    border: none;
+    cursor: pointer;
   }
   
   .reserva-en-proceso {
-    background-color: #4caf50;
+    background-color: #ff9800;
+    
+    text-align: center;
+    position: absolute;
+    width: 100%; /* El evento cubre todo el ancho de la celda */
+    max-width: 100%; /* Máximo ancho de 50px para cada evento */
+    color: white;
+    padding: 5px;
+    box-sizing: border-box;
+    font-size: 12px; /* Ajusta el tamaño de texto del evento */
+    border: none;
+    cursor: pointer;
   }
   
   .reserva-finalizada {
-    background-color: #f44336;
+    text-align: center;
+    position: absolute;
+    width: 100%; /* El evento cubre todo el ancho de la celda */
+    max-width: 100%; /* Máximo ancho de 50px para cada evento */
+    background-color: #4caf50;
+    color: white;
+    padding: 5px;
+    box-sizing: border-box;
+    font-size: 12px; /* Ajusta el tamaño de texto del evento */
+    border: none;
+    cursor: pointer;
   }
   
