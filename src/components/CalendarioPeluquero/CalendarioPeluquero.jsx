@@ -188,6 +188,7 @@ const renderReservas = (diaFecha) => {
             }}
           >
             {`${reserva.nombre} - ${hora}`}
+            
           </button>
         );
       }
