@@ -3,6 +3,7 @@ import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firesto
 import { db } from '../../firebaseConfig';
 import { addDays, startOfWeek, format, isSameDay } from 'date-fns';
 import { es } from 'date-fns/locale';
+import Swal from 'sweetalert2';
 import './CalendarioPeluquero.css';
 
 const CalendarioPeluquero = ({ uidPeluquero }) => {
@@ -134,68 +135,123 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
     return horas;
   };
 
-  // Función para renderizar las reservas (eventos)
-// Función para renderizar las reservas (eventos)
-const renderReservas = (diaFecha) => {
-  const { gridHeight, totalMinutes, startHour } = calcularGridProperties();
+  // Función para manejar el clic en una reserva
+const manejarClickReserva = (reserva) => {
+  const { status, id } = reserva;
 
-  return reservas.map((reserva) => {
-    const { hora, status, duracion } = reserva;
-    const horaDate = new Date(`1970-01-01T${hora}:00`);
-    
-    // Aseguramos que la fecha de la reserva esté correctamente formateada en la zona horaria local
-    const reservaFecha = new Date(reserva.fecha); // Fecha original de Firebase
-    
-    // Convertir la fecha al día correcto eliminando la diferencia de zona horaria
-    const reservaFechaLocal = new Date(reservaFecha.getTime() + reservaFecha.getTimezoneOffset() * 60000);
-    
-    if (!isNaN(reservaFechaLocal) && !isNaN(horaDate)) {
-      const esMismaFecha = isSameDay(reservaFechaLocal, diaFecha);
-
-      if (esMismaFecha) {
-        let estiloReserva = '';
-
-        // Estilo del evento según su estado
-        switch (status) {
-          case 'Pendiente':
-            estiloReserva = 'reserva-pendiente';
-            break;
-          case 'en proceso':
-            estiloReserva = 'reserva-en-proceso';
-            break;
-          case 'finalizado':
-            estiloReserva = 'reserva-finalizada';
-            break;
-          default:
-            estiloReserva = '';
-        }
-
-        // Cálculo de la posición y altura del evento
-        const totalReservaMinutes = (horaDate.getHours() - startHour) * 60 + horaDate.getMinutes();
-        const topPosition = (totalReservaMinutes * (gridHeight / totalMinutes));
-        const height = (duracion / 30) * 51;
-
-        return (
-          <button
-            key={reserva.id}
-            className={`reserva ${estiloReserva}`}
-            style={{
-              position: 'absolute',
-              left: '0',
-              top: `${topPosition}px`,
-              height: `${height}px`,
-              zIndex: 1,
-            }}
-          >
-            {`${reserva.nombre} - ${hora}`}
-            
-          </button>
-        );
+  if (status === 'Pendiente') {
+    Swal.fire({
+      title: 'Turno Pendiente',
+      text: '¿Qué acción desea realizar?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Iniciar Turno',
+      cancelButtonText: 'Cancelar Turno',
+      showDenyButton: true,
+      denyButtonText: 'Recordar Turno',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Acción para "Iniciar Turno"
+        actualizarEstadoTurno(id, 'en proceso');
+        Swal.fire('Turno Iniciado', '', 'success');
+      } else if (result.isDenied) {
+        // Acción para "Recordar Turno"
+        Swal.fire('Recordatorio enviado', '', 'info');
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        // Acción para "Cancelar Turno"
+        actualizarEstadoTurno(id, 'cancelado');
+        Swal.fire('Turno Cancelado', '', 'error');
       }
-    }
-    return null;
-  });
+    });
+  } else if (status === 'en proceso') {
+    Swal.fire({
+      title: 'Turno en Proceso',
+      text: '¿Desea finalizar este turno?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Finalizar Turno',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Acción para "Finalizar Turno"
+        actualizarEstadoTurno(id, 'finalizado');
+        Swal.fire('Turno Finalizado', '', 'success');
+      }
+    });
+  }
 };
+
+// Función para actualizar el estado del turno en Firebase
+const actualizarEstadoTurno = async (reservaId, nuevoEstado) => {
+  try {
+    const reservaRef = doc(db, 'reservas', reservaId);
+    await updateDoc(reservaRef, { status: nuevoEstado });
+    fetchReservasPeluquero(); // Actualiza las reservas después de cambiar el estado
+  } catch (error) {
+    console.error('Error actualizando el estado del turno:', error);
+  }
+};
+
+  // Función para renderizar las reservas (eventos)
+  const renderReservas = (diaFecha) => {
+    const { gridHeight, totalMinutes, startHour } = calcularGridProperties();
+  
+    return reservas.map((reserva) => {
+      const { hora, status, duracion } = reserva;
+      const horaDate = new Date(`1970-01-01T${hora}:00`);
+      const reservaFecha = new Date(reserva.fecha);
+  
+      const reservaFechaLocal = new Date(reservaFecha.getTime() + reservaFecha.getTimezoneOffset() * 60000);
+  
+      if (!isNaN(reservaFechaLocal) && !isNaN(horaDate)) {
+        const esMismaFecha = isSameDay(reservaFechaLocal, diaFecha);
+  
+        if (esMismaFecha) {
+          let estiloReserva = '';
+  
+          // Estilo del evento según su estado
+          switch (status) {
+            case 'Pendiente':
+              estiloReserva = 'reserva-pendiente';
+              break;
+            case 'en proceso':
+              estiloReserva = 'reserva-en-proceso';
+              break;
+            case 'finalizado':
+              estiloReserva = 'reserva-finalizada';
+              break;
+            case 'cancelado':
+              estiloReserva = 'reserva-cancelado';
+              break;
+            default:
+              estiloReserva = '';
+          }
+  
+          // Cálculo de la posición y altura del evento
+          const totalReservaMinutes = (horaDate.getHours() - startHour) * 60 + horaDate.getMinutes();
+          const topPosition = (totalReservaMinutes * (gridHeight / totalMinutes));
+          const height = (duracion / 30) * 51;
+  
+          return (
+            <div
+              key={reserva.id}
+              className={`reserva ${estiloReserva}`}
+              style={{
+                position: 'absolute',
+                left: '0',
+                top: `${topPosition}px`,
+                height: `${height}px`,
+                zIndex: 1,
+              }}
+              onClick={() => manejarClickReserva(reserva)} // Añadimos el evento onClick
+            >
+              {`${reserva.nombre} - ${hora}`}
+            </div>
+          );
+        }
+      }
+      return null;
+    });
+  };
 
 
   // Función para calcular las propiedades del grid
