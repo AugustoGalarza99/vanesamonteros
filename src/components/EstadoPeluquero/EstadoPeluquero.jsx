@@ -5,8 +5,8 @@ import './EstadoPeluquero.css';
 
 const EstadoPeluquero = () => {
     const [dni, setDni] = useState('');
-    const [turno, setTurno] = useState(null); // Guardar información del turno del cliente
-    const [demora, setDemora] = useState(0); // Guardar la demora aproximada en minutos
+    const [turno, setTurno] = useState(null);
+    const [demora, setDemora] = useState(0);
     const [mensajeDemora, setMensajeDemora] = useState('');
 
     // Función para convertir horas y minutos en formato HH:MM
@@ -21,59 +21,48 @@ const EstadoPeluquero = () => {
             const querySnapshot = await getDocs(reservasRef);
             const reservas = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-            // Filtrar el turno del cliente por DNI y status
+            // Filtrar el turno del cliente por DNI
             const turnoCliente = reservas.find(reserva => reserva.dni === dni && reserva.status.toLowerCase() === 'pendiente');
             
             if (turnoCliente) {
                 setTurno(turnoCliente);
 
-                // Calcular la diferencia de tiempo entre la hora actual y la hora del turno
                 const now = new Date();
                 const [horaTurnoCliente, minutosTurnoCliente] = turnoCliente.hora.split(':').map(Number);
-                const horaTurno = new Date(`${turnoCliente.fecha} ${horaTurnoCliente}:${minutosTurnoCliente}`);
-                
-                const diferenciaMinutos = (horaTurno - now) / (1000 * 60); // Diferencia en minutos
+                const horaTurnoClienteFecha = new Date(`${turnoCliente.fecha} ${horaTurnoCliente}:${minutosTurnoCliente}`);
 
-                // Mostrar estimación solo si faltan 120 minutos (2 horas) o menos
-                if (diferenciaMinutos <= 120) {
-                    // Filtrar todas las reservas del mismo peluquero que sean anteriores a la del cliente
-                    const turnosPrevios = reservas
-                        .filter(reserva =>
-                            reserva.uidPeluquero === turnoCliente.uidPeluquero &&
-                            new Date(`${reserva.fecha} ${reserva.hora}`) < now && // Solo turnos antes de la hora actual
-                            reserva.id !== turnoCliente.id // Excluir el turno del cliente actual
-                        )
-                        .sort((a, b) => new Date(`${a.fecha} ${a.hora}`) - new Date(`${b.fecha} ${b.hora}`)); // Ordenar por fecha y hora
+                let demoraTotal = 0;
 
-                    // Calcular la demora
-                    let demoraTotal = 0;
+                // Filtrar todos los turnos anteriores al del cliente del mismo peluquero
+                const turnosPrevios = reservas
+                    .filter(reserva =>
+                        reserva.uidPeluquero === turnoCliente.uidPeluquero &&
+                        new Date(`${reserva.fecha} ${reserva.hora}`) < horaTurnoClienteFecha && // Solo turnos antes del turno del cliente
+                        reserva.id !== turnoCliente.id // Excluir el turno del cliente actual
+                    )
+                    .sort((a, b) => new Date(`${a.fecha} ${a.hora}`) - new Date(`${b.fecha} ${b.hora}`)); // Ordenar por fecha y hora
 
-                    turnosPrevios.forEach(turnoPrevio => {
-                        if (turnoPrevio.status === 'pendiente') {
-                            // Sumar 30 minutos por cada turno pendiente
-                            demoraTotal += 30;
-                        } else if (turnoPrevio.status === 'en proceso' && turnoPrevio.startTime) {
-                            // Calcular el tiempo transcurrido desde que comenzó el turno en proceso
-                            const startTime = turnoPrevio.startTime.toDate(); // Suponiendo que 'startTime' es un campo de tipo Timestamp
-                            const tiempoTranscurrido = Math.floor((now - startTime) / (1000 * 60)); // Tiempo en minutos
-                            
-                            // Tiempo restante del turno en proceso (si ya pasó más de 30 minutos, lo dejamos en 0)
-                            const tiempoRestante = Math.max(30 - tiempoTranscurrido, 0);
-                            demoraTotal += tiempoRestante;
-                        }
-                        // Ignoramos las reservas que están en "finalizado"
-                    });
+                // Calcular la demora sumando la duración de los turnos anteriores
+                turnosPrevios.forEach(turnoPrevio => {
+                    const duracionTurno = turnoPrevio.duracion || 30; // Usar 30 minutos como predeterminado si no se especifica duración
 
-                    // Actualizar la demora total
-                    setDemora(demoraTotal);
+                    if (turnoPrevio.status === 'pendiente') {
+                        // Sumar la duración del turno pendiente
+                        demoraTotal += duracionTurno;
+                    } else if (turnoPrevio.status === 'en proceso' && turnoPrevio.startTime) {
+                        // Calcular el tiempo transcurrido desde que comenzó el turno en proceso
+                        const startTime = turnoPrevio.startTime.toDate(); // Suponiendo que 'startTime' es un campo de tipo Timestamp
+                        const tiempoTranscurrido = Math.floor((now - startTime) / (1000 * 60)); // Tiempo en minutos
 
-                    // Calcular la hora estimada basada en la hora actual
-                    const horaEstimada = new Date(now.getTime() + demoraTotal * 60000);
-                    setMensajeDemora(`Su turno será aproximadamente en ${demoraTotal} minutos (a las ${formatTime(horaEstimada)}).`);
-                } else {
-                    // Si faltan más de 2 horas
-                    setMensajeDemora('Tu turno aún está a más de 2 horas.');
-                }
+                        // Calcular cuánto tiempo falta del turno en proceso
+                        const tiempoRestante = Math.max(duracionTurno - tiempoTranscurrido, 0);
+                        demoraTotal += tiempoRestante;
+                    }
+                });
+
+                // Calcular la hora estimada basada en la demora total
+                const horaEstimada = new Date(now.getTime() + demoraTotal * 60000);
+                setMensajeDemora(`Su turno será aproximadamente en ${demoraTotal} minutos (a las ${formatTime(horaEstimada)}).`);
             } else {
                 setMensajeDemora('No tienes turnos pendientes.');
             }

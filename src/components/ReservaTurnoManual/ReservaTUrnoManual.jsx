@@ -209,7 +209,7 @@ const ReservaTurnoManual = () => {
             });
 
             alert('Reserva creada con éxito');
-            navigate('/'); // Redirigir al inicio o a otra página después de crear la reserva
+            navigate('/agenda'); // Redirigir al inicio o a otra página después de crear la reserva
         } catch (error) {
             console.error('Error al crear la reserva:', error);
         }

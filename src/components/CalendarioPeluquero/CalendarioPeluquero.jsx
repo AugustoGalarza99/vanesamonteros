@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { addDays, startOfWeek, format, isSameDay } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -14,7 +14,6 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
   const [fechasSemana, setFechasSemana] = useState([]);
   const [rangoHorarioGlobal, setRangoHorarioGlobal] = useState({ startHour: 8, endHour: 21 });
 
-  // Función para obtener los horarios de trabajo desde Firebase
   const fetchHorariosPeluquero = async () => {
     try {
       if (!uidPeluquero) {
@@ -39,10 +38,9 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
     }
   };
 
-  // Función para calcular el rango de horas más amplio basado en todos los días de trabajo
   const calcularRangoHorarioGlobal = (horarioData) => {
-    let startHourGlobal = 24; // Empezamos con el valor máximo posible
-    let endHourGlobal = 0; // Empezamos con el valor mínimo posible
+    let startHourGlobal = 24; 
+    let endHourGlobal = 0; 
 
     Object.keys(horarioData).forEach((dia) => {
       if (horarioData[dia].isWorking) {
@@ -51,7 +49,6 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
         startHourGlobal = Math.min(startHourGlobal, parseInt(start1));
         endHourGlobal = Math.max(endHourGlobal, parseInt(end1));
 
-        // Si hay segundo turno
         if (start2 && end2) {
           startHourGlobal = Math.min(startHourGlobal, parseInt(start2));
           endHourGlobal = Math.max(endHourGlobal, parseInt(end2));
@@ -62,7 +59,6 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
     setRangoHorarioGlobal({ startHour: startHourGlobal, endHour: endHourGlobal });
   };
 
-  // Función para obtener las reservas del peluquero desde Firebase
   const fetchReservasPeluquero = async () => {
     try {
       if (!uidPeluquero) {
@@ -85,7 +81,6 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
     }
   };
 
-  // Función para calcular las fechas de la semana actual
   const calcularFechasSemana = () => {
     const inicioSemana = startOfWeek(fechaInicial, { weekStartsOn: 1 });
     const fechas = [];
@@ -103,7 +98,6 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
     calcularFechasSemana();
   }, [uidPeluquero, fechaInicial]);
 
-  // Función para renderizar las horas del día (cada 30 minutos)
   const renderHorasDelDia = (horarioDia) => {
     const horas = [];
     const { start1, end1, start2, end2 } = horarioDia;
@@ -115,7 +109,6 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
       const inFirstShift = currentHour >= parseInt(start1) && (currentHour < parseInt(end1) || (currentHour === parseInt(end1) && currentMinute === 0));
       const inSecondShift = start2 && end2 && currentHour >= parseInt(start2) && (currentHour < parseInt(end2) || (currentHour === parseInt(end2) && currentMinute === 0));
 
-      // Formateamos la hora
       const formattedTime = `${String(currentHour).padStart(2, '0')}:${currentMinute === 0 ? '00' : '30'}`;
 
       horas.push(
@@ -135,80 +128,110 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
     return horas;
   };
 
-  // Función para manejar el clic en una reserva
-const manejarClickReserva = (reserva) => {
-  const { status, id } = reserva;
+  const handleRemindTurn = (reserva) => {
+    const fechaTurno = new Date(reserva.fecha);
+    const fechaLocal = new Date(fechaTurno.getTime() + (fechaTurno.getTimezoneOffset() * 60000)); 
+  
+    const message = `Te recordamos que tienes tu turno el ${fechaLocal.toLocaleDateString()} a las ${reserva.hora} en nuestra peluquería.`;
+    const phoneNumber = reserva.telefono; 
+  
+    if (phoneNumber) {
+      const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappURL, '_blank'); 
+    } else {
+      alert('No se encontró el número de teléfono para este cliente.');
+    }
+  };
 
-  if (status === 'Pendiente') {
-    Swal.fire({
-      title: 'Turno Pendiente',
-      text: '¿Qué acción desea realizar?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Iniciar Turno',
-      cancelButtonText: 'Cancelar Turno',
-      showDenyButton: true,
-      denyButtonText: 'Recordar Turno',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Acción para "Iniciar Turno"
-        actualizarEstadoTurno(id, 'en proceso');
-        Swal.fire('Turno Iniciado', '', 'success');
-      } else if (result.isDenied) {
-        // Acción para "Recordar Turno"
-        Swal.fire('Recordatorio enviado', '', 'info');
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-        // Acción para "Cancelar Turno"
-        actualizarEstadoTurno(id, 'cancelado');
-        Swal.fire('Turno Cancelado', '', 'error');
+  const handleCancelTurn = async (reserva) => {
+    try {
+      const reservaId = reserva.id; 
+      const reservaRef = doc(db, 'reservas', reservaId); 
+  
+      await deleteDoc(reservaRef); 
+  
+      fetchReservasPeluquero(); 
+  
+      Swal.fire('Turno Cancelado', 'El turno ha sido cancelado y eliminado.', 'success');
+    } catch (error) {
+      console.error('Error al cancelar el turno:', error);
+      Swal.fire('Error', 'Hubo un problema al cancelar el turno.', 'error');
+    }
+  };
+
+  const manejarClickReserva = (reserva) => {
+    const { status, id } = reserva;
+
+    if (status === 'pendiente') {
+      Swal.fire({
+        title: 'Turno Pendiente',
+        text: '¿Qué acción desea realizar?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Iniciar Turno',
+        cancelButtonText: 'Cancelar Turno',
+        showDenyButton: true,
+        denyButtonText: 'Recordar Turno',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          actualizarEstadoTurno(id, 'en proceso'); 
+          Swal.fire('Turno Iniciado', '', 'success');
+        } else if (result.isDenied) {
+          handleRemindTurn(reserva); 
+          Swal.fire('Recordatorio enviado', '', 'info');
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          handleCancelTurn(reserva); 
+        }
+      });
+    } else if (status === 'en proceso') {
+      Swal.fire({
+        title: 'Turno en Proceso',
+        text: '¿Desea finalizar este turno?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Finalizar Turno',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          actualizarEstadoTurno(id, 'finalizado'); 
+          Swal.fire('Turno Finalizado', '', 'success');
+        }
+      });
+    }
+  };
+
+  const actualizarEstadoTurno = async (reservaId, nuevoEstado) => {
+    try {
+      const reservaRef = doc(db, 'reservas', reservaId);
+      const updateData = { status: nuevoEstado };
+
+      // Si el estado es "en proceso", también guardamos el tiempo de inicio del turno
+      if (nuevoEstado === 'en proceso') {
+        updateData.startTime = new Date();
       }
-    });
-  } else if (status === 'en proceso') {
-    Swal.fire({
-      title: 'Turno en Proceso',
-      text: '¿Desea finalizar este turno?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Finalizar Turno',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Acción para "Finalizar Turno"
-        actualizarEstadoTurno(id, 'finalizado');
-        Swal.fire('Turno Finalizado', '', 'success');
-      }
-    });
-  }
-};
 
-// Función para actualizar el estado del turno en Firebase
-const actualizarEstadoTurno = async (reservaId, nuevoEstado) => {
-  try {
-    const reservaRef = doc(db, 'reservas', reservaId);
-    await updateDoc(reservaRef, { status: nuevoEstado });
-    fetchReservasPeluquero(); // Actualiza las reservas después de cambiar el estado
-  } catch (error) {
-    console.error('Error actualizando el estado del turno:', error);
-  }
-};
+      await updateDoc(reservaRef, updateData);
+      fetchReservasPeluquero();
+    } catch (error) {
+      console.error('Error actualizando el estado del turno:', error);
+    }
+  };
 
-  // Función para renderizar las reservas (eventos)
   const renderReservas = (diaFecha) => {
     const { gridHeight, totalMinutes, startHour } = calcularGridProperties();
-  
+
     return reservas.map((reserva) => {
       const { hora, status, duracion } = reserva;
       const horaDate = new Date(`1970-01-01T${hora}:00`);
       const reservaFecha = new Date(reserva.fecha);
-  
+
       const reservaFechaLocal = new Date(reservaFecha.getTime() + reservaFecha.getTimezoneOffset() * 60000);
-  
+
       if (!isNaN(reservaFechaLocal) && !isNaN(horaDate)) {
         const esMismaFecha = isSameDay(reservaFechaLocal, diaFecha);
-  
+
         if (esMismaFecha) {
           let estiloReserva = '';
-  
-          // Estilo del evento según su estado
+
           switch (status) {
             case 'Pendiente':
               estiloReserva = 'reserva-pendiente';
@@ -225,12 +248,11 @@ const actualizarEstadoTurno = async (reservaId, nuevoEstado) => {
             default:
               estiloReserva = '';
           }
-  
-          // Cálculo de la posición y altura del evento
+
           const totalReservaMinutes = (horaDate.getHours() - startHour) * 60 + horaDate.getMinutes();
           const topPosition = (totalReservaMinutes * (gridHeight / totalMinutes));
           const height = (duracion / 30) * 51;
-  
+
           return (
             <div
               key={reserva.id}
@@ -242,7 +264,7 @@ const actualizarEstadoTurno = async (reservaId, nuevoEstado) => {
                 height: `${height}px`,
                 zIndex: 1,
               }}
-              onClick={() => manejarClickReserva(reserva)} // Añadimos el evento onClick
+              onClick={() => manejarClickReserva(reserva)} 
             >
               {`${reserva.nombre} - ${hora}`}
             </div>
@@ -253,11 +275,9 @@ const actualizarEstadoTurno = async (reservaId, nuevoEstado) => {
     });
   };
 
-
-  // Función para calcular las propiedades del grid
   const calcularGridProperties = () => {
     const totalMinutes = (rangoHorarioGlobal.endHour - rangoHorarioGlobal.startHour) * 60;
-    const gridHeight = (totalMinutes / 30) * 50 + 50; // Altura del grid ajustada
+    const gridHeight = (totalMinutes / 30) * 50 + 50;
     return { gridHeight, totalMinutes, startHour: rangoHorarioGlobal.startHour };
   };
 
@@ -290,7 +310,7 @@ const actualizarEstadoTurno = async (reservaId, nuevoEstado) => {
                 ? (
                   <div className="horas-container" style={{ position: 'relative', height: '100%' }}>
                     {renderHorasDelDia(horariosTrabajo[diaSemana], fecha)}
-                    {renderReservas(fecha)} {/* Renderiza las reservas sobre las horas */}
+                    {renderReservas(fecha)} 
                   </div>
                 )
                 : null}
