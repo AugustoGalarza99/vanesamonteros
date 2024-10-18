@@ -162,7 +162,7 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
   const manejarClickReserva = (reserva) => {
     const { status, id } = reserva;
 
-    if (status === 'pendiente') {
+    if (status === 'Pendiente') {
       Swal.fire({
         title: 'Turno Pendiente',
         text: '¿Qué acción desea realizar?',
@@ -284,10 +284,10 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
   return (
     <div className="calendario">
       <div className="calendario-navigation">
-        <button onClick={() => setFechaInicial(prev => addDays(prev, -7))}>
+        <button className='button-semana' onClick={() => setFechaInicial(prev => addDays(prev, -7))}>
           Semana Anterior
         </button>
-        <button onClick={() => setFechaInicial(prev => addDays(prev, 7))}>
+        <button className='button-semana' onClick={() => setFechaInicial(prev => addDays(prev, 7))}>
           Semana Siguiente
         </button>
       </div>
