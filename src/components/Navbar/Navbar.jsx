@@ -42,7 +42,7 @@ function Navbar({ isPeluquero }) {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-        <h1>Logo</h1>
+      <Link to="/"><img src="src/assets/barber2.jpg" alt="Logo"/></Link>
       </div>
       <div className="navbar">
       <div className={`navbar-menu ${isOpen ? 'open' : ''}`}>
