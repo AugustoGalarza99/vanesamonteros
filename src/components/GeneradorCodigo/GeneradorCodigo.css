@@ -50,3 +50,10 @@
       background-position: right bottom;
     }
 }
+
+    /*VISTA MOBILE*/
+    @media (max-width: 600px) {
+      .button-codigo{
+        font-size: 14px;
+      }
+    }

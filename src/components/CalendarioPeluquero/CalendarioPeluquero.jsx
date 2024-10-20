@@ -294,8 +294,10 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
 
       <div className="calendario-header">
         {fechasSemana.map((fecha, index) => (
+          <div className='div-dia'>
           <div key={index} className="calendario-dia">
             {format(fecha, 'EEE d MMM', { locale: es })}
+          </div>
           </div>
         ))}
       </div>

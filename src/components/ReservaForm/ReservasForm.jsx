@@ -239,7 +239,7 @@ const ReservasForm = () => {
             } else {
                 Swal.fire({
                     title: 'No estás verificado',
-                    text: 'Debes verificar tu número de DNI y Telefono para agendar un turno.',
+                    text: 'Debes verificar tu número de DNI y Telefono para agendar un turno. Solicita el codigo y cuando lo tengas pegalo en la parte inferior por unica vez.',
                     icon: 'error',
                     showCancelButton: true,
                     confirmButtonText: 'Solicitar Código',
@@ -304,8 +304,10 @@ const ReservasForm = () => {
                     
                     Swal.fire({
                         title: 'Código verificado y reserva creada',
-                        text: 'Tu reserva ha sido creada exitosamente.',
+                        text: 'Tu reserva ha sido creada exitosamente, muchas gracias.',
                         icon: 'success',
+                        background: 'black', // Fondo rojo claro
+                        color: 'white', // Texto rojo oscuro
                         confirmButtonText: 'Ok'
                     });
     

@@ -9,7 +9,7 @@
   
   .calendario-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
   }
   
   .calendario-grid {
@@ -31,24 +31,12 @@
   }
   .calendario-hora.descanso{
     background-color: rgb(70, 69, 69);
-  }
-
-  
+  } 
   .espacio-en-blanco {
     background-color: transparent; /* O el color que desees para los espacios en blanco */
     height: 30px; /* Asegúrate de que tenga la misma altura que las franjas horarias */
     color: transparent; /* Ocultar el texto si no lo necesitas */
   }
-
-  
-
-
-
-  
-
-
-
-
 
   /* Contenedor del calendario */
 .calendario-contenedor {
@@ -153,6 +141,16 @@
     animation: button-shimmer 2s infinite;
     transition: all 0.3s ease-in-out;
   }
+  .calendario-dia{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .div-dia{
+    display: flex;
+    justify-content: center;
+    text-align: center;
+  }
   .button-semana:hover {
     background: linear-gradient(to bottom, #2c2f63, #5b67b7);
     animation: button-particles 1s ease-in-out infinite;
@@ -179,3 +177,42 @@
       background-position: right bottom;
     }
   }
+    /*VISTA MOBILE*/
+    /*@media (max-width: 425px) {
+      .button-semana{
+        font-size: 14px;
+      }
+      .calendario-header{
+        display: flex;
+        justify-content: space-around;
+        text-align: center;
+      }
+      .calendario-dia{
+        display: flex;
+        font-size: 12px;
+        justify-content: center;
+        align-items: center;
+      }
+    }*/
+    @media (max-width: 600px) {
+      .button-semana{
+        font-size: 14px;
+      }
+      .calendario-header{
+        display: flex;
+        justify-content: space-around;
+        text-align: center;
+      }
+      .calendario-dia{
+        display: flex;
+        font-size: 14px;
+        align-items: center;
+        justify-content: space-around;
+      }
+    }
+
+    .reserva.reserva-finalizada{
+      display: flex;
+      text-align: center;
+      justify-content: center;
+    }
