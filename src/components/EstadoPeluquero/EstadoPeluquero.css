@@ -106,6 +106,7 @@ p{
 
   .button-estado2 {
     margin-top: 20px;
+    margin-bottom: 20px;
     position: relative;
     display: inline-block;
     /*background: linear-gradient(to bottom, #1b1c3f, #4a4e91);*/

@@ -46,14 +46,13 @@ const EstadoPeluquero = () => {
                 turnosPrevios.forEach(turnoPrevio => {
                     const duracionTurno = turnoPrevio.duracion || 30; // Usar 30 minutos como predeterminado si no se especifica duración
 
-                    if (turnoPrevio.status === 'pendiente') {
+                    if (turnoPrevio.status === 'Pendiente') {
                         // Sumar la duración del turno pendiente
                         demoraTotal += duracionTurno;
                     } else if (turnoPrevio.status === 'en proceso' && turnoPrevio.startTime) {
                         // Calcular el tiempo transcurrido desde que comenzó el turno en proceso
                         const startTime = turnoPrevio.startTime.toDate(); // Suponiendo que 'startTime' es un campo de tipo Timestamp
                         const tiempoTranscurrido = Math.floor((now - startTime) / (1000 * 60)); // Tiempo en minutos
-
                         // Calcular cuánto tiempo falta del turno en proceso
                         const tiempoRestante = Math.max(duracionTurno - tiempoTranscurrido, 0);
                         demoraTotal += tiempoRestante;
@@ -62,7 +61,17 @@ const EstadoPeluquero = () => {
 
                 // Calcular la hora estimada basada en la demora total
                 const horaEstimada = new Date(now.getTime() + demoraTotal * 60000);
-                setMensajeDemora(`Su turno será aproximadamente en ${demoraTotal} minutos (a las ${formatTime(horaEstimada)}).`);
+                const horaEstimadaString = formatTime(horaEstimada);
+
+                // Comparar la hora estimada con la hora del turno del cliente
+                if (horaEstimada <= horaTurnoClienteFecha) {
+                    // Si la hora estimada es menor o igual a la hora del turno, el turno está a horario
+                    setMensajeDemora(`Su turno está a horario, será atendido a las ${formatTime(horaTurnoClienteFecha)}.`);
+                } else {
+                    // Si la hora estimada es mayor, mostrar el mensaje de demora
+                    const minutosDemora = Math.floor((horaEstimada - now) / (1000 * 60)); // Calcular los minutos de demora
+                    setMensajeDemora(`Su turno será aproximadamente en ${minutosDemora} minutos (a las ${horaEstimadaString}).`);
+                }
             } else {
                 setMensajeDemora('No tienes turnos pendientes.');
             }
@@ -75,23 +84,40 @@ const EstadoPeluquero = () => {
     // Función para cancelar el turno
     const handleCancelarTurno = async () => {
         if (turno && turno.id) {
-            try {
-                const turnoRef = doc(db, 'reservas', turno.id); // Referencia al documento del turno
-                await deleteDoc(turnoRef); // Eliminar el documento del turno
-                alert('Tu turno ha sido cancelado.');
-                setTurno(null);
-                setMensajeDemora('');
-            } catch (error) {
-                console.error('Error al cancelar el turno:', error);
-                alert('Hubo un problema al cancelar el turno.');
+            const now = new Date(); // Hora actual
+
+            // Obtener la fecha y hora del turno
+            const [horaTurnoCliente, minutosTurnoCliente] = turno.hora.split(':').map(Number);
+            const fechaTurno = new Date(`${turno.fecha} ${horaTurnoCliente}:${minutosTurnoCliente}`);
+
+            // Calcular la diferencia de tiempo en milisegundos
+            const diferenciaEnMilisegundos = fechaTurno - now;
+            const horasFaltantes = diferenciaEnMilisegundos / (1000 * 60 * 60); // Convertir a horas
+
+            if (horasFaltantes < 4) {
+                // Mostrar alerta si faltan menos de 4 horas
+                alert('No puedes cancelar el turno porque faltan menos de 4 horas. Por favor, contacta a tu peluquero.');
+            } else {
+                // Permitir la cancelación si faltan más de 4 horas
+                try {
+                    const turnoRef = doc(db, 'reservas', turno.id); // Referencia al documento del turno
+                    await deleteDoc(turnoRef); // Eliminar el documento del turno
+                    alert('Tu turno ha sido cancelado.');
+                    setTurno(null);
+                    setMensajeDemora('');
+                } catch (error) {
+                    console.error('Error al cancelar el turno:', error);
+                    alert('Hubo un problema al cancelar el turno.');
+                }
             }
         }
     };
 
+
     return (
         <div className="estado-peluquero">
             <h2>Consulta el estado de tu turno</h2>
-            <p>En esta seccion podras consultar la informacion sobre tu turno y el estado del peluquero. Si el peluquero esta con demora ingresando tu DNI te informaremos la hora aproximada de tu corte, tambien podras cancelar tu turno </p>
+            <p>En esta seccion podras consultar la informacion sobre tu turno y el estado del peluquero. Si el peluquero esta con demora ingresando tu DNI te informaremos la hora aproximada de tu corte, tambien podras cancelar tu turno hasta un maximo de 4 horas antes del turno</p>
             <input
                 className='input-estado'
                 type="text"
