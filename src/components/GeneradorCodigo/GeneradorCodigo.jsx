@@ -34,7 +34,7 @@ const GeneradorCodigo = () => {
                 {loading ? 'Generando...' : 'Generar Código'}
             </button>
             {codigo && (
-                <div>
+                <div className='div-code'>
                     <p><strong>Código generado:</strong> {codigo}</p>
                     <p>Este código debe ser compartido con el cliente para su verificación.</p>
                 </div>

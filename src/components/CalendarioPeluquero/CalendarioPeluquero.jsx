@@ -251,7 +251,7 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
 
           const totalReservaMinutes = (horaDate.getHours() - startHour) * 60 + horaDate.getMinutes();
           const topPosition = (totalReservaMinutes * (gridHeight / totalMinutes));
-          const height = (duracion / 30) * 51;
+          const height = (duracion / 30) * 50;
 
           return (
             <div
@@ -277,7 +277,7 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
 
   const calcularGridProperties = () => {
     const totalMinutes = (rangoHorarioGlobal.endHour - rangoHorarioGlobal.startHour) * 60;
-    const gridHeight = (totalMinutes / 30) * 50 + 50;
+    const gridHeight = (totalMinutes / 30) * 50;
     return { gridHeight, totalMinutes, startHour: rangoHorarioGlobal.startHour };
   };
 

@@ -22,7 +22,6 @@ const PanelPeluquero = () => {
 
     return (
         <div>
-            <h1>Mi agenda</h1>
             <GeneradorCodigo />
             {uidPeluquero ? (
                 <CalendarioPeluquero uidPeluquero={uidPeluquero} />
