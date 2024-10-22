@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { db } from '../../firebaseConfig';
 import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import Swal from 'sweetalert2';
 import './EstadoPeluquero.css';
 
 const EstadoPeluquero = () => {
@@ -96,18 +97,39 @@ const EstadoPeluquero = () => {
 
             if (horasFaltantes < 4) {
                 // Mostrar alerta si faltan menos de 4 horas
-                alert('No puedes cancelar el turno porque faltan menos de 4 horas. Por favor, contacta a tu peluquero.');
+                Swal.fire({
+                    title: 'Error al cancelar el turno',
+                    text: 'No puedes cancelar el turno porque faltan menos de 4 horas. Por favor, contacta a tu peluquero.',
+                    icon: 'error',
+                    background: 'black', 
+                    color: 'white', 
+                    confirmButtonText: 'Ok'
+                });
             } else {
                 // Permitir la cancelación si faltan más de 4 horas
                 try {
                     const turnoRef = doc(db, 'reservas', turno.id); // Referencia al documento del turno
                     await deleteDoc(turnoRef); // Eliminar el documento del turno
-                    alert('Tu turno ha sido cancelado.');
+                    Swal.fire({
+                        title: 'Turno cancelado',
+                        text: 'Tu turno ha sido cancelado exitosamente, muchas gracias.',
+                        icon: 'success',
+                        background: 'black', 
+                        color: 'white', 
+                        confirmButtonText: 'Ok'
+                    });
                     setTurno(null);
                     setMensajeDemora('');
                 } catch (error) {
                     console.error('Error al cancelar el turno:', error);
-                    alert('Hubo un problema al cancelar el turno.');
+                    Swal.fire({
+                        title: 'Error al cancelar el turno',
+                        text: 'No puedes cancelar el turno porque faltan menos de 4 horas. Por favor, contacta a tu peluquero.',
+                        icon: 'error',
+                        background: 'black', 
+                        color: 'white', 
+                        confirmButtonText: 'Ok'
+                    });
                 }
             }
         }

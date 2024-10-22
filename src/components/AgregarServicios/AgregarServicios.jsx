@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebaseConfig'; // Asegúrate de que esta sea la ruta correcta
 import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import Swal from 'sweetalert2';
 import './AgregarServicio.css'
 
 const AgregarServicios = () => {
@@ -35,7 +36,14 @@ const AgregarServicios = () => {
                 duracion: parseInt(duracion), // Convertir a número entero
                 precio: parseFloat(precio) // Convertir a número flotante
             });
-            setMensaje('Servicio agregado exitosamente.');
+            Swal.fire({
+                title: 'Servicio agregado correctamente',
+                text: 'Para modificar precios, duracion de tiempo o eliminar servicio revisa la seccion inferior',
+                icon: 'success',
+                background: 'black', 
+                color: 'white', 
+                confirmButtonText: 'Ok'
+            });
             setNombreServicio('');
             setDuracion('');
             setPrecio('');
@@ -43,6 +51,13 @@ const AgregarServicios = () => {
         } catch (error) {
             console.error('Error agregando servicio:', error);
             setMensaje('Error al agregar servicio.');
+            Swal.fire({
+                title: 'Error al agregar el servicio',
+                icon: 'error',
+                background: 'black', 
+                color: 'white', 
+                confirmButtonText: 'Ok'
+            });
         }
     };
 
@@ -50,6 +65,13 @@ const AgregarServicios = () => {
     const handleEliminarServicio = async (id) => {
         try {
             await deleteDoc(doc(db, 'servicios', id));
+            Swal.fire({
+                title: 'Servicio eliminado correctamente',
+                icon: 'success',
+                background: 'black', 
+                color: 'white', 
+                confirmButtonText: 'Ok'
+            });
             fetchServicios(); // Refrescar la lista de servicios
         } catch (error) {
             console.error('Error eliminando servicio:', error);

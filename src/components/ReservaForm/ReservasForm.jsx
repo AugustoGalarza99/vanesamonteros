@@ -205,7 +205,14 @@ const ReservasForm = () => {
                                 status: 'Pendiente' // Establecer el estado de la reserva
                             });
 
-                            alert('Reserva creada con éxito');
+                            Swal.fire({
+                                title: 'Reserva registrada',
+                                text: 'Tu reserva ha sido creada exitosamente, muchas gracias.',
+                                icon: 'success',
+                                background: 'black', 
+                                color: 'white', 
+                                confirmButtonText: 'Ok'
+                            });
                             navigate('/estado'); // Redirigir al inicio o a otra página después de crear la reserva
                         } catch (error) {
                             console.error('Error al crear la reserva:', error);
@@ -280,7 +287,14 @@ const ReservasForm = () => {
                     setWhatsapp(whatsappNumber);
                     window.open(`https://wa.me/${whatsappNumber}?text=Hola,%20necesito%20un%20código%20de%20verificación%20para%20reservar%20mi%20turno.`, `_blank`);
                 } else {
-                    alert('No se encontró el número de WhatsApp del peluquero. Verifica el ID del peluquero.');
+                    Swal.fire({
+                        title: 'Error de peluquero',
+                        text: 'No se encontro el numero de telefono del peluquero, intenta nuevamente.',
+                        icon: 'error',
+                        background: 'black', 
+                        color: 'white', 
+                        confirmButtonText: 'Ok'
+                    });
                 }
             } catch (error) {
                 console.error('Error obteniendo el número de WhatsApp:', error);
@@ -318,11 +332,20 @@ const ReservasForm = () => {
                         title: 'Código incorrecto',
                         text: 'El código de verificación ingresado es incorrecto. Por favor, intenta nuevamente.',
                         icon: 'error',
+                        background: 'black', 
+                        color: 'white', 
                         confirmButtonText: 'Ok'
                     });
                 }
             } else {
-                alert('No se encontró el código de verificación.');
+                Swal.fire({
+                    title: 'Código incorrecto',
+                    text: 'El código de verificación ingresado es incorrecto. Por favor, intenta nuevamente.',
+                    icon: 'error',
+                    background: 'black', 
+                    color: 'white', 
+                    confirmButtonText: 'Ok'
+                });
             }
         } catch (error) {
             console.error('Error verificando el código:', error);
@@ -330,6 +353,8 @@ const ReservasForm = () => {
                 title: 'Error',
                 text: 'Ocurrió un error al verificar el código. Intenta nuevamente más tarde.',
                 icon: 'error',
+                background: 'black', 
+                color: 'white', 
                 confirmButtonText: 'Ok'
             });
         }
@@ -365,6 +390,8 @@ const ReservasForm = () => {
                 title: 'Error al crear la reserva',
                 text: 'Ocurrió un error al intentar crear la reserva. Por favor, intenta nuevamente más tarde.',
                 icon: 'error',
+                background: 'black', 
+                color: 'white', 
                 confirmButtonText: 'Ok'
             });
         }

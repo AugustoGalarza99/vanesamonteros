@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../firebaseConfig';
 import { collection, getDocs, addDoc, query, where, doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import './ReservaTurnoManual.css'
 
 const ReservaTurnoManual = () => {
@@ -208,7 +209,14 @@ const ReservaTurnoManual = () => {
                 status: 'Pendiente' // Establecer el estado de la reserva
             });
 
-            alert('Reserva creada con éxito');
+            Swal.fire({
+                title: 'Reserva registrada',
+                text: 'Tu reserva ha sido creada exitosamente, muchas gracias.',
+                icon: 'success',
+                background: 'black', 
+                color: 'white', 
+                confirmButtonText: 'Ok'
+            });
             navigate('/agenda'); // Redirigir al inicio o a otra página después de crear la reserva
         } catch (error) {
             console.error('Error al crear la reserva:', error);

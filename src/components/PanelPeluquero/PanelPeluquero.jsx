@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
-import FullCalendarDemo from '../FullCalendarDemo/FullCalendarDemo';
 import GeneradorCodigo from '../GeneradorCodigo/GeneradorCodigo';
 import CalendarioPeluquero from '../CalendarioPeluquero/CalendarioPeluquero';
 
 
 
 const PanelPeluquero = () => {
-    const [blockedTimes, setBlockedTimes] = useState([]); // Estado para horarios bloqueados
-    const [extraShifts, setExtraShifts] = useState([]);   // Estado para turnos extra
     const [uidPeluquero, setUidPeluquero] = useState(null);
 
     useEffect(() => {
@@ -32,12 +29,6 @@ const PanelPeluquero = () => {
             ) : (
                 <p>Cargando el UID del peluquero...</p>
             )}
-            {/*
-            <FullCalendarDemo 
-                blockedTimes={blockedTimes} 
-                extraShifts={extraShifts} 
-            />
-            */}
         </div>
     );
 };

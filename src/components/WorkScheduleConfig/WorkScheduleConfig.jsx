@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../firebaseConfig';
 import { getAuth } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import Swal from 'sweetalert2';
 import './WorkScheduleConfig.css';
 
 const WorkScheduleConfig = () => {
@@ -39,10 +40,22 @@ const WorkScheduleConfig = () => {
     try {
       const scheduleDocRef = doc(db, 'horarios', uidPeluquero);
       await setDoc(scheduleDocRef, workDays);
-      alert('Horario guardado correctamente.');
+      Swal.fire({
+        title: 'Horario guardado correctamente',
+        icon: 'success',
+        background: 'black', 
+        color: 'white', 
+        confirmButtonText: 'Ok'
+    });
     } catch (error) {
       console.error('Error guardando horario: ', error);
-      alert('Error guardando horario, intenta nuevamente.');
+      Swal.fire({
+        title: 'Error al guardad el horario',
+        icon: 'error',
+        background: 'black', 
+        color: 'white', 
+        confirmButtonText: 'Ok'
+    });
     }
   };
 
