@@ -32,6 +32,11 @@
   .calendario-hora.descanso{
     background-color: rgb(70, 69, 69);
   } 
+  .calendario-hora.trabajando{
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center;     /* Centra verticalmente */
+  } 
   .espacio-en-blanco {
     background-color: transparent; /* O el color que desees para los espacios en blanco */
     height: 30px; /* Asegúrate de que tenga la misma altura que las franjas horarias */
