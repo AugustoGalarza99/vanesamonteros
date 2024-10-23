@@ -127,7 +127,7 @@ const ReservasForm = () => {
                                 endTime = new Date(`1970-01-01T${endHour2}:00`);
     
                                 while (startTime < endTime) {
-                                    const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                    const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
                                     availableSlots.push(slotTime);
                                     startTime.setMinutes(startTime.getMinutes() + 30); // Incrementar 30 minutos
                                 }
