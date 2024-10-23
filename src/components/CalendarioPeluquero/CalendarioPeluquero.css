@@ -76,7 +76,8 @@
     /*padding: 5px;*/
     box-sizing: border-box;
     font-size: 12px; /* Ajusta el tamaño de texto del evento */
-    border: 1px solid white;
+    border: 1px solid black;
+    box-shadow: 0 0 0 4px black; /* Efecto de borde externo */
     cursor: pointer;
   }
   
@@ -91,7 +92,8 @@
     padding: 5px;
     box-sizing: border-box;
     font-size: 12px; /* Ajusta el tamaño de texto del evento */   
-    border: 1px solid white;
+    border: 1px solid black;
+    box-shadow: 0 0 0 4px black; /* Efecto de borde externo */
     cursor: pointer;
   }
   
@@ -105,7 +107,8 @@
     /*padding: 5px;*/
     box-sizing: border-box;
     font-size: 12px; /* Ajusta el tamaño de texto del evento */
-    border: 1px solid white;
+    border: 1px solid black;
+    box-shadow: 0 0 0 4px black; /* Efecto de borde externo */
     cursor: pointer;
   }
   
@@ -119,7 +122,8 @@
     /*padding: 5px;*/
     box-sizing: border-box;
     font-size: 12px; /* Ajusta el tamaño de texto del evento */
-    border: 1px solid white;
+    border: 1px solid black;
+    box-shadow: 0 0 0 4px black; /* Efecto de borde externo */
     cursor: pointer;
   }
   .calendario-navigation{
