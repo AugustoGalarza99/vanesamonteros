@@ -4,6 +4,7 @@ import { auth, db } from '../../firebaseConfig'; // Asegúrate de tener configur
 import { getDoc, doc } from 'firebase/firestore';
 import './Navbar.css'; // Agregaremos los estilos luego
 import { Link } from 'react-router-dom'; // Necesario cuando configures rutas
+import logo from '../../../public/barber2.jpg'
 
 function Navbar({ isPeluquero }) {
   const [user] = useAuthState(auth); // Verificamos si el usuario está autenticado
@@ -42,7 +43,7 @@ function Navbar({ isPeluquero }) {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-      <Link to="/"><img src="src/assets/barber2.jpg" alt="Logo"/></Link>
+      <Link to="/"><img src={logo} alt="Logo"/></Link>
       </div>
       <div className="navbar">
       <div className={`navbar-menu ${isOpen ? 'open' : ''}`}>
