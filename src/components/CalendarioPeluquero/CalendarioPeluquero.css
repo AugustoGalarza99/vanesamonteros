@@ -77,7 +77,7 @@
     box-sizing: border-box;
     font-size: 12px; /* Ajusta el tamaño de texto del evento */
     border: 1px solid black;
-    box-shadow: 0 0 0 4px black; /* Efecto de borde externo */
+
     cursor: pointer;
   }
   
@@ -93,7 +93,7 @@
     box-sizing: border-box;
     font-size: 12px; /* Ajusta el tamaño de texto del evento */   
     border: 1px solid black;
-    box-shadow: 0 0 0 4px black; /* Efecto de borde externo */
+
     cursor: pointer;
   }
   
@@ -108,7 +108,7 @@
     box-sizing: border-box;
     font-size: 12px; /* Ajusta el tamaño de texto del evento */
     border: 1px solid black;
-    box-shadow: 0 0 0 4px black; /* Efecto de borde externo */
+
     cursor: pointer;
   }
   
@@ -123,7 +123,7 @@
     box-sizing: border-box;
     font-size: 12px; /* Ajusta el tamaño de texto del evento */
     border: 1px solid black;
-    box-shadow: 0 0 0 4px black; /* Efecto de borde externo */
+
     cursor: pointer;
   }
   .calendario-navigation{
@@ -198,6 +198,7 @@
     .div-contenedor-calendar{
       display: flex;
       justify-content: space-between;
+      margin-top: 20px;
     }
     .button-dias{
       margin-top: 10px;  
