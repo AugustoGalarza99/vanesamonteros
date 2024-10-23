@@ -26,7 +26,7 @@
   }
   
   .calendario-hora {
-    height: 50px; /* Ajusta según lo necesites */
+    height: 49px; /* Ajusta según lo necesites */
     /*border: 1px solid #ddd;*/
   }
   .calendario-hora.descanso{

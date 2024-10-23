@@ -13,6 +13,9 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
   const [fechaInicial, setFechaInicial] = useState(new Date());
   const [fechasSemana, setFechasSemana] = useState([]);
   const [rangoHorarioGlobal, setRangoHorarioGlobal] = useState({ startHour: 8, endHour: 21 });
+  const [modoVista, setModoVista] = useState(7); // Por defecto, 7 días (semana)
+
+  
 
   const fetchHorariosPeluquero = async () => {
     try {
@@ -82,21 +85,31 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
   };
 
   const calcularFechasSemana = () => {
-    const inicioSemana = startOfWeek(fechaInicial, { weekStartsOn: 1 });
     const fechas = [];
-
-    for (let i = 0; i < 7; i++) {
-      fechas.push(addDays(inicioSemana, i));
+  
+    if (modoVista === 7) {
+      // Ver 7 días (Semana completa)
+      const inicioSemana = startOfWeek(fechaInicial, { weekStartsOn: 1 }); // Inicio de la semana
+      for (let i = 0; i < 7; i++) {
+        fechas.push(addDays(inicioSemana, i));
+      }
+    } else {
+      // Ver 1 día o 3 días (Comienza desde el día actual)
+      for (let i = 0; i < modoVista; i++) {
+        fechas.push(addDays(fechaInicial, i)); // Empezamos desde la fechaInicial (que sería el día actual)
+      }
     }
-
+  
     setFechasSemana(fechas);
   };
-
+  
   useEffect(() => {
     fetchHorariosPeluquero();
     fetchReservasPeluquero();
-    calcularFechasSemana();
-  }, [uidPeluquero, fechaInicial]);
+    calcularFechasSemana(); // Recalcular las fechas según el modo de vista
+  }, [uidPeluquero, fechaInicial, modoVista]);
+  
+  
 
   const renderHorasDelDia = (horarioDia) => {
     const horas = [];
@@ -283,14 +296,38 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
 
   return (
     <div className="calendario">
-      <div className="calendario-navigation">
-        <button className='button-semana' onClick={() => setFechaInicial(prev => addDays(prev, -7))}>
-          Semana Anterior
-        </button>
-        <button className='button-semana' onClick={() => setFechaInicial(prev => addDays(prev, 7))}>
-          Semana Siguiente
-        </button>
-      </div>
+<div className="calendario-navigation">
+  <button className='button-semana' onClick={() => setFechaInicial(prev => addDays(prev, -modoVista))}>
+    {modoVista === 1 ? 'Día Anterior' : 'Semana Anterior'}
+  </button>
+  <button className='button-semana' onClick={() => setFechaInicial(prev => addDays(prev, modoVista))}>
+    {modoVista === 1 ? 'Día Siguiente' : 'Semana Siguiente'}
+  </button>
+</div>
+
+
+      <div className="calendario-view-buttons">
+  <button className='button-view' onClick={() => {
+    setModoVista(1);
+    setFechaInicial(new Date()); // Cuando se elige ver un solo día, el día actual será la fecha inicial
+  }}>
+    Ver Día
+  </button>
+  <button className='button-view' onClick={() => {
+    setModoVista(3);
+    setFechaInicial(new Date()); // Cuando se elige ver 3 días, empezamos desde el día actual
+  }}>
+    Ver 3 Días
+  </button>
+  <button className='button-view' onClick={() => {
+    setModoVista(7);
+    setFechaInicial(startOfWeek(new Date(), { weekStartsOn: 1 })); // Cuando se elige ver la semana, se inicia desde el comienzo de la semana
+  }}>
+    Ver Semana
+  </button>
+</div>
+
+
 
       <div className="calendario-header">
         {fechasSemana.map((fecha, index) => (
