@@ -71,157 +71,156 @@ const ReservaTurnoManual = () => {
     }, []);
 
     // Obtener horarios disponibles del peluquero seleccionado y la fecha
-    const fetchHorariosDisponibles = async () => {
-        if (profesional && fecha) {
-            try {
-                const peluqueroRef = doc(db, 'peluqueros', profesional);
-                const peluqueroDoc = await getDoc(peluqueroRef);
+const fetchHorariosDisponibles = async () => {
+    if (profesional && fecha) {
+        try {
+            const peluqueroRef = doc(db, 'peluqueros', profesional);
+            const peluqueroDoc = await getDoc(peluqueroRef);
 
-                if (peluqueroDoc.exists()) {
-                    const peluqueroData = peluqueroDoc.data();
-                    const uidPeluquero = peluqueroData.uid;
+            if (peluqueroDoc.exists()) {
+                const peluqueroData = peluqueroDoc.data();
+                const uidPeluquero = peluqueroData.uid;
 
-                    const horariosRef = doc(db, 'horarios', uidPeluquero);
-                    const horariosDoc = await getDoc(horariosRef);
+                const horariosRef = doc(db, 'horarios', uidPeluquero);
+                const horariosDoc = await getDoc(horariosRef);
 
-                    if (horariosDoc.exists()) {
-                        const horariosData = horariosDoc.data();
-                        
-                        // Asegurarse de que el formato sea correcto (ISO y UTC)
-                        const selectedDate = new Date(`${fecha}T00:00:00Z`); // Fecha en UTC
-                        const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-                        const diaSeleccionado = selectedDate.getUTCDay(); // Día de la semana en UTC
-                        const dia = diasSemana[diaSeleccionado]; // Mapeo al nombre del día en español
+                if (horariosDoc.exists()) {
+                    const horariosData = horariosDoc.data();
 
-                        const horariosDelDia = horariosData[dia];
+                    // Asegurarse de que el formato sea correcto (ISO y UTC)
+                    const selectedDate = new Date(`${fecha}T00:00:00Z`); // Fecha en UTC
+                    const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+                    const diaSeleccionado = selectedDate.getUTCDay(); // Día de la semana en UTC
+                    const dia = diasSemana[diaSeleccionado]; // Mapeo al nombre del día en español
 
-                        if (horariosDelDia && horariosDelDia.isWorking) {
-                            const availableSlots = [];
+                    const horariosDelDia = horariosData[dia];
 
-                            // Horarios de la mañana
-                            const startHour1 = horariosDelDia.start1;
-                            const endHour1 = horariosDelDia.end1;
-                            let startTime = new Date(`1970-01-01T${startHour1}:00`);
-                            let endTime = new Date(`1970-01-01T${endHour1}:00`);
+                    if (horariosDelDia && horariosDelDia.isWorking) {
+                        const availableSlots = [];
 
-                            while (startTime < endTime) {
-                                const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                availableSlots.push(slotTime);
-                                startTime.setMinutes(startTime.getMinutes() + 30); // Incrementar 30 minutos
-                            }
+                        // Horarios de la mañana
+                        const startHour1 = horariosDelDia.start1;
+                        const endHour1 = horariosDelDia.end1;
+                        let startTime = new Date(`1970-01-01T${startHour1}:00`);
+                        let endTime = new Date(`1970-01-01T${endHour1}:00`);
 
-                            // Horarios de la tarde
-                            const startHour2 = horariosDelDia.start2;
-                            const endHour2 = horariosDelDia.end2;
-                            startTime = new Date(`1970-01-01T${startHour2}:00`);
-                            endTime = new Date(`1970-01-01T${endHour2}:00`);
-
-                            while (startTime < endTime) {
-                                const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                availableSlots.push(slotTime);
-                                startTime.setMinutes(startTime.getMinutes() + 30); // Incrementar 30 minutos
-                            }
-
-                            // Filtrar horarios ocupados y solapados
-                            const reservasRef = collection(db, 'reservas');
-                            const queryReservas = query(reservasRef, where('fecha', '==', fecha), where('uidPeluquero', '==', uidPeluquero));
-                            const querySnapshot = await getDocs(queryReservas);
-                            const ocupados = querySnapshot.docs.map(doc => {
-                                const data = doc.data();
-                                return { 
-                                    start: new Date(`${fecha}T${data.hora}`), 
-                                    end: new Date(new Date(`${fecha}T${data.hora}`).getTime() + data.duracion * 60000) 
-                                };
-                            });
-
-                            const horariosFiltrados = availableSlots.filter(slot => {
-                                const slotStartTime = new Date(`${fecha}T${slot}`);
-                                const slotEndTime = new Date(slotStartTime.getTime() + duracionServicio * 60000);
-                                
-                                // Verifica que no haya solapamiento
-                                return !ocupados.some(({ start, end }) => (
-                                    (start < slotEndTime && end > slotStartTime) // Solapamiento
-                                ));
-                            });
-
-                            setHorariosDisponibles(horariosFiltrados);
-                        } else {
-                            setHorariosDisponibles([]); // Sin horarios disponibles
+                        while (startTime < endTime) {
+                            const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+                            availableSlots.push(slotTime);
+                            startTime.setMinutes(startTime.getMinutes() + 30); // Incrementar 30 minutos
                         }
+
+                        // Horarios de la tarde
+                        const startHour2 = horariosDelDia.start2;
+                        const endHour2 = horariosDelDia.end2;
+                        startTime = new Date(`1970-01-01T${startHour2}:00`);
+                        endTime = new Date(`1970-01-01T${endHour2}:00`);
+
+                        while (startTime < endTime) {
+                            const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+                            availableSlots.push(slotTime);
+                            startTime.setMinutes(startTime.getMinutes() + 30); // Incrementar 30 minutos
+                        }
+
+                        // Filtrar horarios ocupados y solapados
+                        const reservasRef = collection(db, 'reservas');
+                        const queryReservas = query(reservasRef, where('fecha', '==', fecha), where('uidPeluquero', '==', uidPeluquero));
+                        const querySnapshot = await getDocs(queryReservas);
+                        const ocupados = querySnapshot.docs.map(doc => {
+                            const data = doc.data();
+                            return { 
+                                start: new Date(`${fecha}T${data.hora}`), 
+                                end: new Date(new Date(`${fecha}T${data.hora}`).getTime() + data.duracion * 60000) 
+                            };
+                        });
+
+                        const horariosFiltrados = availableSlots.filter(slot => {
+                            const slotStartTime = new Date(`${fecha}T${slot}`);
+                            const slotEndTime = new Date(slotStartTime.getTime() + duracionServicio * 60000);
+                            
+                            // Verifica que no haya solapamiento
+                            return !ocupados.some(({ start, end }) => (
+                                (start < slotEndTime && end > slotStartTime) // Solapamiento
+                            ));
+                        });
+
+                        setHorariosDisponibles(horariosFiltrados);
+                    } else {
+                        setHorariosDisponibles([]); // Sin horarios disponibles
                     }
                 }
-            } catch (error) {
-                console.error('Error obteniendo horarios:', error);
             }
+        } catch (error) {
+            console.error('Error obteniendo horarios:', error);
         }
-    };
-
+    }
+};
+useEffect(() => {
     fetchHorariosDisponibles();
+}, [profesional, fecha, duracionServicio]); // Asegúrate de que estas dependencias estén incluidas
 
-    // Actualizar horarios cuando cambian el servicio, profesional o fecha
-    useEffect(() => {
-        fetchHorariosDisponibles();
-    }, [profesional, fecha, duracionServicio]); // Agregar duracionServicio como dependencia
 
-    const handleAgendar = async (e) => {
-        e.preventDefault(); // Evitar el comportamiento predeterminado del formulario
+// En la función handleAgendar
+const handleAgendar = async (e) => {
+    e.preventDefault(); // Evitar el comportamiento predeterminado del formulario
 
-        // Calcular el tiempo de fin
-        const startTime = new Date(`${fecha}T${hora}`);
-        const endTime = new Date(startTime.getTime() + duracionServicio * 60000); // Añade la duración
+    // Calcular el tiempo de fin
+    const startTime = new Date(`${fecha}T${hora}`); // Esto ya está en formato 24 horas
+    const endTime = new Date(startTime.getTime() + duracionServicio * 60000); // Añade la duración
 
-        // Verificar si ya existe una reserva para ese horario
+    // Verificar si ya existe una reserva para ese horario
+    const reservasRef = collection(db, 'reservas');
+    const q = query(reservasRef, where('fecha', '==', fecha), where('uidPeluquero', '==', profesional));
+    const querySnapshot = await getDocs(q);
+
+    const solapamiento = querySnapshot.docs.some(doc => {
+        const data = doc.data();
+        const turnoStart = new Date(`${data.fecha}T${data.hora}`);
+        const turnoEnd = new Date(turnoStart.getTime() + (data.duracion || duracionServicio) * 60000); // Usa la duración del turno existente o la predeterminada
+
+        const nuevoTurnoStart = new Date(`${fecha}T${hora}`);
+        const nuevoTurnoEnd = new Date(nuevoTurnoStart.getTime() + duracionServicio * 60000); // Duración del nuevo servicio
+
+        // Verificar si hay solapamiento
+        return (
+            (turnoStart < nuevoTurnoEnd && turnoEnd > nuevoTurnoStart) // Solapamiento
+        );
+    });
+
+    if (solapamiento) {
+        alert('El turno se solapa con otro ya existente. Por favor, elige otro horario.');
+        return; // No continuar si hay solapamiento
+    }
+
+    try {
+        // Guardar la reserva en Firestore
         const reservasRef = collection(db, 'reservas');
-        const q = query(reservasRef, where('fecha', '==', fecha), where('uidPeluquero', '==', profesional));
-        const querySnapshot = await getDocs(q);
-
-        const solapamiento = querySnapshot.docs.some(doc => {
-            const data = doc.data();
-            const turnoStart = new Date(`${data.fecha}T${data.hora}`);
-            const turnoEnd = new Date(turnoStart.getTime() + (data.duracion || duracionServicio) * 60000); // Usa la duración del turno existente o la predeterminada
-
-            const nuevoTurnoStart = new Date(`${fecha}T${hora}`);
-            const nuevoTurnoEnd = new Date(nuevoTurnoStart.getTime() + duracionServicio * 60000); // Duración del nuevo servicio
-
-            // Verificar si hay solapamiento
-            return (
-                (turnoStart < nuevoTurnoEnd && turnoEnd > nuevoTurnoStart) // Solapamiento
-            );
+        await addDoc(reservasRef, {
+            nombre,
+            apellido,
+            telefono,
+            servicio,
+            fecha,
+            hora, // Se guarda en formato 24 horas
+            duracion: duracionServicio,
+            uidPeluquero: profesional,
+            status: 'Pendiente' // Establecer el estado de la reserva
         });
 
-        if (solapamiento) {
-            alert('El turno se solapa con otro ya existente. Por favor, elige otro horario.');
-            return; // No continuar si hay solapamiento
-        }
+        Swal.fire({
+            title: 'Reserva registrada',
+            text: 'Tu reserva ha sido creada exitosamente, muchas gracias.',
+            icon: 'success',
+            background: 'black', 
+            color: 'white', 
+            confirmButtonText: 'Ok'
+        });
+        navigate('/agenda'); // Redirigir al inicio o a otra página después de crear la reserva
+    } catch (error) {
+        console.error('Error al crear la reserva:', error);
+    }
+};
 
-        try {
-            // Guardar la reserva en Firestore
-            const reservasRef = collection(db, 'reservas');
-            await addDoc(reservasRef, {
-                nombre,
-                apellido,
-                telefono,
-                servicio,
-                fecha,
-                hora,
-                duracion: duracionServicio,
-                uidPeluquero: profesional,
-                status: 'Pendiente' // Establecer el estado de la reserva
-            });
-
-            Swal.fire({
-                title: 'Reserva registrada',
-                text: 'Tu reserva ha sido creada exitosamente, muchas gracias.',
-                icon: 'success',
-                background: 'black', 
-                color: 'white', 
-                confirmButtonText: 'Ok'
-            });
-            navigate('/agenda'); // Redirigir al inicio o a otra página después de crear la reserva
-        } catch (error) {
-            console.error('Error al crear la reserva:', error);
-        }
-    };
 
     return (
             <form className='form-reserva' onSubmit={handleAgendar}>
