@@ -213,26 +213,49 @@
       animation: button-shimmer 2s infinite;
       transition: all 0.3s ease-in-out;
     }
-        /*VISTA MOBILE*/
-        @media (max-width: 600px) {
-          .button-semana{
-            font-size: 12px;
-          }
-          .button-dias{
-            font-size: 12px;
-          }
-          .button-codigo{
-            font-size: 12px;
-          }
-          .calendario-header{
-            display: flex;
-            justify-content: space-around;
-            text-align: center;
-          }
-          .calendario-dia{
-            display: flex;
-            font-size: 14px;
-            align-items: center;
-            justify-content: space-around;
-          }
+    /*VISTA MOBILE -350px*/
+    @media (min-width: 150px) {
+      .button-semana{
+        font-size: 12px;
+      }
+      .button-dias{
+        font-size: 12px;
         }
+      .button-codigo{
+          font-size: 12px;
+      }
+      .calendario-header{
+        display: flex;
+        justify-content: space-around;
+        text-align: center;
+      }
+      .calendario-dia{
+        display: flex;
+        font-size: 14px;
+        align-items: center;
+        justify-content: space-around;
+      }
+      }
+    /*VISTA MOBILE*/
+    @media (min-width: 450px) {
+      .button-semana{
+        font-size: 14px;
+      }
+      .button-dias{
+        font-size: 14px;
+        }
+      .button-codigo{
+          font-size: 14px;
+      }
+      .calendario-header{
+        display: flex;
+        justify-content: space-around;
+        text-align: center;
+      }
+      .calendario-dia{
+        display: flex;
+        font-size: 14px;
+        align-items: center;
+        justify-content: space-around;
+      }
+      }
