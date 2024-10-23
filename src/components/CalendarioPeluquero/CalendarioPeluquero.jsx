@@ -254,14 +254,14 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
           const height = (duracion / 30) * 50;
 
           return (
-            <div style={{ overflow: 'hidden', width: '100%', display:'grid' }}>
+            <div style={{ position: 'absolute', left:'0', top: `${topPosition}px` , width: '100%', display:'grid', zIndex: 1  }}>
   <div
     key={reserva.id}
     className={`reserva ${estiloReserva}`}
     style={{
-      position: 'absolute',
-      left: '0',
-      top: `${topPosition}px`,
+    
+      
+      
       width: '120%', // El div hijo será 120% del ancho de su padre
       height: `${height}px`,
       zIndex: 1,
