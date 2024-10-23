@@ -26,7 +26,7 @@
   }
   
   .calendario-hora {
-    height: 3rem; /* Ajusta según lo necesites */
+    height: 50px; /* Ajusta según lo necesites */
     /*border: 1px solid #ddd;*/
   }
   .calendario-hora.descanso{
@@ -38,8 +38,8 @@
     align-items: center;     /* Centra verticalmente */
   } 
   .espacio-en-blanco {
-    /*background-color: transparent; /* O el color que desees para los espacios en blanco 
-    height: 30px; /* Asegúrate de que tenga la misma altura que las franjas horarias 
+    background-color: transparent; /* O el color que desees para los espacios en blanco */
+    height: 30px; /* Asegúrate de que tenga la misma altura que las franjas horarias */
     color: transparent; /* Ocultar el texto si no lo necesitas */
   }
 
@@ -49,7 +49,7 @@
     width: 100%;
     max-width: 700px; /* Ajusta esto si necesitas más ancho para el calendario */
     display: grid;
-    grid-template-columns: repeat(auto-fill, 3rem); /* Cada celda será de 50px de ancho */
+    grid-template-columns: repeat(auto-fill, 50px); /* Cada celda será de 50px de ancho */
     grid-auto-rows: 50px; /* Cada celda será de 50px de alto por 30 minutos */
     border: 1px solid #ccc;
   }
