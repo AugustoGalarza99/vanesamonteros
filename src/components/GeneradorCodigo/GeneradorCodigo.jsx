@@ -29,7 +29,7 @@ const GeneradorCodigo = () => {
 
     return (
         <div className='code'>
-            <h3>Generar Código de Verificación</h3>
+            <h3>Mi agenda</h3>
             <button className='button-codigo' onClick={generarCodigo} disabled={loading}>
                 {loading ? 'Generando...' : 'Generar Código'}
             </button>
