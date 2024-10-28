@@ -1,15 +1,21 @@
-// src/components/ScrollButton/ScrollButton.jsx
 import React, { useState, useEffect } from "react";
 import { FaArrowUp } from "react-icons/fa";
 import "./ScrollButton.css";
 
 const ScrollButton = () => {
   const [visible, setVisible] = useState(false);
+  const [navbarHeight, setNavbarHeight] = useState(0);
 
   useEffect(() => {
+    // Obtener la altura del navbar una vez que el componente ha cargado
+    const navbar = document.querySelector(".navbar");
+    if (navbar) {
+      setNavbarHeight(navbar.offsetHeight); // Guardamos la altura del navbar
+    }
+
     const toggleVisibility = () => {
-      // Mostrar el botón si se desplaza más de 10px hacia abajo
-      if (window.pageYOffset > 10) {  
+      // Verificar si el desplazamiento es mayor que la altura del navbar
+      if (window.pageYOffset > navbarHeight) {
         setVisible(true);
       } else {
         setVisible(false);
@@ -18,7 +24,7 @@ const ScrollButton = () => {
 
     window.addEventListener("scroll", toggleVisibility);
     return () => window.removeEventListener("scroll", toggleVisibility);
-  }, []);
+  }, [navbarHeight]);
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -39,4 +45,3 @@ const ScrollButton = () => {
 };
 
 export default ScrollButton;
-

@@ -16,7 +16,7 @@
 }
 
 .scroll-to-top.show {
-    opacity: 0.8; /* Ajusta la opacidad al mostrar el botón */
+    opacity: 0.8; /* Botón se muestra con opacidad cuando es visible */
 }
 
 .scroll-to-top:hover {

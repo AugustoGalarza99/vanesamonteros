@@ -52,6 +52,7 @@ function App() {
   return (
     <Router>
       <Navbar isPeluquero={isPeluquero} /> {/* Pasamos el estado isPeluquero al Navbar */}
+      
       <div>
         <Routes>
           <Route path='/' element={<ReservaPage />} />
