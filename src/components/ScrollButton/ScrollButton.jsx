@@ -1,46 +1,39 @@
+// src/components/ScrollButton/ScrollButton.jsx
 import React, { useState, useEffect } from "react";
-import { FaArrowUp } from "react-icons/fa";
+import { FaArrowUp } from "react-icons/fa"; // Asegúrate de tener react-icons instalado
 import "./ScrollButton.css";
 
 const ScrollButton = () => {
-  const [visible, setVisible] = useState(false);
-  const [navbarHeight, setNavbarHeight] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
 
+  // Mostrar el botón cuando el usuario hace scroll hacia abajo
   useEffect(() => {
-    // Obtener la altura del navbar una vez que el componente ha cargado
-    const navbar = document.querySelector(".navbar");
-    if (navbar) {
-      setNavbarHeight(navbar.offsetHeight); // Guardamos la altura del navbar
-    }
-
     const toggleVisibility = () => {
-      // Verificar si el desplazamiento es mayor que la altura del navbar
-      if (window.pageYOffset > navbarHeight) {
-        setVisible(true);
+      if (window.scrollY > 20) {
+        setIsVisible(true);
       } else {
-        setVisible(false);
+        setIsVisible(false);
       }
     };
 
     window.addEventListener("scroll", toggleVisibility);
     return () => window.removeEventListener("scroll", toggleVisibility);
-  }, [navbarHeight]);
+  }, []);
 
+  // Función para hacer scroll hacia arriba
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: "smooth"
+      behavior: "smooth",
     });
   };
 
   return (
-    <button 
-      className={`scroll-to-top ${visible ? "show" : ""}`}
-      onClick={scrollToTop}
-      aria-label="Scroll to top"
-    >
-      <FaArrowUp />
-    </button>
+    isVisible && (
+      <button className="scroll-button" onClick={scrollToTop}>
+        <FaArrowUp size={14} color="white" />
+      </button>
+    )
   );
 };
 

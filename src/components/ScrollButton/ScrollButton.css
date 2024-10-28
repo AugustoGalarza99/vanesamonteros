@@ -1,24 +1,26 @@
 /* src/components/ScrollButton/ScrollButton.css */
-
-.scroll-to-top {
+.scroll-button {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    padding: 10px;
+    background-color: #444444; /* Cambia el color según tu preferencia */
+    color: white;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
     cursor: pointer;
-    z-index: 1000;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.scroll-to-top.show {
-    opacity: 0.8; /* Botón se muestra con opacidad cuando es visible */
-}
-
-.scroll-to-top:hover {
-    opacity: 1;
-}
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: opacity 0.3s;
+    z-index: 1000; /* Asegúrate de que esté encima de otros elementos */
+  }
+  
+  
+  .scroll-button:active {
+    transform: scale(0.9);
+  }
+  

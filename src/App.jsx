@@ -52,7 +52,7 @@ function App() {
   return (
     <Router>
       <Navbar isPeluquero={isPeluquero} /> {/* Pasamos el estado isPeluquero al Navbar */}
-      
+      <ScrollButton />
       <div>
         <Routes>
           <Route path='/' element={<ReservaPage />} />
@@ -70,7 +70,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>        
       </div>
-      <ScrollButton />
+      
     </Router>
   );
 }

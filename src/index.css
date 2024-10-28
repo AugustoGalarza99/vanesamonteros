@@ -3,7 +3,7 @@
 html, body, #root {
   margin: 0;
   padding: 0;
-  height: 100vh; /* Altura del 100% de la ventana */
+  min-height: 100vh; /* Altura del 100% de la ventana */
   width: 100vw;  /* Ancho del 100% de la ventana */
   overflow-x: hidden; /* Desactiva el desplazamiento horizontal */ 
   --titulo-color: #1b1c3f;
