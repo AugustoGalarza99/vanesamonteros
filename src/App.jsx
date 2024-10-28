@@ -14,6 +14,7 @@ import ReservaManual from './pages/ReservaManual';
 import Horarios from './pages/Horarios';
 import Servicios from './pages/Servicios';
 import Loader from './components/Loader/Loader';
+import ScrollButton from './components/ScrollButton/ScrollButton';
 
 
 // Componentes simples para las páginas
@@ -66,8 +67,9 @@ function App() {
 
           {/* Si el usuario intenta ir a una ruta que no existe */}
           <Route path="*" element={<NotFound />} />
-        </Routes>
+        </Routes>        
       </div>
+      <ScrollButton />
     </Router>
   );
 }
