@@ -6,7 +6,7 @@
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background-color: #ffffff; /* Cambia el color según tu preferencia */
+    background-color: #000000; /* Cambia el color según tu preferencia */
     color: white;
     font-size: 24px;
     display: flex;
@@ -20,7 +20,7 @@
 }
 
 .scroll-to-top:hover {
-    background-color: #ffffff; /* Color más oscuro en hover */
+    background-color: #000000; /* Color más oscuro en hover */
 }
 
 .scroll-to-top:active {
