@@ -3,6 +3,7 @@ import { doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc } 
 import { db } from '../../firebaseConfig';
 import { addDays, startOfWeek, format, isSameDay } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { limpiarReservasAntiguas } from '../../reservaService'
 import Swal from 'sweetalert2';
 import './CalendarioPeluquero.css';
 
@@ -187,6 +188,13 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
         if (result.isConfirmed) {
           actualizarEstadoTurno(id, 'en proceso'); 
           Swal.fire('Turno Iniciado', '', 'success');
+
+          // Limpieza de reservas si es el primer turno del día
+          const isFirstTurnToday = verificarPrimerTurnoDelDia();
+          if (isFirstTurnToday) {
+             limpiarReservasAntiguas(); // Llama a la función de limpieza
+          }
+          
         } else if (result.isDenied) {
           handleRemindTurn(reserva); 
           Swal.fire('Recordatorio enviado', '', 'info');
@@ -209,6 +217,20 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
       });
     }
   };
+
+  // Nueva función para verificar si es el primer turno del día
+const verificarPrimerTurnoDelDia = async () => {
+  const now = new Date();
+  const hoy = now.toISOString().split('T')[0]; // Fecha actual en formato "YYYY-MM-DD"
+
+  // Buscar turnos con estado "en proceso" para el día de hoy
+  const reservasRef = collection(db, 'reservas');
+  const q = query(reservasRef, where('status', '==', 'en proceso'), where('fecha', '==', hoy));
+  const querySnapshot = await getDocs(q);
+
+  // Si no hay turnos en proceso hoy, es el primer turno del día
+  return querySnapshot.empty;
+};
 
   const actualizarEstadoTurno = async (reservaId, nuevoEstado) => {
     try {

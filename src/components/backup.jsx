@@ -1,54 +1,110 @@
-const renderReservas = (diaFecha) => {
-    const { gridHeight, totalMinutes, startHour } = calcularGridProperties();
+/*RESERVAFORM*/
 
-    return reservas.map((reserva) => {
-      const { hora, status, duracion } = reserva;
-      const horaDate = new Date(`1970-01-01T${hora}:00`);
-      const reservaFecha = new Date(reserva.fecha);
+const handleAgendar = async (e) => {
+  e.preventDefault(); // Evitar el comportamiento predeterminado del formulario
+  try {
+      const clientesRef = collection(db, 'clientes'); // Referencia a la colección de clientes
+      const q = query(clientesRef, where('dni', '==', dni)); // Buscar cliente por DNI
+      const querySnapshot = await getDocs(q); // Obtener documentos que coinciden con la consulta
 
-      if (!isNaN(reservaFecha) && !isNaN(horaDate)) {
-        const esMismaFecha = isSameDay(reservaFecha, diaFecha);
+      if (!querySnapshot.empty) {
+          for (const doc of querySnapshot.docs) {
+              const userData = doc.data(); // Obtener datos del usuario
+              if (userData.telefono === telefono && userData.verificado) {
+                  setVerificado(true);
 
-        if (esMismaFecha) {
-          let estiloReserva = '';
+                  // Guardar la reserva en Firestore
+                  try {
+                      const reservasRef = collection(db, 'reservas'); // Referencia a la colección de reservas
+                      
+                      // Calcula el tiempo de fin
+                      const startTime = new Date(`${fecha}T${hora}`);
+                      const endTime = new Date(startTime.getTime() + duracionServicio * 60000); // Añade la duración
 
-          // Estilo del evento según su estado
-          switch (status) {
-            case 'Pendiente':
-              estiloReserva = 'reserva-pendiente';
-              break;
-            case 'en proceso':
-              estiloReserva = 'reserva-en-proceso';
-              break;
-            case 'finalizado':
-              estiloReserva = 'reserva-finalizada';
-              break;
-            default:
-              estiloReserva = '';
+                      await addDoc(reservasRef, {
+                          dni,
+                          nombre,
+                          apellido,
+                          telefono,
+                          servicio,
+                          fecha,
+                          hora,
+                          duracion: duracionServicio, // Guarda la duración
+                          horaFin: endTime.toISOString(), // Guarda la hora de fin
+                          uidPeluquero: profesional, // Registrar el UID del peluquero seleccionado
+                          status: 'Pendiente' // Establecer el estado de la reserva
+                      });
+
+                      Swal.fire({
+                          title: 'Reserva registrada',
+                          text: 'Tu reserva ha sido creada exitosamente, muchas gracias.',
+                          icon: 'success',
+                          background: 'black', 
+                          color: 'white', 
+                          confirmButtonText: 'Ok'
+                      });
+                      navigate('/estado'); // Redirigir al inicio o a otra página después de crear la reserva
+                  } catch (error) {
+                      console.error('Error al crear la reserva:', error);
+                  }
+              } else {
+                  Swal.fire({
+                      title: 'No estás verificado',
+                      text: 'Debes verificar tu número de DNI y Telefono para agendar un turno.',
+                      icon: 'error',
+                      showCancelButton: true,
+                      confirmButtonText: 'Solicitar Código',
+                      cancelButtonText: 'Tengo el codigo',
+                      background: 'black', // Fondo rojo claro
+                      color: 'white', // Texto rojo oscuro
+                      customClass: {
+                          icon: 'custom-warning-icon', // Clase personalizada para el ícono de advertencia
+                      }
+                  }).then((result) => {
+                      // Aquí es donde se maneja el evento "click" del botón de confirmación
+                      if (result.isConfirmed) {
+                          // Llamar a la función para solicitar el código
+                          handleSolicitarCodigo();
+                      } else if (result.isDismissed) {
+                          console.log('El usuario canceló la solicitud de código');
+                      }
+                  });
+                  setVerificado(false);
+                  setMostrarSolicitarCodigo(true);
+              }
           }
-
-          // Cálculo de la posición y altura del evento
-          const totalReservaMinutes = (horaDate.getHours() - startHour) * 60 + horaDate.getMinutes();
-          const topPosition = (totalReservaMinutes * (gridHeight / totalMinutes));
-          const height = (duracion / 30) * 51;
-
-          return (
-            <div
-              key={reserva.id}
-              className={`reserva ${estiloReserva}`}
-              style={{
-                position: 'absolute',
-                left: '0',
-                top: `${topPosition}px`,
-                height: `${height}px`,
-                zIndex: 1,
-              }}
-            >
-              {`${reserva.nombre} - ${hora}`}
-            </div>
-          );
-        }
+      } else {
+          Swal.fire({
+              title: 'No estás verificado',
+              text: 'Debes verificar tu número de DNI y Telefono para agendar un turno. Solicita el codigo y cuando lo tengas pegalo en la parte inferior por unica vez.',
+              icon: 'error',
+              showCancelButton: true,
+              confirmButtonText: 'Solicitar Código',
+              cancelButtonText: 'Tengo el codigo',
+              background: 'black', // Fondo rojo claro
+              color: 'white', // Texto rojo oscuro
+              customClass: {
+                  icon: 'custom-warning-icon', // Clase personalizada para el ícono de advertencia
+              }
+          }).then((result) => {
+              // Aquí es donde se maneja el evento "click" del botón de confirmación
+              if (result.isConfirmed) {
+                  // Llamar a la función para solicitar el código
+                  handleSolicitarCodigo();
+              } else if (result.isDismissed) {
+                  console.log('El usuario canceló la solicitud de código');
+              }
+          });
+          setVerificado(false);
+          setMostrarSolicitarCodigo(true);
       }
-      return null;
-    });
-  };
+  } catch (error) {
+      console.error('Error verificando usuario:', error);
+  }
+};
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  await crearNuevaReserva(reserva);
+  console.log('Reserva enviada');
+};
