@@ -324,10 +324,11 @@ const verificarPrimerTurnoDelDia = async () => {
                 top: `${topPosition}px`,
                 height: `${height}px`,
                 zIndex: 1,
+
               }}
               onClick={() => manejarClickReserva(reserva)} 
             >
-              {`${reserva.nombre} ${reserva.apellido} - ${hora} - ${reserva.servicio} - ${reserva.status}`}
+              <p className='text'>{`${reserva.nombre} ${reserva.apellido} - ${hora} - ${reserva.servicio} - ${reserva.status}`}</p>
             </div>
           )
         }

@@ -13,9 +13,10 @@ import Estado from './pages/Estado';
 import ReservaManual from './pages/ReservaManual';
 import Horarios from './pages/Horarios';
 import Servicios from './pages/Servicios';
+import Loader from './components/Loader/Loader';
+
 
 // Componentes simples para las páginas
-const Productos = () => <h2>Productos</h2>;
 const NotFound = () => {
   return <h2>Página no encontrada</h2>;
 };
@@ -44,7 +45,7 @@ function App() {
   }, [user]);
 
   if (loadingAuth) {
-    return <div>Cargando...</div>; // O cualquier otro indicador de carga
+    return <div><Loader /> </div>; // O cualquier otro indicador de carga
   }
 
   return (
