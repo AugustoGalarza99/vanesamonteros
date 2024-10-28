@@ -1,28 +1,24 @@
-/* ScrollToTopButton.css */
+/* src/components/ScrollButton/ScrollButton.css */
+
 .scroll-to-top {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-color: #000000; /* Cambia el color según tu preferencia */
+    background-color: #007bff;
     color: white;
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     border: none;
+    border-radius: 50%;
+    padding: 10px;
     cursor: pointer;
-    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
-    transition: opacity 0.3s;
-    z-index: 9000; /* Asegúrate de que esté encima de otros elementos */
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.scroll-to-top.show {
+    opacity: 0.8; /* Ajusta la opacidad al mostrar el botón */
 }
 
 .scroll-to-top:hover {
-    background-color: #000000; /* Color más oscuro en hover */
-}
-
-.scroll-to-top:active {
-    transform: scale(0.9);
+    opacity: 1;
 }
