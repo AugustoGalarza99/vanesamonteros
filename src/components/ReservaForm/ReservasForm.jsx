@@ -25,6 +25,7 @@ const ReservasForm = () => {
     const [horariosDisponibles, setHorariosDisponibles] = useState([]);
     const [duracionServicio, setDuracionServicio] = useState(0); // Para almacenar la duración del servicio
     const [codigoVerificacion, setCodigoVerificacion] = useState(''); // Estado para almacenar el código de verificación
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     // Obtener servicios al montar el componente
@@ -172,6 +173,8 @@ const ReservasForm = () => {
 
     const handleAgendar = async (e) => {
         e.preventDefault(); // Evitar el comportamiento predeterminado del formulario
+        if (loading) return;
+        setLoading(true);
         try {
             const clientesRef = collection(db, 'clientes'); // Referencia a la colección de clientes
             const q = query(clientesRef, where('dni', '==', dni)); // Buscar cliente por DNI
@@ -216,11 +219,12 @@ const ReservasForm = () => {
                             navigate('/estado'); // Redirigir al inicio o a otra página después de crear la reserva
                         } catch (error) {
                             console.error('Error al crear la reserva:', error);
-                        }
+                        } 
+
                     } else {
                         Swal.fire({
                             title: 'No estás verificado',
-                            text: 'Debes verificar tu número de DNI y Telefono para agendar un turno.',
+                            text: 'Debes verificar tu número de DNI y Telefono para agendar un turno. Solicita el codigo y cuando lo tengas pegalo en la parte inferior por unica vez. Si ya te verificaste por primera vez revisa tu DNI y telefono que hayan sido ingresados correctamente.',
                             icon: 'error',
                             showCancelButton: true,
                             confirmButtonText: 'Solicitar Código',
@@ -246,7 +250,7 @@ const ReservasForm = () => {
             } else {
                 Swal.fire({
                     title: 'No estás verificado',
-                    text: 'Debes verificar tu número de DNI y Telefono para agendar un turno. Solicita el codigo y cuando lo tengas pegalo en la parte inferior por unica vez.',
+                    text: 'Debes verificar tu número de DNI y Telefono para agendar un turno. Solicita el codigo y cuando lo tengas pegalo en la parte inferior por unica vez. Si ya te verificaste por primera vez revisa tu DNI y telefono que hayan sido ingresados correctamente.',
                     icon: 'error',
                     showCancelButton: true,
                     confirmButtonText: 'Solicitar Código',
@@ -270,6 +274,8 @@ const ReservasForm = () => {
             }
         } catch (error) {
             console.error('Error verificando usuario:', error);
+        } finally{
+            setLoading(false);
         }
     };
     
@@ -303,6 +309,8 @@ const ReservasForm = () => {
     };
 
     const handleVerificarCodigo = async () => {
+        if (loading) return;
+        setLoading(true);
         try {
             const codigoDocRef = doc(db, 'codigos_verificacion', 'codigo_actual');
             const codigoDocSnap = await getDoc(codigoDocRef);
@@ -357,6 +365,8 @@ const ReservasForm = () => {
                 color: 'white', 
                 confirmButtonText: 'Ok'
             });
+        } finally{
+            setLoading(false);
         }
     };
 
@@ -480,7 +490,7 @@ const ReservasForm = () => {
                     </div>
             <div>
                 <button className='button-agendar' type="submit">
-                    <FontAwesomeIcon icon={faCalendarAlt} /> Agendar Turno
+                    <FontAwesomeIcon icon={faCalendarAlt} /> {loading ? 'Agendando...' : 'Agendar Turno' }
                 </button>
             </div>
             {!verificado && mostrarSolicitarCodigo && (

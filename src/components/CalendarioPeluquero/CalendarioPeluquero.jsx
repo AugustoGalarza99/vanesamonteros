@@ -156,20 +156,48 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
   };
 
   const handleCancelTurn = async (reserva) => {
-    try {
-      const reservaId = reserva.id; 
-      const reservaRef = doc(db, 'reservas', reservaId); 
-  
-      await deleteDoc(reservaRef); 
-  
-      fetchReservasPeluquero(); 
-  
-      Swal.fire('Turno Cancelado', 'El turno ha sido cancelado y eliminado.', 'success');
-    } catch (error) {
-      console.error('Error al cancelar el turno:', error);
-      Swal.fire('Error', 'Hubo un problema al cancelar el turno.', 'error');
-    }
-  };
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Estás seguro de que deseas cancelar esta reserva?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, cancelar',
+        cancelButtonText: 'No, mantener',
+        background: 'black',
+        color: 'white'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const reservaId = reserva.id;
+                const reservaRef = doc(db, 'reservas', reservaId);
+
+                await deleteDoc(reservaRef);
+
+                fetchReservasPeluquero();
+
+                Swal.fire({
+                    title: 'Turno Cancelado',
+                    text: 'El turno ha sido cancelado y eliminado.',
+                    icon: 'success',
+                    background: 'black',
+                    color: 'white',
+                    confirmButtonText: 'Ok'
+                });
+            } catch (error) {
+                console.error('Error al cancelar el turno:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Hubo un problema al cancelar el turno.',
+                    icon: 'error',
+                    background: 'black',
+                    color: 'white',
+                    confirmButtonText: 'Ok'
+                });
+            }
+        }
+    });
+};
+
 
   const manejarClickReserva = (reserva) => {
     const { status, id } = reserva;
@@ -299,7 +327,7 @@ const verificarPrimerTurnoDelDia = async () => {
               }}
               onClick={() => manejarClickReserva(reserva)} 
             >
-              {`${reserva.nombre} - ${hora}`}
+              {`${reserva.nombre} ${reserva.apellido} - ${hora} - ${reserva.servicio} - ${reserva.status}`}
             </div>
           )
         }

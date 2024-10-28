@@ -17,6 +17,7 @@ const ReservaTurnoManual = () => {
     const [servicios, setServicios] = useState([]);
     const [peluqueros, setPeluqueros] = useState([]);
     const [horariosDisponibles, setHorariosDisponibles] = useState([]);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     // Obtener servicios al montar el componente
@@ -163,6 +164,8 @@ useEffect(() => {
 // En la función handleAgendar
 const handleAgendar = async (e) => {
     e.preventDefault(); // Evitar el comportamiento predeterminado del formulario
+    if (loading) return;
+    setLoading(true);
 
     // Calcular el tiempo de fin
     const startTime = new Date(`${fecha}T${hora}`); // Esto ya está en formato 24 horas
@@ -218,6 +221,8 @@ const handleAgendar = async (e) => {
         navigate('/agenda'); // Redirigir al inicio o a otra página después de crear la reserva
     } catch (error) {
         console.error('Error al crear la reserva:', error);
+    } finally{
+        setLoading(false);
     }
 };
 

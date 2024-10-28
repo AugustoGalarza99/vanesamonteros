@@ -7,7 +7,7 @@ export const limpiarReservasAntiguas = async () => {
         
         // Obtiene la fecha de tres días atrás
         const hoy = new Date();
-        const fechaLimite = new Date(hoy.setDate(hoy.getDate() - 3));
+        const fechaLimite = new Date(hoy.setDate(hoy.getDate() - 2));
 
         // Configura la consulta para obtener las reservas anteriores a tres días
         const q = query(reservasRef, where('fecha', '<', fechaLimite.toISOString().split('T')[0]));

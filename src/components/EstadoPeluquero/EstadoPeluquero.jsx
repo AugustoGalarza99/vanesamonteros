@@ -82,58 +82,73 @@ const EstadoPeluquero = () => {
         }
     };
 
-    // Función para cancelar el turno
-    const handleCancelarTurno = async () => {
-        if (turno && turno.id) {
-            const now = new Date(); // Hora actual
+// Función para cancelar el turno
+const handleCancelarTurno = async () => {
+    if (turno && turno.id) {
+        const now = new Date(); // Hora actual
 
-            // Obtener la fecha y hora del turno
-            const [horaTurnoCliente, minutosTurnoCliente] = turno.hora.split(':').map(Number);
-            const fechaTurno = new Date(`${turno.fecha} ${horaTurnoCliente}:${minutosTurnoCliente}`);
+        // Obtener la fecha y hora del turno
+        const [horaTurnoCliente, minutosTurnoCliente] = turno.hora.split(':').map(Number);
+        const fechaTurno = new Date(`${turno.fecha} ${horaTurnoCliente}:${minutosTurnoCliente}`);
 
-            // Calcular la diferencia de tiempo en milisegundos
-            const diferenciaEnMilisegundos = fechaTurno - now;
-            const horasFaltantes = diferenciaEnMilisegundos / (1000 * 60 * 60); // Convertir a horas
+        // Calcular la diferencia de tiempo en milisegundos
+        const diferenciaEnMilisegundos = fechaTurno - now;
+        const horasFaltantes = diferenciaEnMilisegundos / (1000 * 60 * 60); // Convertir a horas
 
-            if (horasFaltantes < 4) {
-                // Mostrar alerta si faltan menos de 4 horas
-                Swal.fire({
-                    title: 'Error al cancelar el turno',
-                    text: 'No puedes cancelar el turno porque faltan menos de 4 horas. Por favor, contacta a tu peluquero.',
-                    icon: 'error',
-                    background: 'black', 
-                    color: 'white', 
-                    confirmButtonText: 'Ok'
-                });
-            } else {
-                // Permitir la cancelación si faltan más de 4 horas
-                try {
-                    const turnoRef = doc(db, 'reservas', turno.id); // Referencia al documento del turno
-                    await deleteDoc(turnoRef); // Eliminar el documento del turno
-                    Swal.fire({
-                        title: 'Turno cancelado',
-                        text: 'Tu turno ha sido cancelado exitosamente, muchas gracias.',
-                        icon: 'success',
-                        background: 'black', 
-                        color: 'white', 
-                        confirmButtonText: 'Ok'
-                    });
-                    setTurno(null);
-                    setMensajeDemora('');
-                } catch (error) {
-                    console.error('Error al cancelar el turno:', error);
+        // Confirmación de cancelación
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: '¿Estás seguro de que deseas cancelar la reserva?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, cancelar',
+            cancelButtonText: 'No, mantener',
+            background: 'black',
+            color: 'white'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                if (horasFaltantes < 4) {
+                    // Mostrar alerta si faltan menos de 4 horas
                     Swal.fire({
                         title: 'Error al cancelar el turno',
                         text: 'No puedes cancelar el turno porque faltan menos de 4 horas. Por favor, contacta a tu peluquero.',
                         icon: 'error',
-                        background: 'black', 
-                        color: 'white', 
+                        background: 'black',
+                        color: 'white',
                         confirmButtonText: 'Ok'
                     });
+                } else {
+                    // Permitir la cancelación si faltan más de 4 horas
+                    try {
+                        const turnoRef = doc(db, 'reservas', turno.id); // Referencia al documento del turno
+                        await deleteDoc(turnoRef); // Eliminar el documento del turno
+                        Swal.fire({
+                            title: 'Turno cancelado',
+                            text: 'Tu turno ha sido cancelado exitosamente, muchas gracias.',
+                            icon: 'success',
+                            background: 'black',
+                            color: 'white',
+                            confirmButtonText: 'Ok'
+                        });
+                        setTurno(null);
+                        setMensajeDemora('');
+                    } catch (error) {
+                        console.error('Error al cancelar el turno:', error);
+                        Swal.fire({
+                            title: 'Error al cancelar el turno',
+                            text: 'Ocurrió un error al intentar cancelar el turno. Por favor, intenta nuevamente.',
+                            icon: 'error',
+                            background: 'black',
+                            color: 'white',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
                 }
             }
-        }
-    };
+        });
+    }
+};
+
 
 
     return (
