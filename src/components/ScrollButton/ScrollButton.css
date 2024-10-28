@@ -6,7 +6,7 @@
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background-color: #3498db; /* Cambia el color según tu preferencia */
+    background-color: #ffffff; /* Cambia el color según tu preferencia */
     color: white;
     font-size: 24px;
     display: flex;
@@ -14,13 +14,13 @@
     justify-content: center;
     border: none;
     cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
     transition: opacity 0.3s;
-    z-index: 1000; /* Asegúrate de que esté encima de otros elementos */
+    z-index: 9000; /* Asegúrate de que esté encima de otros elementos */
 }
 
 .scroll-to-top:hover {
-    background-color: #2980b9; /* Color más oscuro en hover */
+    background-color: #ffffff; /* Color más oscuro en hover */
 }
 
 .scroll-to-top:active {

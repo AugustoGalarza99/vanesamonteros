@@ -1,14 +1,14 @@
+// src/components/ScrollButton/ScrollButton.jsx
 import React, { useState, useEffect } from 'react';
-import { FaArrowUp } from 'react-icons/fa'; // Asegúrate de tener instalada la librería react-icons
-import './ScrollButton.css'
+import { FaArrowUp } from 'react-icons/fa'; // Importación correcta
+import './ScrollButton.css';
 
 const ScrollButton = () => {
     const [visible, setVisible] = useState(false);
 
-    // Mostrar el botón solo cuando el usuario haya hecho scroll hacia abajo
     useEffect(() => {
         const toggleVisibility = () => {
-            if (window.scrollY > 300) {
+            if (window.scrollY > 10) {
                 setVisible(true);
             } else {
                 setVisible(false);
@@ -19,7 +19,6 @@ const ScrollButton = () => {
         return () => window.removeEventListener('scroll', toggleVisibility);
     }, []);
 
-    // Función para hacer scroll hacia arriba
     const scrollToTop = () => {
         window.scrollTo({
             top: 0,
