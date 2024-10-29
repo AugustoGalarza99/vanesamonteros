@@ -50,7 +50,7 @@ function App() {
   }
 
   return (
-    <Router>
+    <Router /*basename='/juan'*/>
       <Navbar isPeluquero={isPeluquero} /> {/* Pasamos el estado isPeluquero al Navbar */}
       <ScrollButton />
       <div>

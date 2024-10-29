@@ -247,6 +247,13 @@
         align-items: center;
         justify-content: space-around;
       }
+      .text{
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 8px;
+      }
       }
     /*VISTA MOBILE*/
     @media (min-width: 450px) {
@@ -269,5 +276,12 @@
         font-size: 14px;
         align-items: center;
         justify-content: space-around;
+      }
+      .text{
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 10px;
       }
       }
