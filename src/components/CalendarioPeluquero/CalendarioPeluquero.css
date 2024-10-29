@@ -1,34 +1,27 @@
 .calendario {
     display: flex;
     flex-direction: column; 
-  }
-  
+  }  
   .calendario-navigation {
     display: flex;
     margin-bottom: 10px;
-  }
-  
+  }  
   .calendario-header {
     display: flex;
     justify-content: space-around;
-  }
-  
+  }  
   .calendario-grid {
     display: flex;
-  }
-  
+  }  
   .calendario-column {
     position: relative;
     flex: 1;
-  }
-  
+  }  
   .horas-container {
-    position: relative; /* Asegúrate de que el contenedor sea relativo para poder posicionar los botones */
-  }
-  
+    position: relative;
+  }  
   .calendario-hora {
     height: 49px; /* Ajusta según lo necesites */
-    /*border: 1px solid #ddd;*/
   }
   .calendario-hora.descanso{
     background-color: rgb(70, 69, 69);
@@ -43,7 +36,6 @@
     height: 30px; /* Asegúrate de que tenga la misma altura que las franjas horarias */
     color: transparent; /* Ocultar el texto si no lo necesitas */
   }
-
   /* Contenedor del calendario */
 .calendario-contenedor {
     position: relative;
@@ -53,8 +45,7 @@
     grid-template-columns: repeat(auto-fill, 50px); /* Cada celda será de 50px de ancho */
     grid-auto-rows: 50px; /* Cada celda será de 50px de alto por 30 minutos */
     border: 1px solid #ccc;
-  }
-  
+  }  
   /* Estilo para cada celda de hora */
   .calendario-hora {
     border-bottom: 1px solid #e0e0e0;
@@ -63,8 +54,7 @@
     text-align: center;
     background-color: #0a0a0a; /* Color de fondo para las horas */
     font-size: 12px; /* Ajusta el tamaño del texto si es necesario */
-  }
-  
+  }  
   /* Estilo para los eventos */
   .reserva {
     text-align: center;
@@ -72,15 +62,12 @@
     width: 100%; /* El evento cubre todo el ancho de la celda */
     max-width: 100%; /* Máximo ancho de 50px para cada evento */
     background-color: #f50505; /* Color de fondo del evento */
-    color: white;
-    /*padding: 5px;*/
+    color: var(--color-letras);
     box-sizing: border-box;
     font-size: 12px; /* Ajusta el tamaño de texto del evento */
     border: 1px solid black;
-
     cursor: pointer;
-  }
-  
+  }  
   /* Estilo para los estados de las reservas */
   .reserva-pendiente {
     display: flex;
@@ -90,15 +77,13 @@
     position: absolute;
     width: 100%; /* El evento cubre todo el ancho de la celda */
     max-width: 100%; /* Máximo ancho de 50px para cada evento */
-    color: white;
+    color: var(--color-letras);
     padding: 5px;
     box-sizing: border-box;
     font-size: 12px; /* Ajusta el tamaño de texto del evento */   
     border: 1px solid black;
-
     cursor: pointer;
-  }
-  
+  }  
   .reserva-en-proceso {
     display: flex;
     justify-content: center;
@@ -107,15 +92,12 @@
     position: absolute;
     width: 100%; /* El evento cubre todo el ancho de la celda */
     max-width: 100%; /* Máximo ancho de 50px para cada evento */
-    color: white;
-    /*padding: 5px;*/
+    color: var(--color-letras);
     box-sizing: border-box;
     font-size: 12px; /* Ajusta el tamaño de texto del evento */
     border: 1px solid black;
-
     cursor: pointer;
-  }
-  
+  }  
   .reserva-finalizada {
     display: flex;
     justify-content: center;
@@ -124,12 +106,10 @@
     width: 100%; /* El evento cubre todo el ancho de la celda */
     max-width: 100%; /* Máximo ancho de 50px para cada evento */
     background-color: #4caf50;
-    color: white;
-    /*padding: 5px;*/
+    color: var(--color-letras);
     box-sizing: border-box;
     font-size: 12px; /* Ajusta el tamaño de texto del evento */
     border: 1px solid black;
-
     cursor: pointer;
   }
   .calendario-navigation{
@@ -143,9 +123,9 @@
     margin-left: 10px;
     position: relative;
     display: inline-block;
-    background: linear-gradient(to bottom, #1b1c3f, #4a4e91);
-    color: white;
-    font-family: "Segoe UI", sans-serif;
+    background: var(--color-boton);
+    color: var(--color-letras);
+    font-family: var(--font);
     font-weight: bold;
     font-size: 16px;
     border: none;
@@ -167,7 +147,7 @@
     text-align: center;
   }
   .button-semana:hover {
-    background: linear-gradient(to bottom, #2c2f63, #5b67b7);
+    background: var(--color-boton);
     animation: button-particles 1s ease-in-out infinite;
     transform: translateY(-2px);
   }
@@ -197,8 +177,8 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      font-family: var(--font);
     }
-
     .calendario-view-buttons{
       display: flex;
     }
@@ -212,9 +192,9 @@
       margin-left: 10px;
       position: relative;
       display: inline-block;
-      background: linear-gradient(to bottom, #1b1c3f, #4a4e91);
-      color: white;
-      font-family: "Segoe UI", sans-serif;
+      background: var(--color-boton);
+      color: var(--color-letras);
+      font-family: var(--font);
       font-weight: bold;
       font-size: 16px;
       border: none;
@@ -252,7 +232,6 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 8px;
       }
       }
     /*VISTA MOBILE*/
@@ -285,3 +264,27 @@
         font-size: 10px;
       }
       }
+
+      .vista-dia .calendario-dia {
+        font-size: 20px; /* Tamaño más grande para un solo día */
+      }
+      
+      .vista-tres .calendario-dia {
+        font-size: 15px; /* Tamaño medio para tres días */
+      }
+      
+      .vista-semana .calendario-dia {
+        font-size: 10px; /* Tamaño más pequeño para toda la semana */
+      }
+      .vista-dia .text {
+        font-size: 14px; /* Más grande para un solo día */
+      }
+      
+      .vista-tres .text {
+        font-size: 10px; /* Tamaño medio para tres días */
+      }
+      
+      .vista-semana .text {
+        font-size: 6px; /* Tamaño más pequeño para toda la semana */
+      }
+      

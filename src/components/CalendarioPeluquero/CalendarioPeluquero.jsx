@@ -317,14 +317,13 @@ const verificarPrimerTurnoDelDia = async () => {
           return (
             <div
               key={reserva.id}
-              className={`reserva ${estiloReserva}`}
+              className={`reserva ${estiloReserva} ${modoVista === 1 ? 'vista-dia' : modoVista === 3 ? 'vista-tres' : 'vista-semana'}`}
               style={{
                 position: 'absolute',
                 left: '0',
                 top: `${topPosition}px`,
                 height: `${height}px`,
                 zIndex: 1,
-
               }}
               onClick={() => manejarClickReserva(reserva)} 
             >
@@ -376,14 +375,17 @@ const verificarPrimerTurnoDelDia = async () => {
       
 
       <div className="calendario-header">
-        {fechasSemana.map((fecha, index) => (
-          <div key={index} className='div-dia'>
-          <div className="calendario-dia">
-            {format(fecha, 'EEE d MMM', { locale: es })}
-          </div>
-          </div>
-        ))}
+  {fechasSemana.map((fecha, index) => (
+    <div
+      key={index}
+      className={`div-dia ${modoVista === 1 ? 'vista-dia' : modoVista === 3 ? 'vista-tres' : 'vista-semana'}`}
+    >
+      <div className="calendario-dia">
+        {format(fecha, 'EEE d MMM', { locale: es })}
       </div>
+    </div>
+  ))}
+</div>
 
       <div className="calendario-grid">
         {fechasSemana.map((fecha, diaIndex) => {
