@@ -80,7 +80,6 @@ const ReservasForm = () => {
         fetchPeluqueros();
     }, []);
 
-    // Obtener horarios disponibles del peluquero seleccionado y filtrar por solapamiento
     useEffect(() => {
         const fetchHorariosDisponibles = async () => {
             if (profesional && fecha) {
@@ -98,66 +97,79 @@ const ReservasForm = () => {
                         if (horariosDoc.exists()) {
                             const horariosData = horariosDoc.data();
                             
-                            // Asegurarse de que el formato sea correcto (ISO y UTC)
-                            const selectedDate = new Date(`${fecha}T00:00:00Z`); // Fecha en UTC
+                            const selectedDate = new Date(`${fecha}T00:00:00Z`);
                             const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-                            const diaSeleccionado = selectedDate.getUTCDay(); // Día de la semana en UTC
-                            const dia = diasSemana[diaSeleccionado]; // Mapeo al nombre del día en español
-    
+                            const diaSeleccionado = selectedDate.getUTCDay();
+                            const dia = diasSemana[diaSeleccionado];
                             const horariosDelDia = horariosData[dia];
     
                             if (horariosDelDia && horariosDelDia.isWorking) {
                                 const availableSlots = [];
     
-                                // Horarios de la mañana
-                                const startHour1 = horariosDelDia.start1;
-                                const endHour1 = horariosDelDia.end1;
-                                let startTime = new Date(`1970-01-01T${startHour1}:00`);
-                                let endTime = new Date(`1970-01-01T${endHour1}:00`);
+                                // Generación de franjas horarias
+                                const generateSlots = (startHour, endHour) => {
+                                    let startTime = new Date(`1970-01-01T${startHour}:00`);
+                                    let endTime = new Date(`1970-01-01T${endHour}:00`);
     
-                                while (startTime < endTime) {
-                                    const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-                                    availableSlots.push(slotTime);
-                                    startTime.setMinutes(startTime.getMinutes() + 30); // Incrementar 30 minutos
-                                }
+                                    while (startTime < endTime) {
+                                        const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+                                        availableSlots.push(slotTime);
+                                        startTime.setMinutes(startTime.getMinutes() + 30);
+                                    }
+                                };
     
-                                // Horarios de la tarde
-                                const startHour2 = horariosDelDia.start2;
-                                const endHour2 = horariosDelDia.end2;
-                                startTime = new Date(`1970-01-01T${startHour2}:00`);
-                                endTime = new Date(`1970-01-01T${endHour2}:00`);
-    
-                                while (startTime < endTime) {
-                                    const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-                                    availableSlots.push(slotTime);
-                                    startTime.setMinutes(startTime.getMinutes() + 30); // Incrementar 30 minutos
-                                }
+                                // Horarios de la mañana y tarde
+                                generateSlots(horariosDelDia.start1, horariosDelDia.end1);
+                                generateSlots(horariosDelDia.start2, horariosDelDia.end2);
     
                                 // Filtrar horarios ocupados y solapados
                                 const reservasRef = collection(db, 'reservas');
-                                const queryReservas = query(reservasRef, where('fecha', '==', fecha), where('uidPeluquero', '==', uidPeluquero));
+                                const queryReservas = query(reservasRef, where('uidPeluquero', '==', uidPeluquero));
                                 const querySnapshot = await getDocs(queryReservas);
-                                const ocupados = querySnapshot.docs.map(doc => {
+    
+                                // Procesar reservas ocupadas y recurrentes
+                                const ocupados = querySnapshot.docs.flatMap(doc => {
                                     const data = doc.data();
-                                    return { 
-                                        start: new Date(`${fecha}T${data.hora}`), 
-                                        end: new Date(new Date(`${fecha}T${data.hora}`).getTime() + data.duracion * 60000) 
-                                    };
+                                    const reservaFecha = new Date(data.fecha);
+                                    const isRecurrente = data.recurrente; // Suponemos que `recurrencia` es una marca booleana en la reserva
+    
+                                    // Si la reserva es recurrente, generar fechas futuras ocupadas
+                                    if (isRecurrente) {
+                                        const ocupadosRecurrentes = [];
+                                        let recurrenteFecha = new Date(reservaFecha);
+    
+                                        while (recurrenteFecha <= selectedDate) {
+                                            if (recurrenteFecha.toISOString().split('T')[0] === fecha) {
+                                                ocupadosRecurrentes.push({
+                                                    start: new Date(`${fecha}T${data.hora}`),
+                                                    end: new Date(new Date(`${fecha}T${data.hora}`).getTime() + data.duracion * 60000)
+                                                });
+                                            }
+                                            recurrenteFecha.setDate(recurrenteFecha.getDate() + 7); // Asumiendo recurrencia semanal
+                                        }
+    
+                                        return ocupadosRecurrentes;
+                                    } else {
+                                        return [{
+                                            start: new Date(`${data.fecha}T${data.hora}`),
+                                            end: new Date(new Date(`${data.fecha}T${data.hora}`).getTime() + data.duracion * 60000)
+                                        }];
+                                    }
                                 });
     
+                                // Filtrar horarios disponibles considerando solapamientos
                                 const horariosFiltrados = availableSlots.filter(slot => {
                                     const slotStartTime = new Date(`${fecha}T${slot}`);
                                     const slotEndTime = new Date(slotStartTime.getTime() + duracionServicio * 60000);
                                     
-                                    // Verifica que no haya solapamiento
                                     return !ocupados.some(({ start, end }) => (
-                                        (start < slotEndTime && end > slotStartTime) // Solapamiento
+                                        (start < slotEndTime && end > slotStartTime)
                                     ));
                                 });
     
                                 setHorariosDisponibles(horariosFiltrados);
                             } else {
-                                setHorariosDisponibles([]); // Sin horarios disponibles
+                                setHorariosDisponibles([]);
                             }
                         }
                     }
@@ -168,7 +180,8 @@ const ReservasForm = () => {
         };
     
         fetchHorariosDisponibles();
-    }, [profesional, fecha, duracionServicio]); // Dependencias para volver a ejecutar la consulta
+    }, [profesional, fecha, duracionServicio]);
+    
     
 
     const handleAgendar = async (e) => {

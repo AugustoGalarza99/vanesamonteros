@@ -281,60 +281,73 @@ const verificarPrimerTurnoDelDia = async () => {
     const { gridHeight, totalMinutes, startHour } = calcularGridProperties();
 
     return reservas.map((reserva) => {
-      const { hora, status, duracion } = reserva;
-      const horaDate = new Date(`1970-01-01T${hora}:00`);
-      const reservaFecha = new Date(reserva.fecha);
+        const { hora, status, duracion, recurrente, frecuencia } = reserva;
+        const horaDate = new Date(`1970-01-01T${hora}:00`);
+        const reservaFecha = new Date(reserva.fecha);
 
-      const reservaFechaLocal = new Date(reservaFecha.getTime() + reservaFecha.getTimezoneOffset() * 60000);
-
-      if (!isNaN(reservaFechaLocal) && !isNaN(horaDate)) {
-        const esMismaFecha = isSameDay(reservaFechaLocal, diaFecha);
-
-        if (esMismaFecha) {
-          let estiloReserva = '';
-
-          switch (status) {
-            case 'Pendiente':
-              estiloReserva = 'reserva-pendiente';
-              break;
-            case 'en proceso':
-              estiloReserva = 'reserva-en-proceso';
-              break;
-            case 'finalizado':
-              estiloReserva = 'reserva-finalizada';
-              break;
-            case 'cancelado':
-              estiloReserva = 'reserva-cancelado';
-              break;
-            default:
-              estiloReserva = '';
-          }
-
-          const totalReservaMinutes = (horaDate.getHours() - startHour) * 60 + horaDate.getMinutes();
-          const topPosition = (totalReservaMinutes * (gridHeight / totalMinutes));
-          const height = (duracion / 30) * 50;
-
-          return (
-            <div
-              key={reserva.id}
-              className={`reserva ${estiloReserva} ${modoVista === 1 ? 'vista-dia' : modoVista === 3 ? 'vista-tres' : 'vista-semana'}`}
-              style={{
-                position: 'absolute',
-                left: '0',
-                top: `${topPosition}px`,
-                height: `${height}px`,
-                zIndex: 1,
-              }}
-              onClick={() => manejarClickReserva(reserva)} 
-            >
-              <p className='text'>{`${reserva.nombre} ${reserva.apellido} - ${hora} - ${reserva.servicio} - ${reserva.status}`}</p>
-            </div>
-          )
+        let fechasMostrar = [reservaFecha];
+        
+        if (recurrente && frecuencia === 'semanal') {
+            // Agregar una copia del turno cada semana dentro de un periodo deseado
+            const startDate = new Date(fechaInicial);
+            const endDate = addDays(startDate, modoVista); // Ajusta para el periodo visible
+            
+            fechasMostrar = [];
+            let iterFecha = new Date(reservaFecha);
+            while (iterFecha <= endDate) {
+                if (iterFecha >= startDate) fechasMostrar.push(new Date(iterFecha));
+                iterFecha = addDays(iterFecha, 7); // Incremento semanal
+            }
         }
-      }
-      return null;
-    });
-  };
+        
+        return fechasMostrar.map((fechaMostrar) => {
+            const reservaFechaLocal = new Date(fechaMostrar.getTime() + fechaMostrar.getTimezoneOffset() * 60000);
+            const esMismaFecha = isSameDay(reservaFechaLocal, diaFecha);
+
+            if (!esMismaFecha) return null;
+
+            let estiloReserva = '';
+            switch (status) {
+                case 'Pendiente':
+                    estiloReserva = 'reserva-pendiente';
+                    break;
+                case 'en proceso':
+                    estiloReserva = 'reserva-en-proceso';
+                    break;
+                case 'finalizado':
+                    estiloReserva = 'reserva-finalizada';
+                    break;
+                case 'cancelado':
+                    estiloReserva = 'reserva-cancelado';
+                    break;
+                default:
+                    estiloReserva = '';
+            }
+
+            const totalReservaMinutes = (horaDate.getHours() - startHour) * 60 + horaDate.getMinutes();
+            const topPosition = (totalReservaMinutes * (gridHeight / totalMinutes));
+            const height = (duracion / 30) * 50;
+
+            return (
+                <div
+                    key={`${reserva.id}-${fechaMostrar}`} // Identificador único
+                    className={`reserva ${estiloReserva} ${modoVista === 1 ? 'vista-dia' : modoVista === 3 ? 'vista-tres' : 'vista-semana'}`}
+                    style={{
+                        position: 'absolute',
+                        left: '0',
+                        top: `${topPosition}px`,
+                        height: `${height}px`,
+                        zIndex: 1,
+                    }}
+                    onClick={() => manejarClickReserva(reserva)} 
+                >
+                    <p className='text'>{`${reserva.nombre} ${reserva.apellido} - ${hora} - ${reserva.servicio} - ${reserva.status}`}</p>
+                </div>
+            )
+        });
+    }).flat(); // Asegura que las fechas repetidas se manejen como elementos individuales
+};
+
 
   const calcularGridProperties = () => {
     const totalMinutes = (rangoHorarioGlobal.endHour - rangoHorarioGlobal.startHour) * 60;

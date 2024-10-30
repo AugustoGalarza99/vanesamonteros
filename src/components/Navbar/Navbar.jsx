@@ -58,6 +58,7 @@ function Navbar({ isPeluquero }) {
                 <li><Link to="/servicios" onClick={closeMenu}>Servicios</Link></li>
                 <li><Link to="/horarios" onClick={closeMenu}>Horarios</Link></li>
                 <li><Link to="/reservamanual" onClick={closeMenu}>Reserva manual</Link></li>
+                <li><Link to="/turnofijo" onClick={closeMenu}>Turno fijo</Link></li>
               </>
           )}
         {user ? (
