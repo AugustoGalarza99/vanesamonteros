@@ -15,7 +15,6 @@ import Horarios from './pages/Horarios';
 import Servicios from './pages/Servicios';
 import Loader from './components/Loader/Loader';
 import ScrollButton from './components/ScrollButton/ScrollButton';
-import FijarTurno from './pages/FijarTurno';
 
 
 // Componentes simples para las páginas
@@ -66,7 +65,6 @@ function App() {
           <Route path="/reservamanual" element={<ProtectedRoute isPeluquero={isPeluquero}><ReservaManual /></ProtectedRoute>} />
           <Route path="/horarios" element={<ProtectedRoute isPeluquero={isPeluquero}><Horarios /></ProtectedRoute>} />
           <Route path="/servicios" element={<ProtectedRoute isPeluquero={isPeluquero}><Servicios /></ProtectedRoute>} />
-          <Route path="/turnofijo" element={<ProtectedRoute isPeluquero={isPeluquero}><FijarTurno /></ProtectedRoute>} />
 
           {/* Si el usuario intenta ir a una ruta que no existe */}
           <Route path="*" element={<NotFound />} />

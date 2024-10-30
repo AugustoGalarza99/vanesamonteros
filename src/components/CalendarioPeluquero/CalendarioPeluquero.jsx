@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc, addDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { addDays, startOfWeek, format, isSameDay } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -199,52 +199,83 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
 };
 
 
-  const manejarClickReserva = (reserva) => {
-    const { status, id } = reserva;
+const manejarClickReserva = (reserva) => {
+  const { status, id } = reserva;
 
-    if (status === 'Pendiente') {
+  if (status === 'Pendiente') {
       Swal.fire({
-        title: 'Turno Pendiente',
-        text: '¿Qué acción desea realizar?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Iniciar Turno',
-        cancelButtonText: 'Cancelar Turno',
-        showDenyButton: true,
-        denyButtonText: 'Recordar Turno',
+          title: 'Turno Pendiente',
+          text: '¿Qué acción desea realizar?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Iniciar Turno',
+          cancelButtonText: 'Cancelar Turno',
+          showDenyButton: true,
+          denyButtonText: 'Recordar Turno',
       }).then((result) => {
-        if (result.isConfirmed) {
-          actualizarEstadoTurno(id, 'en proceso'); 
-          Swal.fire('Turno Iniciado', '', 'success');
-
-          // Limpieza de reservas si es el primer turno del día
-          const isFirstTurnToday = verificarPrimerTurnoDelDia();
-          if (isFirstTurnToday) {
-             limpiarReservasAntiguas(); // Llama a la función de limpieza
+          if (result.isConfirmed) {
+              actualizarEstadoTurno(id, 'en proceso'); 
+              Swal.fire('Turno Iniciado', '', 'success');
+              const isFirstTurnToday = verificarPrimerTurnoDelDia();
+              if (isFirstTurnToday) {
+                  limpiarReservasAntiguas(); 
+              }
+          } else if (result.isDenied) {
+              handleRemindTurn(reserva); 
+              Swal.fire('Recordatorio enviado', '', 'info');
+          } else if (result.dismiss === Swal.DismissReason.cancel) {
+              handleCancelTurn(reserva); 
           }
-          
-        } else if (result.isDenied) {
-          handleRemindTurn(reserva); 
-          Swal.fire('Recordatorio enviado', '', 'info');
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-          handleCancelTurn(reserva); 
-        }
       });
-    } else if (status === 'en proceso') {
+  } else if (status === 'en proceso') {
       Swal.fire({
-        title: 'Turno en Proceso',
-        text: '¿Desea finalizar este turno?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Finalizar Turno',
+          title: 'Turno en Proceso',
+          text: '¿Desea finalizar este turno?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Finalizar Turno',
       }).then((result) => {
-        if (result.isConfirmed) {
-          actualizarEstadoTurno(id, 'finalizado'); 
-          Swal.fire('Turno Finalizado', '', 'success');
-        }
+          if (result.isConfirmed) {
+              actualizarEstadoTurno(id, 'finalizado'); 
+              Swal.fire({
+                  title: 'Turno Finalizado',
+                  text: '¿Deseas agendar este turno para la próxima semana?',
+                  icon: 'success',
+                  showCancelButton: true,
+                  confirmButtonText: 'Reservar para próxima semana',
+                  cancelButtonText: 'No deseo reservar'
+              }).then((result) => {
+                  if (result.isConfirmed) {
+                      duplicarReservaParaLaProximaSemana(reserva);
+                      Swal.fire('Turno agendado para la próxima semana', '', 'success');
+                  }
+              });
+          }
       });
-    }
-  };
+  }
+};
+
+// Función para duplicar la reserva para la próxima semana
+const duplicarReservaParaLaProximaSemana = async (reserva) => {
+  try {
+      const nuevaFecha = addDays(new Date(reserva.fecha), 7); // Nueva fecha una semana después
+      const nuevaReserva = {
+          ...reserva,
+          fecha: nuevaFecha.toISOString().split('T')[0], // Formateamos la fecha
+          status: 'Pendiente', // Iniciar con el estado 'Pendiente'
+      };
+      delete nuevaReserva.id; // Eliminamos el ID para no sobrescribir la reserva existente
+
+      const reservasRef = collection(db, 'reservas');
+      await addDoc(reservasRef, nuevaReserva); // Guardar la nueva reserva en la base de datos
+      fetchReservasPeluquero(); // Refrescar reservas en pantalla
+  } catch (error) {
+      console.error('Error al duplicar la reserva:', error);
+      Swal.fire('Error', 'No se pudo agendar el turno para la próxima semana', 'error');
+  }
+};
+
+
 
   // Nueva función para verificar si es el primer turno del día
 const verificarPrimerTurnoDelDia = async () => {
