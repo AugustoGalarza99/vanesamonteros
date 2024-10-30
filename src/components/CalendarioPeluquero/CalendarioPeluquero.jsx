@@ -212,17 +212,29 @@ const manejarClickReserva = (reserva) => {
           cancelButtonText: 'Cancelar Turno',
           showDenyButton: true,
           denyButtonText: 'Recordar Turno',
+          background: 'black',
+          color: 'white',          
       }).then((result) => {
           if (result.isConfirmed) {
               actualizarEstadoTurno(id, 'en proceso'); 
-              Swal.fire('Turno Iniciado', '', 'success');
+              Swal.fire({
+                title: 'Turno Iniciado',
+                icon: 'success',
+                background: 'black',
+                color: 'white',
+              });
               const isFirstTurnToday = verificarPrimerTurnoDelDia();
               if (isFirstTurnToday) {
                   limpiarReservasAntiguas(); 
               }
           } else if (result.isDenied) {
               handleRemindTurn(reserva); 
-              Swal.fire('Recordatorio enviado', '', 'info');
+              Swal.fire({
+                title: 'Recordatorio enviado',
+                icon: 'success',
+                background: 'black',
+                color: 'white',
+              });
           } else if (result.dismiss === Swal.DismissReason.cancel) {
               handleCancelTurn(reserva); 
           }
@@ -234,6 +246,8 @@ const manejarClickReserva = (reserva) => {
           icon: 'question',
           showCancelButton: true,
           confirmButtonText: 'Finalizar Turno',
+          background: 'black',
+          color: 'white',
       }).then((result) => {
           if (result.isConfirmed) {
               actualizarEstadoTurno(id, 'finalizado'); 
@@ -243,11 +257,17 @@ const manejarClickReserva = (reserva) => {
                   icon: 'success',
                   showCancelButton: true,
                   confirmButtonText: 'Reservar para próxima semana',
-                  cancelButtonText: 'No deseo reservar'
+                  cancelButtonText: 'No deseo reservar',
+                  background: 'black',
+                  color: 'white',
               }).then((result) => {
                   if (result.isConfirmed) {
                       duplicarReservaParaLaProximaSemana(reserva);
-                      Swal.fire('Turno agendado para la próxima semana', '', 'success');
+                      Swal.fire({
+                        title:'Turno agendado para la próxima semana',
+                        icon:'success',
+                        background: 'black',
+                        color: 'white',});
                   }
               });
           }
