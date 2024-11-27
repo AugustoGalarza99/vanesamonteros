@@ -3,19 +3,21 @@ import { doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc, a
 import { db } from '../../firebaseConfig';
 import { addDays, startOfWeek, format, isSameDay } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { limpiarReservasAntiguas } from '../../reservaService'
 import Swal from 'sweetalert2';
 import './CalendarioPeluquero.css';
 
 const CalendarioPeluquero = ({ uidPeluquero }) => {
   const [diasTrabajo, setDiasTrabajo] = useState([]);
   const [horariosTrabajo, setHorariosTrabajo] = useState({});
-  const [reservas, setReservas] = useState([]);  // Almacenamiento local de reservas
+  const [reservas, setReservas] = useState([]);
   const [fechaInicial, setFechaInicial] = useState(new Date());
   const [fechasSemana, setFechasSemana] = useState([]);
   const [rangoHorarioGlobal, setRangoHorarioGlobal] = useState({ startHour: 8, endHour: 21 });
   const [modoVista, setModoVista] = useState(1); // Por defecto, 7 días (semana)
 
-  // Carga los horarios del peluquero
+  
+
   const fetchHorariosPeluquero = async () => {
     try {
       if (!uidPeluquero) {
@@ -23,15 +25,11 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
         return;
       }
 
-      console.log('Intentando cargar horarios desde Firebase...');
       const docRef = doc(db, 'horarios', uidPeluquero);
       const docSnap = await getDoc(docRef);
-      console.log('Consulta a Firebase: horarios');
 
       if (docSnap.exists()) {
         const horarioData = docSnap.data();
-        console.log('Horarios obtenidos:', horarioData);
-        
         const diasTrabajo = Object.keys(horarioData).filter(dia => horarioData[dia].isWorking);
         setDiasTrabajo(diasTrabajo);
         setHorariosTrabajo(horarioData);
@@ -51,7 +49,6 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
     Object.keys(horarioData).forEach((dia) => {
       if (horarioData[dia].isWorking) {
         const { start1, end1, start2, end2 } = horarioData[dia];
-        console.log(`Calculando rango global para ${dia}:`, { start1, end1, start2, end2 });
 
         startHourGlobal = Math.min(startHourGlobal, parseInt(start1));
         endHourGlobal = Math.max(endHourGlobal, parseInt(end1));
@@ -64,10 +61,8 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
     });
 
     setRangoHorarioGlobal({ startHour: startHourGlobal, endHour: endHourGlobal });
-    console.log('Rango horario global calculado:', { startHourGlobal, endHourGlobal });
   };
 
-  // Carga las reservas una sola vez y las almacena en el estado
   const fetchReservasPeluquero = async () => {
     try {
       if (!uidPeluquero) {
@@ -75,16 +70,13 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
         return;
       }
 
-      console.log('Intentando cargar reservas desde Firebase...');
       const reservasRef = collection(db, 'reservas');
       const q = query(reservasRef, where('uidPeluquero', '==', uidPeluquero));
       const querySnapshot = await getDocs(q);
-      console.log('Consulta a Firebase: reservas');
 
       if (!querySnapshot.empty) {
         const reservasData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setReservas(reservasData);
-        console.log('Reservas obtenidas:', reservasData);
       } else {
         console.log('No se encontraron reservas para este peluquero');
       }
@@ -93,49 +85,37 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
     }
   };
 
-  // Calcular las fechas a mostrar (1 día, 3 días o 7 días)
   const calcularFechasSemana = () => {
     const fechas = [];
-    console.log('Calculando fechas para la vista:', modoVista);
 
     if (modoVista === 7) {
-      const inicioSemana = startOfWeek(fechaInicial, { weekStartsOn: 1 });
+      // Ver 7 días (Semana completa)
+      const inicioSemana = startOfWeek(fechaInicial, { weekStartsOn: 1 }); // Inicio de la semana
       for (let i = 0; i < 7; i++) {
         fechas.push(addDays(inicioSemana, i));
       }
     } else {
+      // Ver 1 día o 3 días (Comienza desde el día actual)
       for (let i = 0; i < modoVista; i++) {
-        fechas.push(addDays(fechaInicial, i));
+        fechas.push(addDays(fechaInicial, i)); // Empezamos desde la fechaInicial (que sería el día actual)
       }
     }
 
     setFechasSemana(fechas);
-    console.log('Fechas de la semana calculadas:', fechas);
   };
 
-  // useEffect para cargar los datos al inicio
   useEffect(() => {
-    console.log('Iniciando carga de horarios y reservas para el peluquero con UID:', uidPeluquero);
     fetchHorariosPeluquero();
     fetchReservasPeluquero();
-    calcularFechasSemana();
-  }, [uidPeluquero]);
+    calcularFechasSemana(); // Recalcular las fechas según el modo de vista
+  }, [uidPeluquero, fechaInicial, modoVista]); 
 
-  // useEffect para recalcular las fechas al cambiar modo de vista o fecha inicial
-  useEffect(() => {
-    console.log('Recalculando fechas semana al cambiar modo de vista o fecha inicial');
-    calcularFechasSemana();
-  }, [modoVista, fechaInicial]); 
-
-  // Renderizado de horas del día, sin cambios
   const renderHorasDelDia = (horarioDia) => {
     const horas = [];
     const { start1, end1, start2, end2 } = horarioDia;
 
     let currentHour = rangoHorarioGlobal.startHour;
     let currentMinute = 0;
-
-    console.log('Renderizando horas del día:', { horarioDia });
 
     while (currentHour < rangoHorarioGlobal.endHour || (currentHour === rangoHorarioGlobal.endHour && currentMinute === 0)) {
       const inFirstShift = currentHour >= parseInt(start1) && (currentHour < parseInt(end1) || (currentHour === parseInt(end1) && currentMinute === 0));
@@ -160,115 +140,141 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
     return horas;
   };
 
-  const actualizarEstadoTurno = async (reservaId, nuevoEstado) => {
-    try {
-      const reservaRef = doc(db, 'reservas', reservaId);
-      const updateData = { status: nuevoEstado };
-
-      // Si el estado es "en proceso", también guardamos el tiempo de inicio del turno
-      if (nuevoEstado === 'en proceso') {
-        updateData.startTime = new Date();
-      }
-
-      await updateDoc(reservaRef, updateData);
-      fetchReservasPeluquero();
-    } catch (error) {
-      console.error('Error actualizando el estado del turno:', error);
+  const handleRemindTurn = (reserva) => {
+    const fechaTurno = new Date(reserva.fecha);
+    const fechaLocal = new Date(fechaTurno.getTime() + (fechaTurno.getTimezoneOffset() * 60000)); 
+  
+    const message = `Te recordamos que tienes tu turno el ${fechaLocal.toLocaleDateString()} a las ${reserva.hora} en nuestra peluquería.`;
+    const phoneNumber = reserva.telefono; 
+  
+    if (phoneNumber) {
+      const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappURL, '_blank'); 
+    } else {
+      alert('No se encontró el número de teléfono para este cliente.');
     }
   };
 
-  // Renderizar reservas desde los datos locales
-  const renderReservas = (diaFecha) => {
-    const { gridHeight, totalMinutes, startHour } = calcularGridProperties();
-    console.log('Renderizando reservas para el día:', diaFecha);
+  const handleCancelTurn = async (reserva) => {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Estás seguro de que deseas cancelar esta reserva?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, cancelar',
+        cancelButtonText: 'No, mantener',
+        background: 'black',
+        color: 'white'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const reservaId = reserva.id;
+                const reservaRef = doc(db, 'reservas', reservaId);
 
-    return reservas.map((reserva) => {
-      const { hora, status, duracion, recurrente, frecuencia } = reserva;
-      const horaDate = new Date(`1970-01-01T${hora}:00`);
-      const reservaFecha = new Date(reserva.fecha);
+                await deleteDoc(reservaRef);
 
-      let fechasMostrar = [reservaFecha];
+                fetchReservasPeluquero();
 
-      if (recurrente && frecuencia === 'semanal') {
-        const startDate = new Date(fechaInicial);
-        const endDate = addDays(startDate, modoVista);
-
-        fechasMostrar = [];
-        let iterFecha = new Date(reservaFecha);
-        while (iterFecha <= endDate) {
-          if (iterFecha >= startDate) fechasMostrar.push(new Date(iterFecha));
-          iterFecha = addDays(iterFecha, 7);
+                Swal.fire({
+                    title: 'Turno Cancelado',
+                    text: 'El turno ha sido cancelado y eliminado.',
+                    icon: 'success',
+                    background: 'black',
+                    color: 'white',
+                    confirmButtonText: 'Ok'
+                });
+            } catch (error) {
+                console.error('Error al cancelar el turno:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Hubo un problema al cancelar el turno.',
+                    icon: 'error',
+                    background: 'black',
+                    color: 'white',
+                    confirmButtonText: 'Ok'
+                });
+            }
         }
-      }
-      
-      return fechasMostrar.map((fechaMostrar) => {
-        const reservaFechaLocal = new Date(fechaMostrar.getTime() + fechaMostrar.getTimezoneOffset() * 60000);
-        const esMismaFecha = isSameDay(reservaFechaLocal, diaFecha);
-
-        if (!esMismaFecha) return null;
-
-        let estiloReserva = '';
-        switch (status) {
-          case 'Pendiente':
-            estiloReserva = 'reserva-pendiente';
-            break;
-          case 'en proceso':
-            estiloReserva = 'reserva-en-proceso';
-            break;
-          case 'finalizado':
-            estiloReserva = 'reserva-finalizada';
-            break;
-          case 'cancelado':
-            estiloReserva = 'reserva-cancelado';
-            break;
-          default:
-            estiloReserva = '';
-        }
-
-        const totalStartMinutes = (horaDate.getHours() - startHour) * 60 + horaDate.getMinutes();
-        const topPosition = (totalStartMinutes * gridHeight) / totalMinutes;
-        const height = (parseInt(duracion) * gridHeight) / totalMinutes;
-
-        console.log(`Reserva ${reserva.id} para ${fechaMostrar.toISOString()}:`, {
-          cliente: reserva.nombreCliente,
-          hora,
-          status,
-          topPosition,
-          height,
-        });
-
-        return (
-          <div
-            key={`${fechaMostrar.toISOString()}-${reserva.id}`}
-            className={`reserva ${estiloReserva}`}
-            style={{ top: `${topPosition}px`, height: `${height}px` }}
-            onClick={() => manejarClickReserva(reserva)} 
-          >
-            {reserva.nombreCliente} - {hora}
-          </div>
-        );
-      });
     });
-  };
-
-  const calcularGridProperties = () => {
-    const totalMinutes = (rangoHorarioGlobal.endHour - rangoHorarioGlobal.startHour) * 60;
-    const gridHeight = (totalMinutes / 30) * 50;
-    return { gridHeight, totalMinutes, startHour: rangoHorarioGlobal.startHour };
-  };
-  // Nueva función para verificar si es el primer turno del día
-const verificarPrimerTurnoDelDia = async () => {
-  const now = new Date();
-  const hoy = now.toISOString().split('T')[0]; // Fecha actual en formato "YYYY-MM-DD"
-
-  // Buscar turnos con estado "en proceso" para el día de hoy
-  const reservasRef = collection(db, 'reservas');
-  const q = query(reservasRef, where('status', '==', 'en proceso'), where('fecha', '==', hoy));
-  const querySnapshot = await getDocs(q);
-
-  // Si no hay turnos en proceso hoy, es el primer turno del día
-  return querySnapshot.empty;
 };
+
+
+const manejarClickReserva = (reserva) => {
+  const { status, id } = reserva;
+
+  if (status === 'Pendiente') {
+      Swal.fire({
+          title: 'Turno Pendiente',
+          text: '¿Qué acción desea realizar?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Iniciar Turno',
+          cancelButtonText: 'Cancelar Turno',
+          showDenyButton: true,
+          denyButtonText: 'Recordar Turno',
+          background: 'black',
+          color: 'white',          
+      }).then((result) => {
+          if (result.isConfirmed) {
+              actualizarEstadoTurno(id, 'en proceso'); 
+              Swal.fire({
+                title: 'Turno Iniciado',
+                icon: 'success',
+                background: 'black',
+                color: 'white',
+              });
+              const isFirstTurnToday = verificarPrimerTurnoDelDia();
+              if (isFirstTurnToday) {
+                  limpiarReservasAntiguas(); 
+              }
+          } else if (result.isDenied) {
+              handleRemindTurn(reserva); 
+              Swal.fire({
+                title: 'Recordatorio enviado',
+                icon: 'success',
+                background: 'black',
+                color: 'white',
+              });
+          } else if (result.dismiss === Swal.DismissReason.cancel) {
+              handleCancelTurn(reserva); 
+          }
+      });
+  } else if (status === 'en proceso') {
+      Swal.fire({
+          title: 'Turno en Proceso',
+          text: '¿Desea finalizar este turno?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Finalizar Turno',
+          background: 'black',
+          color: 'white',
+      }).then((result) => {
+          if (result.isConfirmed) {
+              actualizarEstadoTurno(id, 'finalizado'); 
+              Swal.fire({
+                  title: 'Turno Finalizado',
+                  text: '¿Deseas agendar este turno para la próxima semana?',
+                  icon: 'success',
+                  showCancelButton: true,
+                  confirmButtonText: 'Reservar para próxima semana',
+                  cancelButtonText: 'No deseo reservar',
+                  background: 'black',
+                  color: 'white',
+              }).then((result) => {
+                  if (result.isConfirmed) {
+                      duplicarReservaParaLaProximaSemana(reserva);
+                      Swal.fire({
+                        title:'Turno agendado para la próxima semana',
+                        icon:'success',
+                        background: 'black',
+                        color: 'white',});
+                  }
+              });
+          }
+      });
+  }
+};
+
 // Función para duplicar la reserva para la próxima semana
 const duplicarReservaParaLaProximaSemana = async (reserva) => {
   try {
@@ -289,80 +295,115 @@ const duplicarReservaParaLaProximaSemana = async (reserva) => {
   }
 };
 
-  const manejarClickReserva = (reserva) => {
-    const { status, id } = reserva;
-  
-    if (status === 'Pendiente') {
-        Swal.fire({
-            title: 'Turno Pendiente',
-            text: '¿Qué acción desea realizar?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Iniciar Turno',
-            cancelButtonText: 'Cancelar Turno',
-            showDenyButton: true,
-            denyButtonText: 'Recordar Turno',
-            background: 'black',
-            color: 'white',          
-        }).then((result) => {
-            if (result.isConfirmed) {
-                actualizarEstadoTurno(id, 'en proceso'); 
-                Swal.fire({
-                  title: 'Turno Iniciado',
-                  icon: 'success',
-                  background: 'black',
-                  color: 'white',
-                });
-                const isFirstTurnToday = verificarPrimerTurnoDelDia();
-                if (isFirstTurnToday) {
-                    limpiarReservasAntiguas(); 
-                }
-            } else if (result.isDenied) {
-                handleRemindTurn(reserva); 
-                Swal.fire({
-                  title: 'Recordatorio enviado',
-                  icon: 'success',
-                  background: 'black',
-                  color: 'white',
-                });
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
-                handleCancelTurn(reserva); 
-            }
-        });
-    } else if (status === 'en proceso') {
-        Swal.fire({
-            title: 'Turno en Proceso',
-            text: '¿Desea finalizar este turno?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Finalizar Turno',
-            background: 'black',
-            color: 'white',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                actualizarEstadoTurno(id, 'finalizado'); 
-                Swal.fire({
-                    title: 'Turno Finalizado',
-                    text: '¿Deseas agendar este turno para la próxima semana?',
-                    icon: 'success',
-                    showCancelButton: true,
-                    confirmButtonText: 'Reservar para próxima semana',
-                    cancelButtonText: 'No deseo reservar',
-                    background: 'black',
-                    color: 'white',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        duplicarReservaParaLaProximaSemana(reserva);
-                        Swal.fire({
-                          title:'Turno agendado para la próxima semana',
-                          icon:'success',
-                          background: 'black',
-                          color: 'white',});
-                    }
-                });
-            }
-        });
+
+
+  // Nueva función para verificar si es el primer turno del día
+const verificarPrimerTurnoDelDia = async () => {
+  const now = new Date();
+  const hoy = now.toISOString().split('T')[0]; // Fecha actual en formato "YYYY-MM-DD"
+
+  // Buscar turnos con estado "en proceso" para el día de hoy
+  const reservasRef = collection(db, 'reservas');
+  const q = query(reservasRef, where('status', '==', 'en proceso'), where('fecha', '==', hoy));
+  const querySnapshot = await getDocs(q);
+
+  // Si no hay turnos en proceso hoy, es el primer turno del día
+  return querySnapshot.empty;
+};
+
+  const actualizarEstadoTurno = async (reservaId, nuevoEstado) => {
+    try {
+      const reservaRef = doc(db, 'reservas', reservaId);
+      const updateData = { status: nuevoEstado };
+
+      // Si el estado es "en proceso", también guardamos el tiempo de inicio del turno
+      if (nuevoEstado === 'en proceso') {
+        updateData.startTime = new Date();
+      }
+
+      await updateDoc(reservaRef, updateData);
+      fetchReservasPeluquero();
+    } catch (error) {
+      console.error('Error actualizando el estado del turno:', error);
     }
+  };
+
+  const renderReservas = (diaFecha) => {
+    const { gridHeight, totalMinutes, startHour } = calcularGridProperties();
+
+    return reservas.map((reserva) => {
+        const { hora, status, duracion, recurrente, frecuencia } = reserva;
+        const horaDate = new Date(`1970-01-01T${hora}:00`);
+        const reservaFecha = new Date(reserva.fecha);
+
+        let fechasMostrar = [reservaFecha];
+        
+        if (recurrente && frecuencia === 'semanal') {
+            // Agregar una copia del turno cada semana dentro de un periodo deseado
+            const startDate = new Date(fechaInicial);
+            const endDate = addDays(startDate, modoVista); // Ajusta para el periodo visible
+            
+            fechasMostrar = [];
+            let iterFecha = new Date(reservaFecha);
+            while (iterFecha <= endDate) {
+                if (iterFecha >= startDate) fechasMostrar.push(new Date(iterFecha));
+                iterFecha = addDays(iterFecha, 7); // Incremento semanal
+            }
+        }
+        
+        return fechasMostrar.map((fechaMostrar) => {
+            const reservaFechaLocal = new Date(fechaMostrar.getTime() + fechaMostrar.getTimezoneOffset() * 60000);
+            const esMismaFecha = isSameDay(reservaFechaLocal, diaFecha);
+
+            if (!esMismaFecha) return null;
+
+            let estiloReserva = '';
+            switch (status) {
+                case 'Pendiente':
+                    estiloReserva = 'reserva-pendiente';
+                    break;
+                case 'en proceso':
+                    estiloReserva = 'reserva-en-proceso';
+                    break;
+                case 'finalizado':
+                    estiloReserva = 'reserva-finalizada';
+                    break;
+                case 'cancelado':
+                    estiloReserva = 'reserva-cancelado';
+                    break;
+                default:
+                    estiloReserva = '';
+            }
+
+            const totalReservaMinutes = (horaDate.getHours() - startHour) * 60 + horaDate.getMinutes();
+            const topPosition = (totalReservaMinutes * (gridHeight / totalMinutes));
+            const height = (duracion / 30) * 50;
+
+            return (
+                <div
+                    key={`${reserva.id}-${fechaMostrar}`} // Identificador único
+                    className={`reserva ${estiloReserva} ${modoVista === 1 ? 'vista-dia' : modoVista === 3 ? 'vista-tres' : 'vista-semana'}`}
+                    style={{
+                        position: 'absolute',
+                        left: '0',
+                        top: `${topPosition}px`,
+                        height: `${height}px`,
+                        zIndex: 1,
+                    }}
+                    onClick={() => manejarClickReserva(reserva)} 
+                >
+                    <p className='text'>{`${reserva.nombre} ${reserva.apellido} - ${hora} - ${reserva.servicio} - ${reserva.status}`}</p>
+                </div>
+            )
+        });
+    }).flat(); // Asegura que las fechas repetidas se manejen como elementos individuales
+};
+
+
+  const calcularGridProperties = () => {
+    const totalMinutes = (rangoHorarioGlobal.endHour - rangoHorarioGlobal.startHour) * 60;
+    const gridHeight = (totalMinutes / 30) * 50;
+    return { gridHeight, totalMinutes, startHour: rangoHorarioGlobal.startHour };
   };
 
   return (
