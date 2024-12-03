@@ -205,6 +205,22 @@
       animation: button-shimmer 2s infinite;
       transition: all 0.3s ease-in-out;
     }
+    .btn-info{
+      background-color: yellow;
+      color: black;
+      padding: 10px 15px;
+      border: 0;
+      border-radius: .25em;
+      font-size: 1em;
+    }
+    .btn-cambio{
+      background-color: rgb(11, 230, 128);
+      color: black;
+      padding: 10px 15px;
+      border: 0;
+      border-radius: .25em;
+      font-size: 1em;
+    }
     /*VISTA MOBILE -350px*/
     @media (min-width: 150px) {
       .button-semana{
@@ -232,6 +248,9 @@
         display: flex;
         justify-content: center;
         align-items: center;
+      }
+      .swal2-title{
+        font-size: 20px;
       }
       }
     /*VISTA MOBILE*/
@@ -261,7 +280,13 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 10px;
+        font-size: 14px;
+      }
+      .swal2-title{
+        font-size: 20px;
+        .label-edit{
+          font-size: 10px;
+        }
       }
       }
 

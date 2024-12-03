@@ -270,7 +270,7 @@ const handleAgendar = async (e) => {
                 
                 {/*</div>*/}
                 <div className='div-date'>
-                    <label className='titulo-servicio' >Peluquero:</label>
+                    <label className='titulo-servicio' >Profesional:</label>
 
                     <select
                         className='select-seccion'
