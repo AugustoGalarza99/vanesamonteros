@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { db, auth } from '../../firebaseConfig'; // Asegúrate de importar `auth`
-import { 
-    collection, 
-    addDoc, 
-    updateDoc, 
-    deleteDoc, 
-    doc, 
-    getDocs 
-} from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth'; // Para obtener el usuario actual
+import { db } from '../../firebaseConfig';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import Swal from 'sweetalert2';
-import './AgregarServicio.css';
+import './AgregarServicio.css'
 
 const AgregarServicios = () => {
     const [nombreServicio, setNombreServicio] = useState('');
@@ -20,65 +12,67 @@ const AgregarServicios = () => {
     const [editandoServicio, setEditandoServicio] = useState(null);
     const [editDuracion, setEditDuracion] = useState('');
     const [editPrecio, setEditPrecio] = useState('');
-    const [uid, setUid] = useState(null); // ID del usuario logueado
 
-    // Obtenemos el usuario logueado
-    useEffect(() => {
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                setUid(user.uid);
-            } else {
-                setUid(null);
-            }
-        });
-    }, []);
-
-    // Cargar servicios al montar
+    // Cargar servicios al montar, solo si servicios está vacío
     const fetchServicios = async () => {
-        if (!uid) return;
-        try {
-            const serviciosSnapshot = await getDocs(collection(db, `profesionales/${uid}/servicios`));
+        if (servicios.length === 0) {
+            console.log('Fetching servicios from Firebase'); // <-- Log de control
+            const serviciosSnapshot = await getDocs(collection(db, 'servicios'));
             const serviciosList = serviciosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setServicios(serviciosList);
-        } catch (error) {
-            console.error('Error al cargar los servicios:', error);
         }
     };
 
     useEffect(() => {
         fetchServicios();
-    }, [uid]);
+    }, []);
 
-    // Agregar servicio
+    // Agregar servicio sin recargar desde Firebase
     const handleAgregarServicio = async (e) => {
         e.preventDefault();
-        if (!uid) {
-            Swal.fire('Error', 'No se encontró un usuario logueado.', 'error');
-            return;
-        }
+        console.log('Adding new servicio to Firebase'); // <-- Log de control
         try {
             const newServicio = {
                 nombre: nombreServicio,
                 duracion: parseInt(duracion),
                 precio: parseFloat(precio)
             };
-            const docRef = await addDoc(collection(db, `profesionales/${uid}/servicios`), newServicio);
-            setServicios([...servicios, { id: docRef.id, ...newServicio }]);
-            Swal.fire('Servicio agregado correctamente', '', 'success');
+            const docRef = await addDoc(collection(db, 'servicios'), newServicio);
+            setServicios([...servicios, { id: docRef.id, ...newServicio }]); // Actualizamos servicios en el frontend
+            Swal.fire({
+                title: 'Servicio agregado correctamente',
+                text: 'Para modificar precios, duracion de tiempo o eliminar servicio revisa la seccion inferior',
+                icon: 'success',
+                background: 'black', 
+                color: 'white', 
+                confirmButtonText: 'Ok'
+            });
             setNombreServicio(''); setDuracion(''); setPrecio('');
         } catch (error) {
             console.error('Error agregando servicio:', error);
-            Swal.fire('Error al agregar el servicio', '', 'error');
+            Swal.fire({
+                title: 'Error al agregar el servicio',
+                icon: 'error',
+                background: 'black', 
+                color: 'white', 
+                confirmButtonText: 'Ok'
+            });
         }
     };
 
-    // Eliminar servicio
+    // Eliminar servicio sin recargar desde Firebase
     const handleEliminarServicio = async (id) => {
-        if (!uid) return;
+        console.log(`Deleting servicio with ID: ${id} from Firebase`); // <-- Log de control
         try {
-            await deleteDoc(doc(db, `profesionales/${uid}/servicios`, id));
-            setServicios(servicios.filter(servicio => servicio.id !== id));
-            Swal.fire('Servicio eliminado correctamente', '', 'success');
+            await deleteDoc(doc(db, 'servicios', id));
+            setServicios(servicios.filter(servicio => servicio.id !== id)); // Actualizamos servicios en el frontend
+            Swal.fire({
+                title: 'Servicio eliminado correctamente',
+                icon: 'success',
+                background: 'black', 
+                color: 'white', 
+                confirmButtonText: 'Ok'
+            });
         } catch (error) {
             console.error('Error eliminando servicio:', error);
             Swal.fire('Error al eliminar el servicio', '', 'error');
@@ -92,20 +86,26 @@ const AgregarServicios = () => {
         setEditPrecio(servicio.precio);
     };
 
-    // Guardar cambios en la edición
+    // Guardar cambios en la edición sin recargar desde Firebase
     const handleGuardarCambios = async (id) => {
-        if (!uid) return;
+        console.log(`Updating servicio with ID: ${id} in Firebase`); // <-- Log de control
         try {
             const updatedServicio = {
                 duracion: parseInt(editDuracion),
                 precio: parseFloat(editPrecio)
             };
-            await updateDoc(doc(db, `profesionales/${uid}/servicios`, id), updatedServicio);
+            await updateDoc(doc(db, 'servicios', id), updatedServicio);
             setServicios(servicios.map(servicio =>
                 servicio.id === id ? { ...servicio, ...updatedServicio } : servicio
-            ));
-            setEditandoServicio(null);
-            Swal.fire('Cambios guardados correctamente', '', 'success');
+            )); // Actualizamos servicios en el frontend
+            setEditandoServicio(null); // Salir del modo edición
+            Swal.fire({
+                title: 'Cambios guardados correctamente',
+                icon: 'success',
+                background: 'black', 
+                color: 'white', 
+                confirmButtonText: 'Ok'
+            });
         } catch (error) {
             console.error('Error guardando cambios del servicio:', error);
             Swal.fire('Error al guardar cambios', '', 'error');

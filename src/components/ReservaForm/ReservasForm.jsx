@@ -28,33 +28,6 @@ const ReservasForm = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    // Obtener servicios al montar el componente
-    useEffect(() => {
-        const fetchServicios = async () => {
-            try {
-                const serviciosRef = collection(db, 'servicios');
-                const querySnapshot = await getDocs(serviciosRef);
-                const serviciosList = [];
-
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    serviciosList.push({ nombre: data.nombre, duracion: data.duracion, precio: data.precio }); // Agrega el costo del servicio
-                });
-
-                setServicios(serviciosList);
-                if (serviciosList.length > 0) {
-                    setServicio(serviciosList[0].nombre); // Seleccionar el primer servicio por defecto
-                    setDuracionServicio(serviciosList[0].duracion); // Guardar la duración del primer servicio
-                    setCostoServicio(serviciosList[0].precio); // Guardar el costo del primer servicio
-                }
-            } catch (error) {
-                console.error('Error obteniendo servicios:', error);
-            }
-        };
-
-        fetchServicios();
-    }, []);
-
     // Obtener peluqueros al montar el componente
     useEffect(() => {
         const fetchPeluqueros = async () => {
@@ -79,6 +52,41 @@ const ReservasForm = () => {
 
         fetchPeluqueros();
     }, []);
+
+    // Obtener servicios del profesional seleccionado
+    useEffect(() => {
+        const fetchServicios = async () => {
+            if (!profesional) return; // Si no hay un profesional seleccionado, no hacer nada
+
+            try {
+                const serviciosRef = collection(db, 'profesionales', profesional, 'servicios');
+                const querySnapshot = await getDocs(serviciosRef);
+                const serviciosList = [];
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    serviciosList.push({
+                        id: doc.id,
+                        nombre: data.nombre,
+                        duracion: data.duracion,
+                        precio: data.precio, // Asegúrate de que el campo precio exista en los documentos
+                    });
+                });
+
+                setServicios(serviciosList);
+                if (serviciosList.length > 0) {
+                    setServicio(serviciosList[0].nombre); // Seleccionar el primer servicio por defecto
+                    setDuracionServicio(serviciosList[0].duracion); // Guardar la duración del primer servicio
+                    setCostoServicio(serviciosList[0].precio); // Guardar el costo del primer servicio
+                }
+            } catch (error) {
+                console.error('Error obteniendo servicios:', error);
+            }
+        };
+
+        fetchServicios();
+    }, [profesional]); // Este efecto se ejecuta cada vez que cambia el valor de 'profesional'
+
 
     useEffect(() => {
         const fetchHorariosDisponibles = async () => {
@@ -451,6 +459,18 @@ const ReservasForm = () => {
                 <input className='input-gral2' type="text" placeholder='Ingresa tu apellido' value={apellido} onChange={(e) => setApellido(e.target.value)} required />
                 <input className='input-gral2' type="text" placeholder='Ingresa tu número de teléfono' value={telefono} onChange={(e) => setTelefono(e.target.value)} required />
             </div>
+            <div className='div-date'>
+                <label className='titulo-servicio'>Selecciona tu profesional</label>
+                    <select
+                        className='select-seccion'
+                        value={profesional}
+                        onChange={(e) => setProfesional(e.target.value)}
+                    >
+                        {peluqueros.map((p) => (
+                            <option key={p.id} value={p.id}>{p.nombre}</option>
+                        ))}
+                    </select>
+                </div>
             <div className='seccion-2'>
                 <div className='div-serv'>
                     <label className='titulo-servicio'>Selecciona el servicio</label>
@@ -464,19 +484,7 @@ const ReservasForm = () => {
                         ))}
                     </select>
                 </div>
-                </div>
-                <div className='div-date'>
-                <label className='titulo-servicio'>Selecciona tu profesional</label>
-                    <select
-                        className='select-seccion'
-                        value={profesional}
-                        onChange={(e) => setProfesional(e.target.value)}
-                    >
-                        {peluqueros.map((p) => (
-                            <option key={p.id} value={p.id}>{p.nombre}</option>
-                        ))}
-                    </select>
-                </div>
+                </div>                
                 <div className='div-date'>
                 <label className='titulo-servicio'>Elige tu fecha</label>
                     <input

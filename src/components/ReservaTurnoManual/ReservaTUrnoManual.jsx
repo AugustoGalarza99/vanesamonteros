@@ -13,38 +13,13 @@ const ReservaTurnoManual = () => {
     const [profesional, setProfesional] = useState('');
     const [fecha, setFecha] = useState('');
     const [hora, setHora] = useState('');
+    const [costoServicio, setCostoServicio] = useState(0); // Para almacenar el costo del servicio
     const [duracionServicio, setDuracionServicio] = useState(0); // Duración del servicio seleccionado
     const [servicios, setServicios] = useState([]);
     const [peluqueros, setPeluqueros] = useState([]);
     const [horariosDisponibles, setHorariosDisponibles] = useState([]);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
-    // Obtener servicios al montar el componente
-    useEffect(() => {
-        const fetchServicios = async () => {
-            try {
-                const serviciosRef = collection(db, 'servicios');
-                const querySnapshot = await getDocs(serviciosRef);
-                const serviciosList = [];
-
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    serviciosList.push({ nombre: data.nombre, duracion: data.duracion });
-                });
-
-                setServicios(serviciosList);
-                if (serviciosList.length > 0) {
-                    setServicio(serviciosList[0].nombre); // Seleccionar el primer servicio por defecto
-                    setDuracionServicio(serviciosList[0].duracion); // Guardar la duración del primer servicio
-                }
-            } catch (error) {
-                console.error('Error obteniendo servicios:', error);
-            }
-        };
-
-        fetchServicios();
-    }, []);
 
     // Obtener peluqueros al montar el componente
     useEffect(() => {
@@ -70,6 +45,41 @@ const ReservaTurnoManual = () => {
 
         fetchPeluqueros();
     }, []);
+
+    // Obtener servicios del profesional seleccionado
+    useEffect(() => {
+        const fetchServicios = async () => {
+            if (!profesional) return; // Si no hay un profesional seleccionado, no hacer nada
+
+            try {
+                const serviciosRef = collection(db, 'profesionales', profesional, 'servicios');
+                const querySnapshot = await getDocs(serviciosRef);
+                const serviciosList = [];
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    serviciosList.push({
+                        id: doc.id,
+                        nombre: data.nombre,
+                        duracion: data.duracion,
+                        precio: data.precio, // Asegúrate de que el campo precio exista en los documentos
+                    });
+                });
+
+                setServicios(serviciosList);
+                if (serviciosList.length > 0) {
+                    setServicio(serviciosList[0].nombre); // Seleccionar el primer servicio por defecto
+                    setDuracionServicio(serviciosList[0].duracion); // Guardar la duración del primer servicio
+                    setCostoServicio(serviciosList[0].precio); // Guardar el costo del primer servicio
+                }
+            } catch (error) {
+                console.error('Error obteniendo servicios:', error);
+            }
+        };
+
+        fetchServicios();
+    }, [profesional]); // Este efecto se ejecuta cada vez que cambia el valor de 'profesional'
+
 
     // Obtener horarios disponibles del peluquero seleccionado y la fecha
 const fetchHorariosDisponibles = async () => {
@@ -259,21 +269,6 @@ const handleAgendar = async (e) => {
                     </div>
                 
                 {/*</div>*/}
-                <div className='seccion-2'>
-                    <div className='div-serv' >
-                    <label className='titulo-servicio'>Servicio:</label>
-                    
-                    <select className='select-servicio' value={servicio} onChange={(e) => {
-                        const selectedService = servicios.find(s => s.nombre === e.target.value);
-                        setServicio(selectedService.nombre);
-                        setDuracionServicio(selectedService.duracion); // Actualiza la duración del servicio
-                    }}>                        
-                        {servicios.map((s) => (
-                            <option key={s.nombre} value={s.nombre}>{`${s.nombre} (${s.duracion} minutos)`}</option>
-                        ))}
-                    </select>
-                    </div>
-                </div>
                 <div className='div-date'>
                     <label className='titulo-servicio' >Peluquero:</label>
 
@@ -287,6 +282,21 @@ const handleAgendar = async (e) => {
                         ))}
                     </select>
 
+                </div>
+                <div className='seccion-2'>
+                    <div className='div-serv' >
+                    <label className='titulo-servicio'>Servicio:</label>
+                    
+                    <select className='select-servicio' value={servicio} onChange={(e) => {
+                        const selectedService = servicios.find(s => s.nombre === e.target.value);
+                        setServicio(selectedService.nombre);
+                        setDuracionServicio(selectedService.duracion); // Actualiza la duración del servicio
+                    }}>                        
+                        {servicios.map((s) => (
+                            <option key={s.nombre} value={s.nombre}> {`${s.nombre} - $${s.precio} - (${s.duracion} min)`}</option>
+                        ))}
+                    </select>
+                    </div>
                 </div>
                 <div className='div-date'>
                     <label className='titulo-servicio' >Fecha:</label>
