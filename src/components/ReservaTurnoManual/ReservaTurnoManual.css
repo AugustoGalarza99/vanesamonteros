@@ -161,7 +161,7 @@
   background: none;
   padding: 1rem;
   font-size: 1rem;
-  color: #f5f5f5;
+  color: var(--color-letras);
   transition: border 150ms cubic-bezier(0.4,0,0.2,1);
   outline: none;
   border: var(--border-input);
@@ -176,7 +176,7 @@
   background: none;
   padding: 1rem;
   font-size: 1rem;
-  color: #f5f5f5;
+  color: var(--color-letras);
   transition: border 150ms cubic-bezier(0.4,0,0.2,1);
   outline: none;
   border: var(--border-input);

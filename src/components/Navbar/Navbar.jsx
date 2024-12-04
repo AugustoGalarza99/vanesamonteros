@@ -71,10 +71,16 @@ function Navbar({ isPeluquero }) {
         </ul>
       </div>
       <div className="navbar-hamburguer" onClick={toggleMenu}>
-        <span className="bar"></span>
-        <span className="bar"></span>
-        <span className="bar"></span>
-      </div>
+  {isOpen ? (
+    <span className="close-icon">✖</span> // X para cerrar
+  ) : (
+    <>
+      <span className="bar"></span>
+      <span className="bar"></span>
+      <span className="bar"></span>
+    </>
+  )}
+</div>
       </div>
     </nav>
   );

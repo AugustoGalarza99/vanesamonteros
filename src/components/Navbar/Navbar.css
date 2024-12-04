@@ -68,6 +68,15 @@
     z-index: 999;
     padding-top: 250px;
   }
+  .navbar-hamburguer .close-icon {
+    font-size: 30px;
+    color: #fff;
+    cursor: pointer;
+    z-index: 999;
+    margin-top: -20px;
+    margin-left: 10px;
+
+  }
   li{
     a{
       cursor: pointer;

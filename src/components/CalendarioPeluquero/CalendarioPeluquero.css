@@ -217,6 +217,7 @@ h3{
       border: 0;
       border-radius: .25em;
       font-size: 1em;
+      margin-bottom: 20px;
     }
     .btn-cambio{
       background-color: rgb(11, 230, 128);
