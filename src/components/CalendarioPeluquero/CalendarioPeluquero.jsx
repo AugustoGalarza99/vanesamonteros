@@ -531,7 +531,7 @@ Duración estimada: ${reserva.duracion} minutos. Gracias por tu comprensión.`;
             setFechaInicial(new Date()); // Cuando se elige ver 3 días, empezamos desde el día actual
             }}>3 Días
           </button>
-          <button className='button-dias' onClick={() => {
+          <button className='button-dias button-oculto' onClick={() => {
             setModoVista(7);
             setFechaInicial(startOfWeek(new Date(), { weekStartsOn: 1 })); // Cuando se elige ver la semana, se inicia desde el comienzo de la semana
           }}>Semana

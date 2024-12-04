@@ -1,3 +1,6 @@
+h3{
+  color: var(--color-letras);
+}
 .calendario {
     display: flex;
     flex-direction: column; 
@@ -22,6 +25,7 @@
   }  
   .calendario-hora {
     height: 49px; /* Ajusta según lo necesites */
+    color: white;
   }
   .calendario-hora.descanso{
     background-color: rgb(70, 69, 69);
@@ -62,7 +66,7 @@
     width: 100%; /* El evento cubre todo el ancho de la celda */
     max-width: 100%; /* Máximo ancho de 50px para cada evento */
     background-color: #f50505; /* Color de fondo del evento */
-    color: var(--color-letras);
+    color: white;
     box-sizing: border-box;
     font-size: 12px; /* Ajusta el tamaño de texto del evento */
     border: 1px solid black;
@@ -77,7 +81,7 @@
     position: absolute;
     width: 100%; /* El evento cubre todo el ancho de la celda */
     max-width: 100%; /* Máximo ancho de 50px para cada evento */
-    color: var(--color-letras);
+    color: white;
     padding: 5px;
     box-sizing: border-box;
     font-size: 12px; /* Ajusta el tamaño de texto del evento */   
@@ -92,7 +96,7 @@
     position: absolute;
     width: 100%; /* El evento cubre todo el ancho de la celda */
     max-width: 100%; /* Máximo ancho de 50px para cada evento */
-    color: var(--color-letras);
+    color: white;
     box-sizing: border-box;
     font-size: 12px; /* Ajusta el tamaño de texto del evento */
     border: 1px solid black;
@@ -106,7 +110,7 @@
     width: 100%; /* El evento cubre todo el ancho de la celda */
     max-width: 100%; /* Máximo ancho de 50px para cada evento */
     background-color: #4caf50;
-    color: var(--color-letras);
+    color: white;
     box-sizing: border-box;
     font-size: 12px; /* Ajusta el tamaño de texto del evento */
     border: 1px solid black;
@@ -137,6 +141,7 @@
     transition: all 0.3s ease-in-out;
   }
   .calendario-dia{
+    color: var(--color-letras);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -312,4 +317,30 @@
       .vista-semana .text {
         font-size: 6px; /* Tamaño más pequeño para toda la semana */
       }
+      
+    .button-oculto {
+        display: none;
+    }
+
+    /* Mostrar el botón solo si la resolución es mayor a 1024px */
+    @media (min-width: 1024px) {
+        .button-oculto {
+          margin-top: 10px;  
+          margin-left: 10px;
+          position: relative;
+          display: inline-block;
+          background: var(--color-boton);
+          color: var(--color-letras);
+          font-family: var(--font);
+          font-weight: bold;
+          font-size: 16px;
+          border: none;
+          border-radius: 30px;
+          padding: 10px;
+          cursor: pointer;
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+          animation: button-shimmer 2s infinite;
+          transition: all 0.3s ease-in-out;
+        }
+    }
       

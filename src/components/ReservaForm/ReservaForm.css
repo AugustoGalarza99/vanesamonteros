@@ -60,6 +60,7 @@
   .h3{
     margin-top: 20px;
     margin-bottom: 10px;
+    color: var(--color-letras);
   }
 
 
@@ -111,12 +112,12 @@
   background: none;
   padding: 1rem;
   font-size: 1rem;
-  color: #f5f5f5;
+  color: var(--color-letras);
   transition: border 150ms cubic-bezier(0.4,0,0.2,1);
   option{
       font-size: 14px;
       font-size: 1rem;
-      color: #ffffff;
+      color: var(--color-letras);
       border-radius: 5px;  
       border: var(--border-input);
       border-radius:1rem; 
@@ -128,6 +129,7 @@
 }
 .titulo-servicio{
   font-family: var(--font);
+  color: var(--color-letras);
   font-weight: 400;
 }
 .div-serv{
@@ -137,6 +139,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  color: var(--color-letras);
   font-family: var(--font);
   margin-top: 10px;
   svg{
@@ -163,7 +166,7 @@
   background: none;
   padding: 1rem;
   font-size: 1rem;
-  color: #f5f5f5;
+  color: var(--color-letras);
   transition: border 150ms cubic-bezier(0.4,0,0.2,1);
   box-sizing: border-box;
 }
@@ -199,9 +202,9 @@
   position: relative;
   display: inline-block;
   /*background: linear-gradient(to bottom, #1b1c3f, #4a4e91);*/
-  background: linear-gradient(to bottom, #1b1c3f, #4a4e91);
+  background: var(--color-boton);
  /* Gradient background */
-  color: white;
+  color: var(--color-letras);
  /* White text color */
   font-family: "Segoe UI", sans-serif;
  /* Stylish and legible font */
@@ -225,7 +228,7 @@
 
 /* Hover animation */
 .button-agendar:hover {
-  background: linear-gradient(to bottom, #2c2f63, #5b67b7);
+  background: var(--color-boton);
   animation: button-particles 1s ease-in-out infinite;
   transform: translateY(-2px);
 }

@@ -31,7 +31,6 @@
     list-style: none;
     padding: 0;
     margin: 0;
-    
   }  
   .navbar-menu ul li {
     padding: 10px 0;
@@ -55,19 +54,19 @@
   .navbar-hamburguer .bar {
     height: 3px;
     width: 100%;
-    background-color: #fff;
+    background-color: var(--color-letras);
     border-radius: 5px;
   }  
   .navbar-menu.open {
     display: flex;
     flex-direction: column;
     position: absolute;
-    top: 80px;
     left: 0;
     right: 0;
-    background-color: rgba(0, 0, 0, 0.815);
+    background-color: rgba(0, 0, 0, 0.911);
     padding: 20px;
     z-index: 999;
+    padding-top: 250px;
   }
   li{
     a{
