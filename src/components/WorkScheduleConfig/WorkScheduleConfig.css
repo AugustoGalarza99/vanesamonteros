@@ -13,7 +13,7 @@
     align-items: center;
     width: 60%;
     margin-bottom: 20px;
-    border: var(--titulo-color) 2px solid;
+    border: var(--border-input);
     border-radius: 10px;
 }
 .div-trabajo{

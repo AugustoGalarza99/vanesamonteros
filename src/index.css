@@ -8,10 +8,27 @@ html, body, #root {
   width: 100vw;  /* Ancho del 100% de la ventana */
   overflow-x: hidden; /* Desactiva el desplazamiento horizontal */ 
   --titulo-color: #1b1c3f;
+  --border-input: 1.5px solid #f8fcfd;
+  --font: "Roboto", sans-serif;
+  --color-letras: white;
+  --color-boton: linear-gradient(to bottom, #353be2, #4a4e91);
+  color: black;
+  background-color: rgb(146, 47, 141);
+}
+
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh; /* Altura del 100% de la ventana */
+  width: 100vw;  /* Ancho del 100% de la ventana */
+  overflow-x: hidden; /* Desactiva el desplazamiento horizontal */ 
+  --titulo-color: #1b1c3f;
   --border-input: 1.5px solid #0aa6e4;
   --font: "Roboto", sans-serif;
   --color-letras: white;
   --color-boton: linear-gradient(to bottom, #1b1c3f, #4a4e91);
   color: rgb(245, 245, 245);
-  background-color: black;
+  background-color:black;
 }
+
