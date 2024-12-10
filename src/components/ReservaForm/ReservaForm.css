@@ -204,7 +204,7 @@
   /*background: linear-gradient(to bottom, #1b1c3f, #4a4e91);*/
   background: var(--color-boton);
  /* Gradient background */
-  color: var(--color-letras);
+  color: var(--color-letras-boton);
  /* White text color */
   font-family: "Segoe UI", sans-serif;
  /* Stylish and legible font */

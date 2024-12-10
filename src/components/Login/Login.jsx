@@ -26,7 +26,7 @@ const Login = () => {
     <div className="form-box">
     <div className="form-value">      
       <form className='forms' onSubmit={handleLogin}>
-      <h2>Inicia Sesión</h2>
+      <h2 className='h2-login'>Inicia Sesión</h2>
       {error && <p>{error}</p>}
       <div className="input-box">
         <input

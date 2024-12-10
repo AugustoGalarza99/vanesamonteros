@@ -128,7 +128,7 @@ h3{
     position: relative;
     display: inline-block;
     background: var(--color-boton);
-    color: var(--color-letras);
+    color: var(--color-letras-boton);
     font-family: var(--font);
     font-weight: bold;
     font-size: 16px;
@@ -198,7 +198,7 @@ h3{
       position: relative;
       display: inline-block;
       background: var(--color-boton);
-      color: var(--color-letras);
+      color: var(--color-letras-boton);
       font-family: var(--font);
       font-weight: bold;
       font-size: 16px;
@@ -331,7 +331,7 @@ h3{
           position: relative;
           display: inline-block;
           background: var(--color-boton);
-          color: var(--color-letras);
+          color: var(--color-letras-boton);
           font-family: var(--font);
           font-weight: bold;
           font-size: 16px;

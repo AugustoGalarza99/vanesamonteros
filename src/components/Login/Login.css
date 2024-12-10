@@ -9,7 +9,7 @@
     align-items: center;
     min-height: 100vh;
     width: 100%;  
-    background: url(../../../public/barber2.jpg);
+    background: url(../../../public/barber.jpg);
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
@@ -31,9 +31,9 @@
     border: 2px solid #fff;
     border-radius: 10px;
   }
-  h2 {
+  .h2-login {
     font-size: 2rem;
-    color: #fff;
+    color: var(--color-letras-boton);
     text-align: center;
   }
   .input-box {
@@ -89,7 +89,7 @@
     /*background: linear-gradient(to bottom, #1b1c3f, #4a4e91);*/
     background: linear-gradient(to bottom, #1b1c3f, #4a4e91);
    /* Gradient background */
-    color: white;
+    color: var(--color-letras-boton);
    /* White text color */
     font-family: "Segoe UI", sans-serif;
    /* Stylish and legible font */

@@ -71,15 +71,14 @@
       transition: border 150ms cubic-bezier(0.4,0,0.2,1);
       option{
           font-size: 14px;
-          background-color: black;
+          background-color: var(--background-options);
           font-size: 1rem;
-          color: #ffffff;
+          color: var(--color-letras);
           border-radius: 5px;  
           border: var(--border-input);
           border-radius:1rem; 
           padding: 1rem;
           font-size: 1rem;
-          color: #f5f5f5;
           transition: border 150ms cubic-bezier(0.4,0,0.2,1);
       }
     }
@@ -205,15 +204,14 @@
   transition: border 150ms cubic-bezier(0.4,0,0.2,1);
   option{
       font-size: 14px;
-      background-color: black;
+      background-color: var(--background-options);
       font-size: 1rem;
-      color: #ffffff;
+      color: var(--color-letras);
       border-radius: 5px;  
       border: var(--border-input);
       border-radius:1rem; 
       padding: 1rem;
       font-size: 1rem;
-      color: #f5f5f5;
       transition: border 150ms cubic-bezier(0.4,0,0.2,1);
   }
 }
@@ -292,7 +290,7 @@
   /*background: linear-gradient(to bottom, #1b1c3f, #4a4e91);*/
   background: var(--color-boton);
  /* Gradient background */
-  color: var(--color-letras);
+  color: var(--color-letras-boton);
  /* White text color */
   font-family: "Segoe UI", sans-serif;
  /* Stylish and legible font */
