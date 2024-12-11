@@ -4,6 +4,7 @@ import { doc, getDoc, collection, getDocs, query, where, addDoc, setDoc } from '
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
+import { FcCalendar } from "react-icons/fc";
 import Swal from 'sweetalert2';
 import './ReservaForm.css';
 
@@ -447,7 +448,7 @@ const ReservasForm = () => {
     return (            
             <form className='form-reserva' onSubmit={handleAgendar}>
             <div className='titulo'>
-                <FontAwesomeIcon icon={faCalendarAlt} />
+                <FcCalendar />
                 <h1 className='titulo'>Agenda tu cita</h1>                
             </div>
             <h3 className='h3'>Completa el siguiente formulario para reservar tu cita</h3>

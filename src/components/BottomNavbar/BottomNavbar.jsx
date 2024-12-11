@@ -5,6 +5,7 @@ import { getDoc, doc } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import './BottomNavbar.css';
 import { FiHome, FiHelpCircle, FiUser, FiMoreVertical } from 'react-icons/fi';
+import { FcClock, FcCancel, FcAbout } from "react-icons/fc";
 
 function BottomNavbar({ isPeluquero }) {
   const [user] = useAuthState(auth);
@@ -54,16 +55,16 @@ function BottomNavbar({ isPeluquero }) {
         <div className="dropdown-menu">
           <ul>
             <li><Link to="/" onClick={() => setIsMenuOpen(false)}>Reservar turno</Link></li>
-            <li><Link to="/estado" onClick={() => setIsMenuOpen(false)}>Estado</Link></li>
+            <li><Link to="/estado" onClick={() => setIsMenuOpen(false)}> <FcAbout /> Estado</Link></li>
             {isPeluquero && (
               <>
                 <li><Link to="/agenda" onClick={() => setIsMenuOpen(false)}>Agenda</Link></li>
                 <li><Link to="/servicios" onClick={() => setIsMenuOpen(false)}>Servicios</Link></li>
-                <li><Link to="/horarios" onClick={() => setIsMenuOpen(false)}>Horarios</Link></li>
+                <li><Link to="/horarios" onClick={() => setIsMenuOpen(false)}> <FcClock /> Horarios</Link></li>
                 <li><Link to="/reservamanual" onClick={() => setIsMenuOpen(false)}>Reserva manual</Link></li>
               </>
             )}
-            <li><a onClick={() => { auth.signOut(); setIsMenuOpen(false); }}>Cerrar Sesión</a></li>
+            <li><a onClick={() => { auth.signOut(); setIsMenuOpen(false); }}> <FcCancel /> Cerrar Sesión</a></li>
           </ul>
         </div>
       )}
