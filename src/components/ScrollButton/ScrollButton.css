@@ -1,8 +1,8 @@
 /* src/components/ScrollButton/ScrollButton.css */
 .scroll-button {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 60px;
+    right: 25px;
     width: 45px;
     height: 45px;
     border-radius: 50%;

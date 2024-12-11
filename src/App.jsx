@@ -15,6 +15,7 @@ import Horarios from './pages/Horarios';
 import Servicios from './pages/Servicios';
 import Loader from './components/Loader/Loader';
 import ScrollButton from './components/ScrollButton/ScrollButton';
+import BottomNavbar from './components/BottomNavbar/BottomNavbar';
 
 
 // Componentes simples para las páginas
@@ -51,7 +52,8 @@ function App() {
 
   return (
     <Router /*basename='/juan'*/>
-      <Navbar isPeluquero={isPeluquero} /> {/* Pasamos el estado isPeluquero al Navbar */}
+      <BottomNavbar isPeluquero={isPeluquero} />
+      {/*<Navbar isPeluquero={isPeluquero} />  Pasamos el estado isPeluquero al Navbar */}
       <ScrollButton />
       <div>
         <Routes>
