@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../firebaseConfig';
 import { doc, getDoc, collection, getDocs, query, where, addDoc, setDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
-import { FcCalendar } from "react-icons/fc";
+
+import { RxCalendar } from "react-icons/rx";
 import Swal from 'sweetalert2';
 import './ReservaForm.css';
 
@@ -448,7 +447,7 @@ const ReservasForm = () => {
     return (            
             <form className='form-reserva' onSubmit={handleAgendar}>
             <div className='titulo'>
-                <FcCalendar />
+                <RxCalendar />
                 <h1 className='titulo'>Agenda tu cita</h1>                
             </div>
             <h3 className='h3'>Completa el siguiente formulario para reservar tu cita</h3>
@@ -512,7 +511,7 @@ const ReservasForm = () => {
                     </div>
             <div>
                 <button className='button-agendar' type="submit">
-                    <FontAwesomeIcon icon={faCalendarAlt} /> {loading ? 'Agendando...' : 'Agendar Turno' }
+                    <RxCalendar /> {loading ? 'Agendando...' : 'Agendar Turno' }
                 </button>
             </div>
             {!verificado && mostrarSolicitarCodigo && (

@@ -4,8 +4,8 @@ import { auth, db } from '../../firebaseConfig';
 import { getDoc, doc } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import './BottomNavbar.css';
-import { FiHome, FiHelpCircle, FiUser, FiMoreVertical } from 'react-icons/fi';
-import { FcClock, FcCancel, FcAbout } from "react-icons/fc";
+import { FiHome, FiUser, FiMoreVertical, FiInfo, FiClock, FiXCircle, FiClipboard, FiBriefcase } from 'react-icons/fi';
+import { RxCalendar } from "react-icons/rx";
 
 function BottomNavbar({ isPeluquero }) {
   const [user] = useAuthState(auth);
@@ -35,18 +35,18 @@ function BottomNavbar({ isPeluquero }) {
     <>
       <nav className="bottom-navbar">
         <Link to="/" className="nav-icon">
-          <FiHome size={24} />
+          <FiHome size={24} /> Reserva
         </Link>
         <Link to="/estado" className="nav-icon">
-          <FiHelpCircle size={24} />
+        <FiInfo size={24} /> Estado
         </Link>
         {user ? (
           <div className="nav-icon" onClick={toggleMenu}>
-            <FiMoreVertical size={24} />
+            <FiMoreVertical size={24} /> Mas
           </div>
         ) : (
           <Link to="/login" className="nav-icon">
-            <FiUser size={24} />
+            <FiUser size={24} /> Login
           </Link>
         )}
       </nav>
@@ -54,17 +54,17 @@ function BottomNavbar({ isPeluquero }) {
       {isMenuOpen && (
         <div className="dropdown-menu">
           <ul>
-            <li><Link to="/" onClick={() => setIsMenuOpen(false)}>Reservar turno</Link></li>
-            <li><Link to="/estado" onClick={() => setIsMenuOpen(false)}> <FcAbout /> Estado</Link></li>
+            <li><Link to="/" onClick={() => setIsMenuOpen(false)}> <RxCalendar size={16} /> Reservar turno</Link></li>
+            <li><Link to="/estado" onClick={() => setIsMenuOpen(false)}> <FiInfo size={16} /> Estado</Link></li>
             {isPeluquero && (
               <>
-                <li><Link to="/agenda" onClick={() => setIsMenuOpen(false)}>Agenda</Link></li>
-                <li><Link to="/servicios" onClick={() => setIsMenuOpen(false)}>Servicios</Link></li>
-                <li><Link to="/horarios" onClick={() => setIsMenuOpen(false)}> <FcClock /> Horarios</Link></li>
-                <li><Link to="/reservamanual" onClick={() => setIsMenuOpen(false)}>Reserva manual</Link></li>
+                <li><Link to="/agenda" onClick={() => setIsMenuOpen(false)}> <FiClipboard size={16} /> Agenda</Link></li>
+                <li><Link to="/servicios" onClick={() => setIsMenuOpen(false)}> <FiBriefcase size={16} /> Servicios</Link></li>
+                <li><Link to="/horarios" onClick={() => setIsMenuOpen(false)}> <FiClock size={16} /> Horarios</Link></li>
+                <li><Link to="/reservamanual" onClick={() => setIsMenuOpen(false)}> <RxCalendar size={16} /> Reserva manual</Link></li>
               </>
             )}
-            <li><a onClick={() => { auth.signOut(); setIsMenuOpen(false); }}> <FcCancel /> Cerrar Sesión</a></li>
+            <li><a onClick={() => { auth.signOut(); setIsMenuOpen(false); }}> <FiXCircle size={16} /> Cerrar Sesión</a></li>
           </ul>
         </div>
       )}

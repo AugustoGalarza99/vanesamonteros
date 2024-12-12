@@ -16,6 +16,7 @@ import Servicios from './pages/Servicios';
 import Loader from './components/Loader/Loader';
 import ScrollButton from './components/ScrollButton/ScrollButton';
 import BottomNavbar from './components/BottomNavbar/BottomNavbar';
+import ResponsiveNavbar from './components/ResponsiveNavbar/ResponsiveNavbar';
 
 
 // Componentes simples para las páginas
@@ -52,9 +53,11 @@ function App() {
 
   return (
     <Router /*basename='/juan'*/>
-      <BottomNavbar isPeluquero={isPeluquero} />
-      {/*<Navbar isPeluquero={isPeluquero} />  Pasamos el estado isPeluquero al Navbar */}
-      <ScrollButton />
+      {/*<BottomNavbar isPeluquero={isPeluquero} /> */}
+      
+      <ResponsiveNavbar isPeluquero={isPeluquero} />
+
+      <Navbar />  
       <div>
         <Routes>
           <Route path='/' element={<ReservaPage />} />
