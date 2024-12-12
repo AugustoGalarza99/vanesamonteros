@@ -311,7 +311,7 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
 
   const calcularGridProperties = () => {
     const totalMinutes = (rangoHorarioGlobal.endHour - rangoHorarioGlobal.startHour) * 60;
-    const gridHeight = (totalMinutes / 30) * 50;
+    const gridHeight = (totalMinutes / 30) * 70;
     return { gridHeight, totalMinutes, startHour: rangoHorarioGlobal.startHour };
   };
 

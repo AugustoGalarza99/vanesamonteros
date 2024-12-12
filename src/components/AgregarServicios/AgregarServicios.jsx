@@ -114,7 +114,7 @@ const AgregarServicios = () => {
 
     return (
         <div>
-            <h2>Agregar Servicio</h2>
+            <h2 className='h2-service'>Agregar Servicio</h2>
             <form onSubmit={handleAgregarServicio} className='form-service'>
                 <div className='div-service'>
                     <input

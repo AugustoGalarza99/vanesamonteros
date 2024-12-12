@@ -4,10 +4,11 @@
   justify-content: center;
   align-items: center;
 }
-h2{
+.h2-service{
   font-family: var(--font);
   margin-top: 15px;
-  font-size: 24px;
+  font-size: 24px;  
+  text-align: center;
 }
 h3{
   display: flex;

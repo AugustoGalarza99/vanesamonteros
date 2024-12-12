@@ -14,8 +14,8 @@ import ReservaManual from './pages/ReservaManual';
 import Horarios from './pages/Horarios';
 import Servicios from './pages/Servicios';
 import Loader from './components/Loader/Loader';
-import ScrollButton from './components/ScrollButton/ScrollButton';
 import ResponsiveNavbar from './components/ResponsiveNavbar/ResponsiveNavbar';
+import './App.css';
 
 
 // Componentes simples para las páginas
@@ -53,12 +53,12 @@ function App() {
   return (
     <Router /*basename='/juan'*/>
       {/*<BottomNavbar isPeluquero={isPeluquero} /> */}
-      
+      <div className="app-layout">    
       <ResponsiveNavbar isPeluquero={isPeluquero} />
-      <ScrollButton />
+      
 
-      <Navbar />  
-      <div>
+      {/* <Navbar /> */}  
+      <div className="app-content">
         <Routes>
           <Route path='/' element={<ReservaPage />} />
           <Route path="/estado" element={<Estado />} />
@@ -75,7 +75,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>        
       </div>
-      
+      </div> 
     </Router>
   );
 }

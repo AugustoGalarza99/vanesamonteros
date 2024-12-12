@@ -24,7 +24,7 @@ h3{
     position: relative;
   }  
   .calendario-hora {
-    height: 49px; /* Ajusta según lo necesites */
+    height: 69px; /* Ajusta según lo necesites */
     color: white;
   }
   .calendario-hora.descanso{

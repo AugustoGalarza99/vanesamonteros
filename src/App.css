@@ -1,0 +1,43 @@
+/* Estilo general */
+.app-layout {
+    display: flex;
+    flex-direction: row; /* En pantallas grandes, divide horizontalmente */
+    height: 100vh; /* Ocupa toda la altura de la ventana */
+    overflow: hidden; /* Evita desbordamientos */
+  }
+  
+  /* Navegador en pantallas grandes */
+  .responsive-navbar {
+    width: 20%; /* El navegador ocupa el 30% */
+    background-color: #333;
+    color: white;
+    overflow-y: auto; /* Desplazamiento si el contenido del navbar es largo */
+    height: 100vh; /* Ocupa toda la altura */
+  }
+  
+  /* Contenido principal en pantallas grandes */
+  .app-content {
+    flex-grow: 1; /* Ocupa el resto del espacio */
+    overflow-y: auto; /* Permite desplazamiento vertical */
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  /* Pantallas pequeñas */
+  @media (max-width: 1000px) {
+    .app-layout {
+      flex-direction: column; /* Cambia a diseño vertical */
+    }
+  
+    .responsive-navbar {
+      width: 100%; /* El navegador ocupa todo el ancho */
+      height: auto; /* Ajusta la altura automáticamente */
+    }
+  
+    .app-content {
+      width: 100%; /* El contenido ocupa todo el ancho */
+      height: calc(100vh - 60px); /* Resta la altura del navbar inferior */
+      overflow-y: auto;
+    }
+  }
+  
