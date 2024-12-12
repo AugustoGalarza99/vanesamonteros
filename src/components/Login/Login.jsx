@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../firebaseConfig';
 import { useNavigate } from 'react-router-dom';
+import { FiUserCheck } from "react-icons/fi";
 import './Login.css'
 
 const Login = () => {
@@ -46,7 +47,7 @@ const Login = () => {
         />
         <label>Contraseña</label>
         </div>
-        <button className='button-inicio' type="submit">Iniciar Sesión</button>
+        <button className='button-inicio' type="submit"> <FiUserCheck size={18} /> Iniciar Sesión</button>
       </form>
     </div>
     </div>

@@ -8,7 +8,7 @@
   
   /* Navegador en pantallas grandes */
   .responsive-navbar {
-    width: 20%; /* El navegador ocupa el 30% */
+    width: 30%; /* El navegador ocupa el 30% */
     background-color: #333;
     color: white;
     overflow-y: auto; /* Desplazamiento si el contenido del navbar es largo */
@@ -19,7 +19,6 @@
   .app-content {
     flex-grow: 1; /* Ocupa el resto del espacio */
     overflow-y: auto; /* Permite desplazamiento vertical */
-    padding: 20px;
     box-sizing: border-box;
   }
   

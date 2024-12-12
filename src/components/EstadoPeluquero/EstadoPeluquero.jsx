@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { db } from '../../firebaseConfig';
 import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
 import Swal from 'sweetalert2';
+import { FiSearch } from "react-icons/fi";
 import './EstadoPeluquero.css';
 
 const EstadoPeluquero = () => {
@@ -163,7 +164,7 @@ const handleCancelarTurno = async () => {
                 onChange={(e) => setDni(e.target.value)}
                 required
             />
-            <button className='button-estado' onClick={handleBuscarTurno}>Buscar Turno</button>
+            <button className='button-estado' onClick={handleBuscarTurno}> <FiSearch size={16} /> Buscar Turno</button>
 
             {mensajeDemora && <p className='demora'>{mensajeDemora}</p>}
 
