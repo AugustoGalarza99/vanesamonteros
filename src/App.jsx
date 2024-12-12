@@ -15,7 +15,6 @@ import Horarios from './pages/Horarios';
 import Servicios from './pages/Servicios';
 import Loader from './components/Loader/Loader';
 import ScrollButton from './components/ScrollButton/ScrollButton';
-import BottomNavbar from './components/BottomNavbar/BottomNavbar';
 import ResponsiveNavbar from './components/ResponsiveNavbar/ResponsiveNavbar';
 
 
@@ -56,6 +55,7 @@ function App() {
       {/*<BottomNavbar isPeluquero={isPeluquero} /> */}
       
       <ResponsiveNavbar isPeluquero={isPeluquero} />
+      <ScrollButton />
 
       <Navbar />  
       <div>
