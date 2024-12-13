@@ -46,7 +46,8 @@ html, body, #root {
   --color-letras-boton: white;
   --color-boton: linear-gradient(to bottom, #1b1c3f, #4a4e91);
   color: black;
-  background-color: white;
+  background-color: #f49aad49;  
+  background: linear-gradient(180deg, #f7d6e0,#d7e3fc,#dec0f1);
   input::placeholder { color: rgb(0, 0, 0);}
 }
 @media (max-width: 1000px) {

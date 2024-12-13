@@ -8,8 +8,10 @@
   
   /* Navegador en pantallas grandes */
   .responsive-navbar {
-    width: 30%; /* El navegador ocupa el 30% */
-    background-color: #333;
+    width: 20%; /* El navegador ocupa el 30% */
+    height: 100%;
+    padding: 20px;
+    background-color: #a71c1c;
     color: white;
     overflow-y: auto; /* Desplazamiento si el contenido del navbar es largo */
     height: 100vh; /* Ocupa toda la altura */
