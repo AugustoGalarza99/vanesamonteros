@@ -244,59 +244,234 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
             style={{ top: `${topPosition}px`, height: `${height}px` }}
             onClick={() => manejarClickReserva(reserva)} 
           >
-            {reserva.nombreCliente} - {hora}
+            <p className='text'>{`${reserva.nombre} ${reserva.apellido} - ${hora} - ${reserva.servicio} - ${reserva.status}`}</p>
           </div>
         );
       });
     });
   };
 
+  const handleRemindTurn = (reserva) => {
+    const fechaTurno = new Date(reserva.fecha);
+    const fechaLocal = new Date(fechaTurno.getTime() + (fechaTurno.getTimezoneOffset() * 60000)); 
+  
+    const message = `Te recordamos que tienes tu turno el ${fechaLocal.toLocaleDateString()} a las ${reserva.hora} en nuestra peluquería.`;
+    const phoneNumber = reserva.telefono; 
+  
+    if (phoneNumber) {
+      const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappURL, '_blank'); 
+    } else {
+      alert('No se encontró el número de teléfono para este cliente.');
+    }
+  };
+
+  const handleCancelTurn = async (reserva) => {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Estás seguro de que deseas cancelar esta reserva?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, cancelar',
+        cancelButtonText: 'No, mantener',
+        background: 'black',
+        color: 'white'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const reservaId = reserva.id;
+                const reservaRef = doc(db, 'reservas', reservaId);
+
+                await deleteDoc(reservaRef);
+
+                fetchReservasPeluquero();
+
+                Swal.fire({
+                    title: 'Turno Cancelado',
+                    text: 'El turno ha sido cancelado y eliminado.',
+                    icon: 'success',
+                    background: 'black',
+                    color: 'white',
+                    confirmButtonText: 'Ok'
+                });
+            } catch (error) {
+                console.error('Error al cancelar el turno:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Hubo un problema al cancelar el turno.',
+                    icon: 'error',
+                    background: 'black',
+                    color: 'white',
+                    confirmButtonText: 'Ok'
+                });
+            }
+        }
+    });
+};
+
   const calcularGridProperties = () => {
     const totalMinutes = (rangoHorarioGlobal.endHour - rangoHorarioGlobal.startHour) * 60;
-    const gridHeight = (totalMinutes / 30) * 50;
+    const gridHeight = (totalMinutes / 30) * 70;
     return { gridHeight, totalMinutes, startHour: rangoHorarioGlobal.startHour };
   };
 
+  const editarDuracionYHoraTurno = async (reservaId, nuevaDuracion, nuevaHoraInicio) => {
+    try {
+      const reservaRef = doc(db, 'reservas', reservaId);
+  
+      // Sobrescribir los valores de "hora" y "horaInicio"
+      await updateDoc(reservaRef, { 
+        duracion: nuevaDuracion,
+        hora: nuevaHoraInicio, // Reemplaza la hora original
+        horaInicio: nuevaHoraInicio // También actualiza el campo horaInicio
+      });
+  
+      // Actualizar el estado local para reflejar los cambios
+      setReservas((prevReservas) =>
+        prevReservas.map((reserva) =>
+          reserva.id === reservaId 
+            ? { ...reserva, duracion: nuevaDuracion, hora: nuevaHoraInicio, horaInicio: nuevaHoraInicio }
+            : reserva
+        )
+      );
+  
+      Swal.fire({
+        title: 'Datos actualizados',
+        text: `La duración se ha actualizado a ${nuevaDuracion} minutos y la hora de inicio a ${nuevaHoraInicio}.`,
+        icon: 'success',
+        background: 'black',
+        color: 'white',
+      });
+    } catch (error) {
+      console.error('Error actualizando la duración y hora de inicio:', error);
+      Swal.fire({
+        title: 'Error',
+        text: 'No se pudo actualizar la duración y hora de inicio.',
+        icon: 'error',
+        background: 'black',
+        color: 'white',
+      });
+    }
+  };
+
+  // Función para notificar el cambio del horario
+const notificarCambioHorario = (reserva) => {
+  const { fecha, horaInicio, telefono } = reserva;
+
+  if (!telefono) {
+    alert('No se encontró el número de teléfono para este cliente.');
+    return;
+  }
+
+  // Crear mensaje para WhatsApp
+  const fechaTurno = new Date(fecha);
+  const fechaLocal = new Date(fechaTurno.getTime() + fechaTurno.getTimezoneOffset() * 60000);
+  const mensaje = `Hola ${reserva.nombre}, te informamos que tu turno ha sido modificado. 
+Nueva fecha y hora: ${fechaLocal.toLocaleDateString()} a las ${horaInicio}. 
+Duración estimada: ${reserva.duracion} minutos. Gracias por tu comprensión.`;
+
+  const whatsappURL = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+  window.open(whatsappURL, '_blank'); // Abrir WhatsApp
+};
+  
+  
+  
+
   const manejarClickReserva = (reserva) => {
-    const { status, id } = reserva;
+    const { status, id, duracion, horaInicio, fecha, telefono } = reserva;
   
     if (status === 'Pendiente') {
-        Swal.fire({
-            title: 'Turno Pendiente',
-            text: '¿Qué acción desea realizar?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Iniciar Turno',
-            cancelButtonText: 'Cancelar Turno',
-            showDenyButton: true,
-            denyButtonText: 'Recordar Turno',
+      Swal.fire({
+        title: 'Turno Pendiente',
+        text: '¿Qué acción desea realizar?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Iniciar Turno',
+        cancelButtonText: 'Cancelar Turno',
+        showDenyButton: true,
+        denyButtonText: 'Recordar Turno',
+        footer: `
+          <button id="editarDuracionBtn" class="btn btn-info">Editar duración y hora de inicio</button>
+          <button id="notificarCambioBtn" class="btn btn-cambio">Notificar Cambio</button>
+        `,
+        background: 'black',
+        color: 'white',
+        didRender: () => {
+          // Agregar evento para el botón de Editar
+          document.getElementById('editarDuracionBtn')?.addEventListener('click', () => {
+            Swal.close(); // Cerrar el Swal actual
+            editarDuracionYHora(reserva); // Llama a la función para editar duración y hora
+          });
+  
+          // Agregar evento para el botón de Notificar Cambio
+          document.getElementById('notificarCambioBtn')?.addEventListener('click', () => {
+            Swal.close(); // Cerrar el Swal actual
+            notificarCambioHorario(reserva); // Llama a la función para notificar cambio
+          });
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          actualizarEstadoTurno(id, 'en proceso');
+          Swal.fire({
+            title: 'Turno Iniciado',
+            icon: 'success',
             background: 'black',
-            color: 'white',          
-        }).then((result) => {
-            if (result.isConfirmed) {
-                actualizarEstadoTurno(id, 'en proceso'); 
-                Swal.fire({
-                  title: 'Turno Iniciado',
-                  icon: 'success',
-                  background: 'black',
-                  color: 'white',
-                });
-                const isFirstTurnToday = verificarPrimerTurnoDelDia();
-                if (isFirstTurnToday) {
-                    limpiarReservasAntiguas(); 
-                }
-            } else if (result.isDenied) {
-                handleRemindTurn(reserva); 
-                Swal.fire({
-                  title: 'Recordatorio enviado',
-                  icon: 'success',
-                  background: 'black',
-                  color: 'white',
-                });
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
-                handleCancelTurn(reserva); 
+            color: 'white',
+          });
+          const isFirstTurnToday = verificarPrimerTurnoDelDia();
+          if (isFirstTurnToday) {
+            limpiarReservasAntiguas();
+          }
+        } else if (result.isDenied) {
+          handleRemindTurn(reserva);
+          Swal.fire({
+            title: 'Recordatorio enviado',
+            icon: 'success',
+            background: 'black',
+            color: 'white',
+          });
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          handleCancelTurn(reserva);
+        }
+      });
+  
+      // Lógica para manejar el clic en "Editar Duración y Hora de Inicio"
+      document.getElementById("editarDuracionBtn")?.addEventListener("click", () => {
+        // Abrir un Swal para editar la duración y la hora de inicio
+        Swal.fire({
+          title: 'Editar duración y hora de inicio',
+          html: `
+          <div>
+            <label for="duracionInput" class="label-edit">Nueva duración (en minutos):</label>
+            <input id="duracionInput" class="swal2-input" type="number" value="${reserva.duracion}" min="1" max="180" step="1">
+          </div>
+          <div>
+            <label for="horaInicioInput">Nueva hora de inicio:</label>
+            <input id="horaInicioInput" class="swal2-input" type="time" value="${reserva.hora || reserva.horaInicio}">
+          </div>
+          `,
+          showCancelButton: true,
+          confirmButtonText: 'Guardar Cambios',
+          background: 'black',
+          color: 'white',
+          preConfirm: () => {
+            const nuevaDuracion = parseInt(document.getElementById('duracionInput').value, 10);
+            const nuevaHoraInicio = document.getElementById('horaInicioInput').value;
+        
+            if (!isNaN(nuevaDuracion) && nuevaDuracion > 0 && nuevaHoraInicio) {
+              return { nuevaDuracion, nuevaHoraInicio };
+            } else {
+              Swal.showValidationMessage('Por favor, ingresa valores válidos');
             }
+          }
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const { nuevaDuracion, nuevaHoraInicio } = result.value;
+            // Llamar a la función para actualizar Firebase
+            editarDuracionYHoraTurno(reserva.id, nuevaDuracion, nuevaHoraInicio);
+          }
         });
+      });
     } else if (status === 'en proceso') {
         Swal.fire({
             title: 'Turno en Proceso',
@@ -356,7 +531,7 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
             setFechaInicial(new Date()); // Cuando se elige ver 3 días, empezamos desde el día actual
             }}>3 Días
           </button>
-          <button className='button-dias' onClick={() => {
+          <button className='button-dias button-oculto' onClick={() => {
             setModoVista(7);
             setFechaInicial(startOfWeek(new Date(), { weekStartsOn: 1 })); // Cuando se elige ver la semana, se inicia desde el comienzo de la semana
           }}>Semana

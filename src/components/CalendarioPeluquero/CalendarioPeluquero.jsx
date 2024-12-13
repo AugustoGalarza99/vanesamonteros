@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc, addDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { addDays, startOfWeek, format, isSameDay } from 'date-fns';
+import { serverTimestamp } from 'firebase/firestore'; // Importa serverTimestamp
 import { es } from 'date-fns/locale';
 import Swal from 'sweetalert2';
 import './CalendarioPeluquero.css';
@@ -373,9 +374,30 @@ Duración estimada: ${reserva.duracion} minutos. Gracias por tu comprensión.`;
   const whatsappURL = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
   window.open(whatsappURL, '_blank'); // Abrir WhatsApp
 };
-  
-  
-  
+
+const finalizarTurno = async (reserva) => {
+  try {  
+
+    // Obtener la fecha de la reserva
+    const fecha = new Date(reserva.fecha);
+    const mes = fecha.toLocaleString('es-ES', { month: 'long' }); // Nombre del mes
+    const dia = fecha.getDate(); // Día del mes
+
+    // Crear la referencia a la carpeta en "control"
+    const controlPath = `control/${mes}/${dia}`;
+
+    // Agregar el turno a la carpeta correspondiente
+    await addDoc(collection(db, controlPath), {
+      ...reserva,
+      status: 'finalizado',
+      fechaFinalizacion: serverTimestamp(), // Marca la fecha de finalización
+    });
+
+    console.log('Turno finalizado y movido a la colección control.');
+  } catch (error) {
+    console.error('Error al finalizar el turno:', error);
+  }
+};  
 
   const manejarClickReserva = (reserva) => {
     const { status, id, duracion, horaInicio, fecha, telefono } = reserva;
@@ -482,28 +504,31 @@ Duración estimada: ${reserva.duracion} minutos. Gracias por tu comprensión.`;
             background: 'black',
             color: 'white',
         }).then((result) => {
-            if (result.isConfirmed) {
-                actualizarEstadoTurno(id, 'finalizado'); 
+          if (result.isConfirmed) {
+            actualizarEstadoTurno(id, 'finalizado');
+            finalizarTurno(reserva); // Llama a la función para finalizar el turno
+    
+            Swal.fire({
+              title: 'Turno Finalizado',
+              text: '¿Deseas agendar este turno para la próxima semana?',
+              icon: 'success',
+              showCancelButton: true,
+              confirmButtonText: 'Reservar para próxima semana',
+              cancelButtonText: 'No deseo reservar',
+              background: 'black',
+              color: 'white',
+            }).then((result) => {
+              if (result.isConfirmed) {
+                duplicarReservaParaLaProximaSemana(reserva);
                 Swal.fire({
-                    title: 'Turno Finalizado',
-                    text: '¿Deseas agendar este turno para la próxima semana?',
-                    icon: 'success',
-                    showCancelButton: true,
-                    confirmButtonText: 'Reservar para próxima semana',
-                    cancelButtonText: 'No deseo reservar',
-                    background: 'black',
-                    color: 'white',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        duplicarReservaParaLaProximaSemana(reserva);
-                        Swal.fire({
-                          title:'Turno agendado para la próxima semana',
-                          icon:'success',
-                          background: 'black',
-                          color: 'white',});
-                    }
+                  title: 'Turno agendado para la próxima semana',
+                  icon: 'success',
+                  background: 'black',
+                  color: 'white',
                 });
-            }
+              }
+            });
+          }
         });
     }
   };
