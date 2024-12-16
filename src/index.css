@@ -48,7 +48,7 @@ html, body, #root {
   color: black;
   background-color: #f49aad49;  
   background: linear-gradient(180deg, #f7d6e0,#d7e3fc,#dec0f1);
-  input::placeholder { color: rgb(0, 0, 0);}
+  input::placeholder { color: rgba(0, 0, 0, 0.493);}
 }
 @media (max-width: 1000px) {
   html, body, #root{

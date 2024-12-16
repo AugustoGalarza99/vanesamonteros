@@ -3,6 +3,7 @@ import { doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc, a
 import { db } from '../../firebaseConfig';
 import { addDays, startOfWeek, format, isSameDay } from 'date-fns';
 import { serverTimestamp } from 'firebase/firestore'; // Importa serverTimestamp
+import { limpiarReservasAntiguas } from '../../reservaService'
 import { es } from 'date-fns/locale';
 import Swal from 'sweetalert2';
 import './CalendarioPeluquero.css';
@@ -43,6 +44,19 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
     } catch (error) {
       console.error('Error obteniendo los horarios:', error);
     }
+  };
+    // Nueva función para verificar si es el primer turno del día
+  const verificarPrimerTurnoDelDia = async () => {
+    const now = new Date();
+    const hoy = now.toISOString().split('T')[0]; // Fecha actual en formato "YYYY-MM-DD"
+  
+    // Buscar turnos con estado "en proceso" para el día de hoy
+    const reservasRef = collection(db, 'reservas');
+    const q = query(reservasRef, where('status', '==', 'en proceso'), where('fecha', '==', hoy));
+    const querySnapshot = await getDocs(q);
+  
+    // Si no hay turnos en proceso hoy, es el primer turno del día
+    return querySnapshot.empty;
   };
 
   const calcularRangoHorarioGlobal = (horarioData) => {
@@ -377,11 +391,19 @@ Duración estimada: ${reserva.duracion} minutos. Gracias por tu comprensión.`;
 
 const finalizarTurno = async (reserva) => {
   try {
+    // Verificar si el uid está presente en la reserva
+    if (!reserva.uidPeluquero) {
+      throw new Error('El uid del peluquero no está definido en la reserva.');
+    }
+
     // Obtener la fecha de la reserva
     const fecha = new Date(reserva.fecha);
     const anio = fecha.getFullYear().toString();
     const mes = fecha.toLocaleString('es-ES', { month: 'long' }).toLowerCase(); // Nombre del mes en minúsculas
     const dia = fecha.getDate().toString().padStart(2, '0'); // Día del mes con dos dígitos
+
+    // Obtener el uid del peluquero desde la reserva
+    const uidPeluquero = reserva.uidPeluquero; // Asumimos que el uid está en la reserva
 
     // Crear la referencia a la estructura en "control"
     const controlRef = doc(db, 'control', anio.toString());
@@ -403,6 +425,7 @@ const finalizarTurno = async (reserva) => {
       fecha: reserva.fecha,
       servicio: reserva.servicio || 'Desconocido',
       precio: reserva.costoServicio || 0.0,
+      uid: uidPeluquero, // Agregar el uid del peluquero
     };
 
     // Guardar los datos actualizados en Firebase con setDoc
@@ -410,9 +433,10 @@ const finalizarTurno = async (reserva) => {
 
     console.log('Turno actualizado a finalizado y registrado en la colección control.');
   } catch (error) {
-    console.error('Error al finalizar el turno:', error);
+    console.error('Error al finalizar el turno:', error.message);
   }
 };
+
 
 
   const manejarClickReserva = (reserva) => {

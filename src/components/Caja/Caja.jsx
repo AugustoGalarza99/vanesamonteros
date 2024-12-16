@@ -2,120 +2,229 @@ import React, { useState, useEffect } from "react";
 import { db } from "../../firebaseConfig"; // Configuración de Firebase
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
-import { startOfWeek, endOfWeek } from "date-fns";
-import { collection, getDocs } from "firebase/firestore"; // Importar Firestore
+import {
+  TextField,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+} from "@mui/material";
+import {
+  LocalizationProvider,
+  DatePicker, // <-- Importación de DatePicker
+} from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 
 // Registrar Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const Caja = () => {
-  const [datos, setDatos] = useState([]); // Almacena todos los datos cargados de Firebase
-  const [filtro, setFiltro] = useState("mes"); // Filtro de visualización: día, semana, mes
-  const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date()); // Fecha actual seleccionada
+const Caja = ({ uidPeluquero }) => {
+  const [datos, setDatos] = useState([]); // Datos cargados de Firebase
+  const [fechaInicio, setFechaInicio] = useState(new Date()); // Fecha desde
+  const [fechaFin, setFechaFin] = useState(new Date()); // Fecha hasta
+  const [rolUsuario, setRolUsuario] = useState("peluquero"); // Rol del usuario (por defecto peluquero)
+  const [peluqueros, setPeluqueros] = useState([]); // Lista de peluqueros
+  const [peluqueroSeleccionado, setPeluqueroSeleccionado] = useState(null); // Peluquero seleccionado
 
-  // Cargar datos de Firebase al montar el componente
+  // Obtener rol y datos del usuario (peluquero o administrador)
+  useEffect(() => {
+    const cargarUsuario = async () => {
+      try {
+        const peluqueroDoc = await getDoc(doc(db, "peluqueros", uidPeluquero));
+        if (peluqueroDoc.exists()) {
+          const datosPeluquero = peluqueroDoc.data();
+          setRolUsuario(datosPeluquero.rol || "peluquero"); // Establecer el rol
+          // Si es administrador, cargar la lista de peluqueros
+          if (datosPeluquero.rol === "administrador") {
+            const peluquerosSnapshot = await getDocs(collection(db, "peluqueros"));
+            const listaPeluqueros = peluquerosSnapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+            setPeluqueros(listaPeluqueros);
+            setPeluqueroSeleccionado("admin"); // Establecer valor por defecto para el admin
+          } else {
+            setPeluqueroSeleccionado(uidPeluquero); // Si es peluquero, se selecciona su propio UID
+          }
+        } else {
+          console.error("No se encontró el peluquero en Firestore.");
+          setRolUsuario("peluquero"); // Rol por defecto si no se encuentra
+        }
+      } catch (error) {
+        console.error("Error cargando el peluquero:", error);
+      }
+    };
+
+    cargarUsuario();
+  }, [uidPeluquero]);
+
+  // Cargar datos financieros de Firebase para el peluquero seleccionado o todos si es admin
   useEffect(() => {
     const cargarDatos = async () => {
       try {
-        const snapshot = await getDocs(collection(db, "control")); // Usar getDocs y collection
+        const snapshot = await getDocs(collection(db, "control"));
         let datosCargados = [];
-
         snapshot.forEach((docYear) => {
           const meses = docYear.data();
           Object.entries(meses).forEach(([mes, dias]) => {
             Object.entries(dias).forEach(([dia, detalles]) => {
               const servicios = detalles.servicios || {};
-              Object.values(servicios).forEach((servicio) => {
-                datosCargados.push({
-                  ...servicio,
-                  fecha: new Date(servicio.fecha),
-                });
+              Object.entries(servicios).forEach(([idServicio, servicio]) => {
+                // Si es administrador, mostrar todos los peluqueros (todos los servicios)
+                if (peluqueroSeleccionado === "admin" || servicio.uid === peluqueroSeleccionado) {
+                  datosCargados.push({
+                    ...servicio,
+                    id: idServicio,
+                    fecha: new Date(servicio.fecha),
+                  });
+                }
               });
             });
           });
         });
-
         setDatos(datosCargados); // Guardar datos localmente
       } catch (error) {
         console.error("Error cargando datos: ", error);
       }
     };
 
-    cargarDatos();
-  }, []);
+    if (peluqueroSeleccionado) {
+      cargarDatos();
+    }
+  }, [peluqueroSeleccionado]); // Dependencia en peluqueroSeleccionado para cargar los datos cuando cambie
 
-  // Filtros
-  const filtrarPorDia = (fecha) => {
-    return datos.filter(
-      (item) => item.fecha.toDateString() === fecha.toDateString()
-    );
+  // Filtrar datos por rango de fechas
+  const filtrarPorFechas = (datos, inicio, fin) => {
+    const inicioTimestamp = inicio.getTime();
+    const finTimestamp = fin.getTime();
+
+    return datos.filter((item) => {
+      const fechaTimestamp = item.fecha.getTime();
+      return fechaTimestamp >= inicioTimestamp && fechaTimestamp <= finTimestamp;
+    });
   };
 
-  const filtrarPorSemana = (fecha) => {
-    const inicioSemana = startOfWeek(fecha);
-    const finSemana = endOfWeek(fecha);
-    return datos.filter(
-      (item) => item.fecha >= inicioSemana && item.fecha <= finSemana
-    );
-  };
+  const datosFiltrados = filtrarPorFechas(datos, fechaInicio, fechaFin);
 
-  const filtrarPorMes = (fecha) => {
-    return datos.filter(
-      (item) =>
-        item.fecha.getFullYear() === fecha.getFullYear() &&
-        item.fecha.getMonth() === fecha.getMonth()
-    );
-  };
-
-  // Procesar datos para el gráfico
-  const procesarDatosParaGrafico = (datosFiltrados) => {
+  // Procesar datos para el gráfico y la tabla
+  const procesarDatos = (datosFiltrados) => {
     const ingresosPorServicio = {};
 
     datosFiltrados.forEach((servicio) => {
       const { servicio: nombreServicio, precio } = servicio;
+      const precioValido = isNaN(precio) ? 0 : precio;
+
       if (ingresosPorServicio[nombreServicio]) {
-        ingresosPorServicio[nombreServicio] += precio;
+        ingresosPorServicio[nombreServicio].cantidad += 1;
+        ingresosPorServicio[nombreServicio].ingresosTotales += precioValido;
       } else {
-        ingresosPorServicio[nombreServicio] = precio;
+        ingresosPorServicio[nombreServicio] = {
+          cantidad: 1,
+          ingresosTotales: precioValido,
+        };
       }
     });
 
-    return {
-      labels: Object.keys(ingresosPorServicio),
-      datasets: [
-        {
-          label: "Ingresos por Servicio",
-          data: Object.values(ingresosPorServicio),
-          backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"], // Colores
-        },
-      ],
-    };
+    return ingresosPorServicio;
   };
 
-  // Filtrar datos según el rango seleccionado
-  const datosFiltrados =
-    filtro === "dia"
-      ? filtrarPorDia(fechaSeleccionada)
-      : filtro === "semana"
-      ? filtrarPorSemana(fechaSeleccionada)
-      : filtrarPorMes(fechaSeleccionada);
+  const ingresosPorServicio = procesarDatos(datosFiltrados);
 
-  // Datos procesados para el gráfico
-  const datosGrafico = procesarDatosParaGrafico(datosFiltrados);
+  // Crear datos para el gráfico de torta
+  const datosGrafico = {
+    labels: Object.keys(ingresosPorServicio),
+    datasets: [
+      {
+        label: "Ingresos por Servicio",
+        data: Object.values(ingresosPorServicio).map((s) => s.ingresosTotales),
+        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  // Calcular el total general de ingresos
+  const totalIngresos = Object.values(ingresosPorServicio).reduce(
+    (total, servicio) => total + servicio.ingresosTotales,
+    0
+  );
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Control de Caja</h1>
-      <FormControl style={{ margin: "10px", minWidth: "200px" }}>
-        <InputLabel>Rango</InputLabel>
-        <Select value={filtro} onChange={(e) => setFiltro(e.target.value)}>
-          <MenuItem value="dia">Día</MenuItem>
-          <MenuItem value="semana">Semana</MenuItem>
-          <MenuItem value="mes">Mes</MenuItem>
-        </Select>
-      </FormControl>
-      <Pie data={datosGrafico} />
+      <h1>Control de Finanzas</h1>
+
+      {/* Si es administrador, mostrar el desplegable de peluqueros */}
+      {rolUsuario === "administrador" && peluqueros.length > 0 && (
+        <FormControl fullWidth>
+          <InputLabel id="select-peluquero-label">Seleccionar Peluquero</InputLabel>
+          <Select
+            labelId="select-peluquero-label"
+            value={peluqueroSeleccionado}
+            onChange={(e) => setPeluqueroSeleccionado(e.target.value)}
+          >
+            <MenuItem value="admin">Todos los peluqueros</MenuItem> {/* Opción para ver todos */}
+            {peluqueros.map((peluquero) => (
+              <MenuItem key={peluquero.id} value={peluquero.uid}>
+                {peluquero.email}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
+
+      {/* Filtros de fecha */}
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+          <DatePicker
+            label="Desde"
+            value={fechaInicio}
+            onChange={(newValue) => setFechaInicio(newValue)}
+            renderInput={(params) => <TextField {...params} />}
+          />
+          <DatePicker
+            label="Hasta"
+            value={fechaFin}
+            onChange={(newValue) => setFechaFin(newValue)}
+            renderInput={(params) => <TextField {...params} />}
+          />
+        </div>
+      </LocalizationProvider>
+
+      {/* Verificar si hay datos en el gráfico */}
+      {Object.keys(ingresosPorServicio).length > 0 ? (
+        <Pie data={datosGrafico} />
+      ) : (
+        <p>No se encontraron datos para este filtro.</p>
+      )}
+
+      {/* Mostrar ingresos en tabla */}
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Servicio</TableCell>
+            <TableCell>Cantidad</TableCell>
+            <TableCell>Ingresos Totales</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {Object.entries(ingresosPorServicio).map(([servicio, { cantidad, ingresosTotales }]) => (
+            <TableRow key={servicio}>
+              <TableCell>{servicio}</TableCell>
+              <TableCell>{cantidad}</TableCell>
+              <TableCell>${ingresosTotales.toFixed(2)}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      {/* Total de ingresos */}
+      <h2>Total de Ingresos: ${totalIngresos.toFixed(2)}</h2>
     </div>
   );
 };

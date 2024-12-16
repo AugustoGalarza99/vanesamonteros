@@ -94,3 +94,18 @@ export default Navbar;
 
 
 
+snapshot.forEach((docYear) => {
+  const meses = docYear.data();
+  Object.entries(meses).forEach(([mes, dias]) => {
+    Object.entries(dias).forEach(([dia, detalles]) => {
+      const servicios = detalles.servicios || {};
+      // Aquí no filtramos por UID, simplemente los agregamos
+      Object.values(servicios).forEach((servicio) => {
+        datosCargados.push({
+          ...servicio,
+          fecha: new Date(servicio.fecha),
+        });
+      });
+    });
+  });
+})
