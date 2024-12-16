@@ -4,7 +4,7 @@ import { auth, db } from '../../firebaseConfig';
 import { getDoc, doc } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import './DesktopNavbar.css';
-import { FiHome, FiUser, FiInfo, FiClock, FiXCircle, FiClipboard, FiBriefcase } from 'react-icons/fi';
+import { FiHome, FiUser, FiInfo, FiClock, FiXCircle, FiClipboard, FiBriefcase, FiPieChart } from 'react-icons/fi';
 import { RxCalendar } from "react-icons/rx";
 
 function DesktopNavbar({ isPeluquero }) {
@@ -37,6 +37,7 @@ function DesktopNavbar({ isPeluquero }) {
             <li><Link to="/servicios"><FiBriefcase size={24} /> Servicios</Link></li>
             <li><Link to="/horarios"><FiClock size={24} /> Horarios</Link></li>
             <li><Link to="/reservamanual"><RxCalendar size={24} /> Reserva manual</Link></li>
+            <li><Link to="/finanzas"><FiPieChart size={24} /> Finanzas</Link></li>
           </>
         )}
         {user ? (

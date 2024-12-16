@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../firebaseConfig';
 import { doc, getDoc, collection, getDocs, query, where, addDoc, setDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-
 import { RxCalendar } from "react-icons/rx";
 import Swal from 'sweetalert2';
 import './ReservaForm.css';
@@ -223,6 +222,7 @@ const ReservasForm = () => {
                                 servicio,
                                 fecha,
                                 hora,
+                                costoServicio, // Incluye el costo del servicio
                                 duracion: duracionServicio, // Guarda la duración
                                 horaFin: endTime.toISOString(), // Guarda la hora de fin
                                 uidPeluquero: profesional, // Registrar el UID del peluquero seleccionado
@@ -408,6 +408,7 @@ const ReservasForm = () => {
                 servicio,
                 fecha,
                 hora,
+                costoServicio, // Incluye el costo del servicio
                 duracion: duracionServicio, // Guarda la duración
                 horaFin: endTime.toISOString(), // Guarda la hora de fin
                 uidPeluquero: profesional, // Registrar el UID del peluquero seleccionado
@@ -478,6 +479,7 @@ const ReservasForm = () => {
                         const selectedService = servicios.find(s => s.nombre === e.target.value);
                         setServicio(selectedService.nombre);
                         setDuracionServicio(selectedService.duracion); // Actualiza la duración del servicio
+                        setCostoServicio(selectedService.precio); // Actualiza el costo del servicio
                     }}>
                         {servicios.map((s) => (
                             <option key={s.nombre} value={s.nombre}> {`${s.nombre} - $${s.precio} - (${s.duracion} min)`}</option>

@@ -16,6 +16,7 @@ import Servicios from './pages/Servicios';
 import Loader from './components/Loader/Loader';
 import ResponsiveNavbar from './components/ResponsiveNavbar/ResponsiveNavbar';
 import './App.css';
+import Finanzas from './pages/Finanzas';
 
 
 // Componentes simples para las páginas
@@ -66,6 +67,7 @@ function App() {
           <Route path="/login" element={<LoginPeluquero />} />
 
           {/* Ruta protegida para el panel del peluquero */}
+          <Route path="/finanzas" element={<ProtectedRoute isPeluquero={isPeluquero}><Finanzas /></ProtectedRoute>} />
           <Route path="/agenda" element={<ProtectedRoute isPeluquero={isPeluquero}><Peluquero /></ProtectedRoute>} />
           <Route path="/reservamanual" element={<ProtectedRoute isPeluquero={isPeluquero}><ReservaManual /></ProtectedRoute>} />
           <Route path="/horarios" element={<ProtectedRoute isPeluquero={isPeluquero}><Horarios /></ProtectedRoute>} />

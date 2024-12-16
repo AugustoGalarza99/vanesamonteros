@@ -9,6 +9,7 @@
   /* Navegador en pantallas grandes */
   .responsive-navbar {
     width: 20%; /* El navegador ocupa el 30% */
+    min-width: 20%; /* Para asegurarse de que el navegador no se redimensione */
     height: 100%;
     padding: 20px;
     background-color: #a71c1c;

@@ -217,6 +217,7 @@ const handleAgendar = async (e) => {
             hora, // Se guarda en formato 24 horas
             duracion: duracionServicio,
             uidPeluquero: profesional,
+            costoServicio,
             status: 'Pendiente' // Establecer el estado de la reserva
         });
 
@@ -291,6 +292,7 @@ const handleAgendar = async (e) => {
                         const selectedService = servicios.find(s => s.nombre === e.target.value);
                         setServicio(selectedService.nombre);
                         setDuracionServicio(selectedService.duracion); // Actualiza la duración del servicio
+                        setCostoServicio(selectedService.precio); // Actualiza el costo del servicio
                     }}>                        
                         {servicios.map((s) => (
                             <option key={s.nombre} value={s.nombre}> {`${s.nombre} - $${s.precio} - (${s.duracion} min)`}</option>

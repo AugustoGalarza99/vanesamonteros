@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc, addDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc, addDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { addDays, startOfWeek, format, isSameDay } from 'date-fns';
 import { serverTimestamp } from 'firebase/firestore'; // Importa serverTimestamp
@@ -376,28 +376,44 @@ Duración estimada: ${reserva.duracion} minutos. Gracias por tu comprensión.`;
 };
 
 const finalizarTurno = async (reserva) => {
-  try {  
-
+  try {
     // Obtener la fecha de la reserva
     const fecha = new Date(reserva.fecha);
-    const mes = fecha.toLocaleString('es-ES', { month: 'long' }); // Nombre del mes
-    const dia = fecha.getDate(); // Día del mes
+    const anio = fecha.getFullYear().toString();
+    const mes = fecha.toLocaleString('es-ES', { month: 'long' }).toLowerCase(); // Nombre del mes en minúsculas
+    const dia = fecha.getDate().toString().padStart(2, '0'); // Día del mes con dos dígitos
 
-    // Crear la referencia a la carpeta en "control"
-    const controlPath = `control/${mes}/${dia}`;
+    // Crear la referencia a la estructura en "control"
+    const controlRef = doc(db, 'control', anio.toString());
 
-    // Agregar el turno a la carpeta correspondiente
-    await addDoc(collection(db, controlPath), {
-      ...reserva,
-      status: 'finalizado',
-      fechaFinalizacion: serverTimestamp(), // Marca la fecha de finalización
-    });
+    // Leer los datos actuales de "control" para ese año
+    const controlSnap = await getDoc(controlRef);
+    const controlData = controlSnap.exists() ? controlSnap.data() : {};
 
-    console.log('Turno finalizado y movido a la colección control.');
+    // Crear la estructura si no existe
+    if (!controlData[mes]) {
+      controlData[mes] = {};
+    }
+    if (!controlData[mes][dia]) {
+      controlData[mes][dia] = { servicios: {} };
+    }
+
+    // Agregar el turno a los servicios del día correspondiente
+    controlData[mes][dia].servicios[reserva.id] = {
+      fecha: reserva.fecha,
+      servicio: reserva.servicio || 'Desconocido',
+      precio: reserva.costoServicio || 0.0,
+    };
+
+    // Guardar los datos actualizados en Firebase con setDoc
+    await setDoc(controlRef, controlData, { merge: true });
+
+    console.log('Turno actualizado a finalizado y registrado en la colección control.');
   } catch (error) {
     console.error('Error al finalizar el turno:', error);
   }
-};  
+};
+
 
   const manejarClickReserva = (reserva) => {
     const { status, id, duracion, horaInicio, fecha, telefono } = reserva;
