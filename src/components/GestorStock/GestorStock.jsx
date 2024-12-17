@@ -43,7 +43,6 @@ const GestorStock = () => {
       setMensaje("Error al agregar producto. Intenta nuevamente.");
     }
   };
-
   return (
     <div>
       <h2>Gestor de Stock</h2>
