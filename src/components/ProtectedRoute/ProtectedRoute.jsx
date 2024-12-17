@@ -1,33 +1,29 @@
 // src/components/ProtectedRoute/ProtectedRoute.jsx
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../../firebaseConfig';
-import Loader from '../Loader/Loader';
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { useRole } from "../../context/RoleContext";
+import Loader from "../Loader/Loader";
 
-const ProtectedRoute = ({ isPeluquero, children }) => {
-  const [user, loading] = useAuthState(auth);
+const ProtectedRoute = ({ requiredRole, children }) => {
+  const { user, role, loading } = useRole(); // Obtener usuario y rol desde el contexto
 
   if (loading) {
-    return <div><Loader /></div>; // Muestra un loader mientras se carga
+    return <div><Loader /></div>; // Loader mientras se carga usuario/rol
   }
 
-  // Verificar si el usuario está autenticado
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" />; // Redirigir si no está autenticado
   }
 
-  // Esperar a que se confirme si es peluquero
-  if (isPeluquero === null) {
-    return <div><Loader /></div>; // Puedes mostrar un loader o algo similar
+  if (!Array.isArray(requiredRole)) {
+    requiredRole = [requiredRole]; // Asegurar que `requiredRole` sea un array
   }
 
-  // Si no es peluquero, redirigir
-  if (!isPeluquero) {
-    return <Navigate to="/" />;
+  if (!requiredRole.includes(role)) {
+    return <Navigate to="/" />; // Redirigir si el rol no coincide
   }
 
-  return children; // Si todo está bien, renderiza el contenido protegido
+  return children; // Renderizar contenido si todo está correcto
 };
 
 export default ProtectedRoute;

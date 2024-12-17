@@ -4,7 +4,7 @@ import { auth, db } from '../../firebaseConfig';
 import { getDoc, doc } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import './BottomNavbar.css';
-import { FiHome, FiUser, FiMoreVertical, FiInfo, FiClock, FiXCircle, FiClipboard, FiBriefcase, FiPieChart } from 'react-icons/fi';
+import { FiHome, FiUser, FiMoreVertical, FiInfo, FiClock, FiXCircle, FiClipboard, FiBriefcase, FiPieChart, FiShoppingCart } from 'react-icons/fi';
 import { RxCalendar } from "react-icons/rx";
 
 function BottomNavbar({ isPeluquero }) {
@@ -40,6 +40,9 @@ function BottomNavbar({ isPeluquero }) {
         <Link to="/estado" className="nav-icon">
         <FiInfo size={24} /> Estado
         </Link>
+        <Link to="/productos" className='nav-icon'> 
+        <FiShoppingCart size={24} /> Productos
+        </Link>
         {user ? (
           <div className="nav-icon" onClick={toggleMenu}>
             <FiMoreVertical size={24} /> Mas
@@ -63,6 +66,7 @@ function BottomNavbar({ isPeluquero }) {
                 <li><Link to="/horarios" onClick={() => setIsMenuOpen(false)}> <FiClock size={16} /> Horarios</Link></li>
                 <li><Link to="/reservamanual" onClick={() => setIsMenuOpen(false)}> <RxCalendar size={16} /> Reserva manual</Link></li>
                 <li><Link to="/finanzas" onClick={() => setIsMenuOpen(false)}> <FiPieChart size={16} /> Finanzas</Link></li>
+                <li><Link to="/administracion" onClick={() => setIsMenuOpen(false)}> <FiUser size={16} /> Administracion</Link></li>
               </>
             )}
             <li><a onClick={() => { auth.signOut(); setIsMenuOpen(false); }}> <FiXCircle size={16} /> Cerrar Sesión</a></li>
