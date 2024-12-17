@@ -2,22 +2,8 @@ import React, { useState, useEffect } from "react";
 import { db } from "../../firebaseConfig"; // Configuración de Firebase
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import {
-  TextField,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  MenuItem,
-  Select,
-  InputLabel,
-  FormControl,
-} from "@mui/material";
-import {
-  LocalizationProvider,
-  DatePicker, // <-- Importación de DatePicker
-} from "@mui/x-date-pickers";
+import { TextField, Table, TableHead, TableRow, TableCell, TableBody, MenuItem, Select, InputLabel, FormControl,} from "@mui/material";
+import { LocalizationProvider, DatePicker,} from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 
@@ -155,6 +141,40 @@ const Caja = ({ uidPeluquero }) => {
     0
   );
 
+  const procesarDatosPorFecha = (datosFiltrados) => {
+    const agrupadosPorFecha = {};
+  
+    datosFiltrados.forEach((servicio) => {
+      const fechaStr = servicio.fecha.toISOString().split("T")[0]; // Obtener la fecha como "YYYY-MM-DD"
+      const { servicio: nombreServicio, precio } = servicio;
+      const precioValido = isNaN(precio) ? 0 : precio;
+  
+      if (!agrupadosPorFecha[fechaStr]) {
+        agrupadosPorFecha[fechaStr] = {};
+      }
+  
+      if (agrupadosPorFecha[fechaStr][nombreServicio]) {
+        agrupadosPorFecha[fechaStr][nombreServicio].cantidad += 1;
+        agrupadosPorFecha[fechaStr][nombreServicio].ingresosTotales += precioValido;
+      } else {
+        agrupadosPorFecha[fechaStr][nombreServicio] = {
+          cantidad: 1,
+          ingresosTotales: precioValido,
+        };
+      }
+    });
+  
+    return agrupadosPorFecha;
+  };
+  
+  const datosAgrupadosPorFecha = procesarDatosPorFecha(datosFiltrados);
+
+  const opcionesGrafico = {
+    responsive: true,
+    maintainAspectRatio: false, // Permitir que se ajuste al tamaño del contenedor
+  };
+  
+
   return (
     <div style={{ padding: "20px" }}>
       <h1>Control de Finanzas</h1>
@@ -197,31 +217,46 @@ const Caja = ({ uidPeluquero }) => {
       </LocalizationProvider>
 
       {/* Verificar si hay datos en el gráfico */}
+      <div style={{ width: "300px", height: "300px", margin: "0 auto" }}>
       {Object.keys(ingresosPorServicio).length > 0 ? (
-        <Pie data={datosGrafico} />
+        <Pie data={datosGrafico} options={opcionesGrafico}/>
       ) : (
         <p>No se encontraron datos para este filtro.</p>
       )}
-
+      </div>
       {/* Mostrar ingresos en tabla */}
       <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Servicio</TableCell>
-            <TableCell>Cantidad</TableCell>
-            <TableCell>Ingresos Totales</TableCell>
+  <TableHead>
+    <TableRow>
+      <TableCell>Fecha</TableCell>
+      <TableCell>Servicio</TableCell>
+      <TableCell>Cantidad</TableCell>
+      <TableCell>Ingresos Totales</TableCell>
+    </TableRow>
+  </TableHead>
+  <TableBody>
+    {Object.entries(datosAgrupadosPorFecha).map(([fecha, servicios]) => (
+      <React.Fragment key={fecha}>
+        {/* Encabezado para cada fecha */}
+        <TableRow>
+          <TableCell colSpan={4} style={{ fontWeight: "bold" }}>
+            {fecha}
+          </TableCell>
+        </TableRow>
+        {/* Servicios de esa fecha */}
+        {Object.entries(servicios).map(([servicio, { cantidad, ingresosTotales }]) => (
+          <TableRow key={servicio}>
+            <TableCell></TableCell>
+            <TableCell>{servicio}</TableCell>
+            <TableCell>{cantidad}</TableCell>
+            <TableCell>${ingresosTotales.toFixed(2)}</TableCell>
           </TableRow>
-        </TableHead>
-        <TableBody>
-          {Object.entries(ingresosPorServicio).map(([servicio, { cantidad, ingresosTotales }]) => (
-            <TableRow key={servicio}>
-              <TableCell>{servicio}</TableCell>
-              <TableCell>{cantidad}</TableCell>
-              <TableCell>${ingresosTotales.toFixed(2)}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+        ))}
+      </React.Fragment>
+    ))}
+  </TableBody>
+</Table>
+
 
       {/* Total de ingresos */}
       <h2>Total de Ingresos: ${totalIngresos.toFixed(2)}</h2>

@@ -2,7 +2,7 @@
 .app-layout {
     display: flex;
     flex-direction: row; /* En pantallas grandes, divide horizontalmente */
-    height: 100vh; /* Ocupa toda la altura de la ventana */
+    height: 100%; /* El contenedor principal ocupa toda la altura */
     overflow: hidden; /* Evita desbordamientos */
   }
   
@@ -10,9 +10,9 @@
   .responsive-navbar {
     width: 20%; /* El navegador ocupa el 30% */
     min-width: 20%; /* Para asegurarse de que el navegador no se redimensione */
-    height: 100%;
+    height: auto; /* Ajuste dinámico */
     padding: 20px;
-    background-color: #a71c1c;
+    background-color: transparent;
     color: white;
     overflow-y: auto; /* Desplazamiento si el contenido del navbar es largo */
     height: 100vh; /* Ocupa toda la altura */
@@ -38,7 +38,7 @@
   
     .app-content {
       width: 100%; /* El contenido ocupa todo el ancho */
-      height: calc(100vh - 60px); /* Resta la altura del navbar inferior */
+      min-height: 100vh; /* Asegura que el contenido tenga al menos la altura completa de la ventana */
       overflow-y: auto;
     }
   }
