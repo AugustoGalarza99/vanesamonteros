@@ -1,7 +1,7 @@
 // src/components/ProtectedRoute/ProtectedRoute.jsx
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useRole } from "../../context/RoleContext";
+import { useRole } from "../../context/RoleCOntext";
 import Loader from "../Loader/Loader";
 
 const ProtectedRoute = ({ requiredRole, children }) => {
