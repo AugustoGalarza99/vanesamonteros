@@ -1,6 +1,6 @@
 // src/context/RoleContext.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { auth, db } from "../firebaseConfig";
+import { auth, db } from "./firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { doc, getDoc } from "firebase/firestore";
 

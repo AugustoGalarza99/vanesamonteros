@@ -15,7 +15,7 @@ import Horarios from './pages/Horarios';
 import Servicios from './pages/Servicios';
 import Loader from './components/Loader/Loader';
 import ResponsiveNavbar from './components/ResponsiveNavbar/ResponsiveNavbar';
-import { RoleProvider } from './context/RoleCOntext';
+import { RoleProvider } from './RoleContext';
 import './App.css';
 import Finanzas from './pages/Finanzas';
 import Productos from './pages/Productos';

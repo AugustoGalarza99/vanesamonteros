@@ -1,6 +1,6 @@
 // src/pages/Administracion.jsx
 import React from "react";
-import { useRole } from "../../context/RoleCOntext";
+import { useRole } from "../../RoleContext";
 import CambiarContraseña from "../CambiarContraseña/CambiarContraseña";
 import GestorStock from "../GestorStock/GestorStock";
 
