@@ -1,11 +1,12 @@
 import React from "react";
-import Catalogo from "../components/Catalogo/Catalogo";
+import MostrarProductos from "../components/MostrarProducto/MostrarProducto";
+
 
 
 const Productos = () => {
   return (
     <div>
-        <Catalogo />
+        <MostrarProductos />
     </div>
   );
 };

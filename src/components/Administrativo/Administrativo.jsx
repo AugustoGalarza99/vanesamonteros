@@ -2,7 +2,7 @@
 import React from "react";
 import { useRole } from "../../RoleContext";
 import CambiarContraseña from "../CambiarContraseña/CambiarContraseña";
-import GestorStock from "../GestorStock/GestorStock";
+import SubirProducto from "../SubirProducto/SubirProducto";
 
 const Administrativo = () => {
   const { role } = useRole(); // Obtener el rol del usuario desde el contexto
@@ -17,7 +17,7 @@ const Administrativo = () => {
       )}
 
       {/* Componente visible solo para el rol administrador */}
-      {role === "administrador" && <GestorStock />}
+      {role === "administrador" && <SubirProducto />}
     </div>
   );
 };
