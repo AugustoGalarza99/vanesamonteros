@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../firebaseConfig";
 import { collection, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import Swal from 'sweetalert2';
 import "./AdminProductos.css";
 
 const AdminProductos = () => {
@@ -9,34 +10,47 @@ const AdminProductos = () => {
   const [productosFiltrados, setProductosFiltrados] = useState([]);
   const [nuevoPrecio, setNuevoPrecio] = useState({});
 
-  // Cargar productos desde Firestore
-  const cargarProductos = async () => {
+  const cargarProductosDesdeFirebase = async () => {
     try {
-      const productosLocales = JSON.parse(localStorage.getItem("adminProductos")) || [];
-      const timestampLocal = parseInt(localStorage.getItem("adminProductosTimestamp"), 10) || 0;
+      const productosSnapshot = await getDocs(collection(db, "productos"));
+      const productosData = productosSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      return productosData;
+    } catch (error) {
+      console.error("Error al cargar productos desde Firebase:", error);
+      return [];
+    }
+  };
 
-      const unDiaEnMs = 24 * 60 * 60 * 1000; // 1 día
-      const tiempoActual = Date.now();
-      const tiempoTranscurrido = tiempoActual - timestampLocal;
-
-      if (productosLocales.length && tiempoTranscurrido < unDiaEnMs) {
-        console.log("Usando productos locales.");
-        setProductos(productosLocales);
-        setProductosFiltrados(productosLocales);
-      } else {
-        console.log("Cargando productos desde Firebase...");
-        const productosSnapshot = await getDocs(collection(db, "productos"));
-        const productosData = productosSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        localStorage.setItem("adminProductos", JSON.stringify(productosData));
-        localStorage.setItem("adminProductosTimestamp", Date.now());
-
-        setProductos(productosData);
-        setProductosFiltrados(productosData);
+  // Cargar productos desde Firestore
+  const cargarProductos = async (forzarDesdeFirebase = false) => {
+    try {
+      if (!forzarDesdeFirebase) {
+        const productosLocales = JSON.parse(localStorage.getItem("adminProductos")) || [];
+        const timestampLocal = parseInt(localStorage.getItem("adminProductosTimestamp"), 10) || 0;
+  
+        const unDiaEnMs = 24 * 60 * 60 * 1000;
+        const tiempoActual = Date.now();
+        const tiempoTranscurrido = tiempoActual - timestampLocal;
+  
+        if (productosLocales.length && tiempoTranscurrido < unDiaEnMs) {
+          console.log("Usando productos locales.");
+          setProductos(productosLocales);
+          setProductosFiltrados(productosLocales);
+          return;
+        }
       }
+  
+      console.log("Cargando productos desde Firebase...");
+      const productosData = await cargarProductosDesdeFirebase();
+  
+      localStorage.setItem("adminProductos", JSON.stringify(productosData));
+      localStorage.setItem("adminProductosTimestamp", Date.now());
+  
+      setProductos(productosData);
+      setProductosFiltrados(productosData);
     } catch (error) {
       console.error("Error al cargar productos:", error);
     }
@@ -63,11 +77,30 @@ const AdminProductos = () => {
   const eliminarProducto = async (id) => {
     try {
       await deleteDoc(doc(db, "productos", id));
-      alert("Producto eliminado correctamente.");
-      cargarProductos(); // Recargar productos después de eliminar
+      Swal.fire({
+        title: "Producto eliminado",
+        text: "Haz eliminado el producto con éxito",
+        icon: "success",
+        background: "black",
+        color: "white",
+        confirmButtonText: "Ok",
+      });
+  
+      const productosActualizados = await cargarProductosDesdeFirebase();
+      localStorage.setItem("adminProductos", JSON.stringify(productosActualizados));
+      localStorage.setItem("adminProductosTimestamp", Date.now());
+      setProductos(productosActualizados);
+      setProductosFiltrados(productosActualizados);
     } catch (error) {
       console.error("Error al eliminar el producto:", error);
-      alert("Hubo un error al eliminar el producto.");
+      Swal.fire({
+        title: "Error",
+        text: "Error al intentar eliminar el producto",
+        icon: "error",
+        background: "black",
+        color: "white",
+        confirmButtonText: "Ok",
+      });
     }
   };
 
@@ -76,17 +109,44 @@ const AdminProductos = () => {
     try {
       const precio = parseFloat(nuevoPrecio[id]);
       if (isNaN(precio) || precio <= 0) {
-        alert("Por favor, introduce un precio válido.");
+        Swal.fire({
+          title: "Error",
+          text: "Introduce un precio válido",
+          icon: "error",
+          background: "black",
+          color: "white",
+          confirmButtonText: "Ok",
+        });
         return;
       }
-
+  
       await updateDoc(doc(db, "productos", id), { precio });
-      alert("Precio actualizado correctamente.");
-      setNuevoPrecio({ ...nuevoPrecio, [id]: "" }); // Limpiar campo de precio
-      cargarProductos(); // Recargar productos después de actualizar
+      Swal.fire({
+        title: "Precio actualizado",
+        text: "Haz actualizado el precio con éxito",
+        icon: "success",
+        background: "black",
+        color: "white",
+        confirmButtonText: "Ok",
+      });
+  
+      const productosActualizados = await cargarProductosDesdeFirebase();
+      localStorage.setItem("adminProductos", JSON.stringify(productosActualizados));
+      localStorage.setItem("adminProductosTimestamp", Date.now());
+      setProductos(productosActualizados);
+      setProductosFiltrados(productosActualizados);
+  
+      setNuevoPrecio({ ...nuevoPrecio, [id]: "" });
     } catch (error) {
       console.error("Error al actualizar el precio:", error);
-      alert("Hubo un error al actualizar el precio.");
+      Swal.fire({
+        title: "Error",
+        text: "Error al intentar modificar el precio",
+        icon: "error",
+        background: "black",
+        color: "white",
+        confirmButtonText: "Ok",
+      });
     }
   };
 

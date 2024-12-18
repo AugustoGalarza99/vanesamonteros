@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { db, storage } from "../../firebaseConfig";
 import { addDoc, collection, getDocs } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import Swal from 'sweetalert2';
 import './SubirProducto.css'
 
 const PRODUCT_LIMIT = 4; // Límite de productos, ajusta según planes
@@ -30,12 +31,26 @@ const SubirProducto = () => {
     e.preventDefault();
 
     if (productosCount >= PRODUCT_LIMIT) {
-      alert(`Has alcanzado el límite de ${PRODUCT_LIMIT} productos.`);
+      Swal.fire({
+          title: 'Error al cargar el producto',
+          text: `Has alcanzado el límite de ${PRODUCT_LIMIT} productos.`,
+          icon: 'error',
+          background: 'black',
+          color: 'white',
+          confirmButtonText: 'Ok'
+      });
       return;
     }
 
     if (!nombre || !detalle || !precio || !imagen) {
-      alert("Todos los campos son obligatorios.");
+      Swal.fire({
+          title: 'Error',
+          text: 'Todos los campos son obligatorios',
+          icon: 'error',
+          background: 'black',
+          color: 'white',
+          confirmButtonText: 'Ok'
+      });
       return;
     }
 
@@ -54,14 +69,28 @@ const SubirProducto = () => {
         imageUrl,
       });
 
-      alert("Producto subido correctamente.");
+      Swal.fire({
+          title: 'Carga exitosa',
+          text: 'Agregaste un nuevo producto, los cambios se veran reflejados proximamente',
+          icon: 'success',
+          background: 'black', 
+          color: 'white', 
+          confirmButtonText: 'Ok'
+      });
       setNombre("");
       setDetalle("");
       setPrecio("");
       setImagen(null);
     } catch (error) {
       console.error("Error al subir el producto:", error);
-      alert("Hubo un error al subir el producto. Por favor, inténtalo de nuevo.");
+      Swal.fire({
+          title: 'Error',
+          text: 'Hubo un error en la carga del producto. Por favor intentalo nuevamente',
+          icon: 'error',
+          background: 'black',
+          color: 'white',
+          confirmButtonText: 'Ok'
+      });
     }
   };
 

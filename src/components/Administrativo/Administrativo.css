@@ -1,0 +1,6 @@
+.h2-panel{
+    margin-top: 30px;
+    font-size: 1.5rem;
+    font-family: var(--letra);
+    color: var(--color-letras);
+}
