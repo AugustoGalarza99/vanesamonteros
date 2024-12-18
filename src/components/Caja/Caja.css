@@ -1,0 +1,42 @@
+.caja-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: "Arial", sans-serif;
+  }
+  
+  .titulo {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .fecha-filtros {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+  }
+  
+  .grafico-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  
+  .MuiTable-root {
+    margin-top: 20px;
+  }
+  
+  .MuiTableCell-root {
+    text-align: center;
+  }
+  
+  .MuiTableRow-head {
+    background-color: #36a2eb;
+    color: white;
+  }
+  

@@ -20,7 +20,6 @@ import './App.css';
 import Finanzas from './pages/Finanzas';
 import Productos from './pages/Productos';
 import Administracion from './pages/Administracion';
-import DetalleProducto from './components/DetalleProducto/DetalleProducto';
 
 
 // Componentes simples para las páginas
@@ -69,7 +68,6 @@ function App() {
           <Route path='/' element={<ReservaPage />} />
           <Route path="/estado" element={<Estado />} />
           <Route path="/productos" element={<Productos />} />
-          <Route path="/productos/:id" element={<DetalleProducto />} />
           {/*<Route path="/productos" element={<Productos />} />*/}
           <Route path="/login" element={<LoginPeluquero />} />
 

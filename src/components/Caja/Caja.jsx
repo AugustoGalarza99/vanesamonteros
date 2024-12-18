@@ -6,6 +6,7 @@ import { TextField, Table, TableHead, TableRow, TableCell, TableBody, MenuItem, 
 import { LocalizationProvider, DatePicker,} from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import './Caja.css'
 
 // Registrar Chart.js
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -176,8 +177,8 @@ const Caja = ({ uidPeluquero }) => {
   
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Control de Finanzas</h1>
+    <div className="caja-container">
+      <h1 className="titulo">Control de Finanzas</h1>
 
       {/* Si es administrador, mostrar el desplegable de peluqueros */}
       {rolUsuario === "administrador" && peluqueros.length > 0 && (
@@ -200,7 +201,7 @@ const Caja = ({ uidPeluquero }) => {
 
       {/* Filtros de fecha */}
       <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+        <div className="fecha-filtros">
           <DatePicker
             label="Desde"
             value={fechaInicio}
@@ -217,7 +218,7 @@ const Caja = ({ uidPeluquero }) => {
       </LocalizationProvider>
 
       {/* Verificar si hay datos en el gráfico */}
-      <div style={{ width: "300px", height: "300px", margin: "0 auto" }}>
+      <div className="grafico-container">
       {Object.keys(ingresosPorServicio).length > 0 ? (
         <Pie data={datosGrafico} options={opcionesGrafico}/>
       ) : (

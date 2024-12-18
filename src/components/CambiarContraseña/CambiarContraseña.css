@@ -1,0 +1,47 @@
+.cambiar-contraseña-container {
+    max-width: 400px;
+    margin: 0 auto;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #f9f9f9; /* Fondo suave */
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .titulo {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .input-contraseña {
+    margin-bottom: 20px;
+    font-size: 1rem;
+  }
+  
+  .boton-cambiar {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    background-color: #007bff !important; /* Azul vibrante */
+    color: #fff !important;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .boton-cambiar:hover {
+    background-color: #0056b3 !important; /* Azul más oscuro al pasar el mouse */
+  }
+  
+  .mensaje {
+    margin-top: 15px;
+    text-align: center;
+    color: #27ae60; /* Verde para éxito */
+    font-weight: bold;
+  }
+  
+  .mensaje.error {
+    color: #e74c3c; /* Rojo para errores */
+  }
+  

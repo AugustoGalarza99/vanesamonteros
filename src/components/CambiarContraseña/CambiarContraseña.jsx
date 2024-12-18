@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { getAuth, updatePassword } from "firebase/auth";
 import { TextField, Button } from "@mui/material";
+import './CambiarContraseña.css';
 
 const CambiarContraseña = () => {
   const [nuevaContraseña, setNuevaContraseña] = useState("");
@@ -23,19 +24,24 @@ const CambiarContraseña = () => {
   };
 
   return (
-    <div>
-      <h2>Cambiar Contraseña</h2>
+    <div className="cambiar-contraseña-container">
+      <h2 className="titulo">Cambiar Contraseña</h2>
       <TextField
         label="Nueva Contraseña"
         type="password"
         value={nuevaContraseña}
         onChange={(e) => setNuevaContraseña(e.target.value)}
         fullWidth
+        className="input-contraseña"
       />
-      <Button variant="contained" color="primary" onClick={cambiarContraseña}>
+      <Button 
+        variant="contained" 
+        className="boton-cambiar"
+        onClick={cambiarContraseña}
+      >
         Cambiar Contraseña
       </Button>
-      {mensaje && <p>{mensaje}</p>}
+      {mensaje && <p className="mensaje">{mensaje}</p>}
     </div>
   );
 };

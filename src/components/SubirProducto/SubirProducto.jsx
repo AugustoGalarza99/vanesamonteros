@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { db, storage } from "../../firebaseConfig";
 import { addDoc, collection, getDocs } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import './SubirProducto.css'
 
-const PRODUCT_LIMIT = 10; // Límite de productos, ajusta según planes
+const PRODUCT_LIMIT = 4; // Límite de productos, ajusta según planes
 
 const SubirProducto = () => {
   const [nombre, setNombre] = useState("");
@@ -67,38 +68,40 @@ const SubirProducto = () => {
   return (
     <div>
       <h2>Subir Producto</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Nombre:</label>
+      <form onSubmit={handleSubmit} className="form-reserva">
+        <div className="div-productos">
           <input
+            className="input-gral2"
+            placeholder="Nombre del producto"
             type="text"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
             required
           />
         </div>
-        <div>
-          <label>Detalle:</label>
+        <div className="div-productos">
           <textarea
+            className="input-gral2"
+            placeholder="Detalle del producto"
             value={detalle}
             onChange={(e) => setDetalle(e.target.value)}
             required
           />
         </div>
-        <div>
-          <label>Precio:</label>
+        <div className="div-productos">
           <input
+            placeholder="Precio"
+            className="input-gral2"
             type="number"
             value={precio}
             onChange={(e) => setPrecio(e.target.value)}
             required
           />
         </div>
-        <div>
-          <label>Imagen:</label>
-          <input type="file" onChange={handleFileChange} required />
+        <div className="div-productos">
+          <input className="input-gral2" type="file" onChange={handleFileChange} required />
         </div>
-        <button type="submit">Subir Producto</button>
+        <button className="button-producto" type="submit">Subir Producto</button>
         <p>Productos subidos: {productosCount}/{PRODUCT_LIMIT}</p>
       </form>
     </div>

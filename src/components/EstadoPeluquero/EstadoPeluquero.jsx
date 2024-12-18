@@ -155,7 +155,7 @@ const handleCancelarTurno = async () => {
     return (
         <div className="estado-peluquero">
             <h2>Consulta el estado de tu turno</h2>
-            <p>En esta seccion podras consultar la informacion sobre tu turno y el estado del peluquero. Si el peluquero esta con demora ingresando tu DNI te informaremos la hora aproximada de tu corte, tambien podras cancelar tu turno hasta un maximo de 4 horas antes del turno</p>
+            <p className='p-estado'>En esta seccion podras consultar la informacion sobre tu turno y el estado del peluquero. Si el peluquero esta con demora ingresando tu DNI te informaremos la hora aproximada de tu corte, tambien podras cancelar tu turno hasta un maximo de 4 horas antes del turno</p>
             <input
                 className='input-estado'
                 type="text"

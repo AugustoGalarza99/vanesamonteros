@@ -9,11 +9,12 @@ h2{
     color: var(--color-letras);
     font-size: 20px;
     margin-bottom: 20px;
+    font-size: 1.5rem;
+    text-align: center;
 }
-p{
+.p-estado{
   font-family: var(--font);
   color: var(--color-letras);  
-  
   width: 80%;
   text-align: center;
   margin-bottom: 20px;
