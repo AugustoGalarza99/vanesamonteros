@@ -277,7 +277,14 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
       const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
       window.open(whatsappURL, '_blank'); 
     } else {
-      alert('No se encontró el número de teléfono para este cliente.');
+      Swal.fire({
+          title: 'Error',
+          text: 'No se encontró el número de teléfono para el cliente',
+          icon: 'error',
+          background: 'black',
+          color: 'white',
+          confirmButtonText: 'Ok'
+      });
     }
   };
 
@@ -374,7 +381,14 @@ const notificarCambioHorario = (reserva) => {
   const { fecha, horaInicio, telefono } = reserva;
 
   if (!telefono) {
-    alert('No se encontró el número de teléfono para este cliente.');
+    Swal.fire({
+        title: 'Error',
+        text: 'No se encontró el número de teléfono para este cliente',
+        icon: 'error',
+        background: 'black',
+        color: 'white',
+        confirmButtonText: 'Ok'
+    });
     return;
   }
 

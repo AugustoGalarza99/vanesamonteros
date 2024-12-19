@@ -183,13 +183,13 @@ const Caja = ({ uidPeluquero }) => {
       {/* Si es administrador, mostrar el desplegable de peluqueros */}
       {rolUsuario === "administrador" && peluqueros.length > 0 && (
         <FormControl fullWidth>
-          <InputLabel id="select-peluquero-label">Seleccionar Peluquero</InputLabel>
+          <InputLabel id="select-peluquero-label">Seleccionar Profesional</InputLabel>
           <Select
             labelId="select-peluquero-label"
             value={peluqueroSeleccionado}
             onChange={(e) => setPeluqueroSeleccionado(e.target.value)}
           >
-            <MenuItem value="admin">Todos los peluqueros</MenuItem> {/* Opción para ver todos */}
+            <MenuItem value="admin">Todos los profesionales</MenuItem> {/* Opción para ver todos */}
             {peluqueros.map((peluquero) => (
               <MenuItem key={peluquero.id} value={peluquero.uid}>
                 {peluquero.email}

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { getAuth, updatePassword } from "firebase/auth";
 import { TextField, Button } from "@mui/material";
 import './CambiarContraseña.css';
+import Swal from 'sweetalert2';
 
 const CambiarContraseña = () => {
   const [nuevaContraseña, setNuevaContraseña] = useState("");
@@ -11,12 +12,19 @@ const CambiarContraseña = () => {
 
   const cambiarContraseña = async () => {
     try {
-      if (nuevaContraseña.length < 6) {
+      if (nuevaContraseña.length < 6) {        
         setMensaje("La contraseña debe tener al menos 6 caracteres.");
         return;
       }
       await updatePassword(auth.currentUser, nuevaContraseña);
-      setMensaje("Contraseña actualizada exitosamente.");
+      Swal.fire({
+          title: 'Contraseña actualizada',
+          text: 'Contraseña actualizada con extito',
+          icon: 'success',
+          background: 'black', 
+          color: 'white', 
+          confirmButtonText: 'Ok'
+      });
     } catch (error) {
       console.error(error);
       setMensaje("Error al cambiar la contraseña. Intenta nuevamente.");

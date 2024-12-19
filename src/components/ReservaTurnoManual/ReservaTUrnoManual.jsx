@@ -201,7 +201,14 @@ const handleAgendar = async (e) => {
     });
 
     if (solapamiento) {
-        alert('El turno se solapa con otro ya existente. Por favor, elige otro horario.');
+        Swal.fire({
+            title: 'Error de solapamiento',
+            text: 'El turno se solapa con otro ya existente. Por favor, elige otro horario.',
+            icon: 'error',
+            background: 'black',
+            color: 'white',
+            confirmButtonText: 'Ok'
+        });
         return; // No continuar si hay solapamiento
     }
 

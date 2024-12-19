@@ -29,4 +29,4 @@ Swal.fire({
     confirmButtonText: 'Ok'
 });
 
-                                import Swal from 'sweetalert2';
+import Swal from 'sweetalert2';

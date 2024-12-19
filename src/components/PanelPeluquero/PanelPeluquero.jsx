@@ -26,7 +26,7 @@ const PanelPeluquero = () => {
             {uidPeluquero ? (
                 <CalendarioPeluquero uidPeluquero={uidPeluquero} />
             ) : (
-                <p>Cargando el UID del peluquero...</p>
+                <p>Cargando el UID del profesional...</p>
             )}
         </div>
     );
