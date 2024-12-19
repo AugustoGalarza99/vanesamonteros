@@ -57,24 +57,19 @@ function App() {
   return (
     <RoleProvider>
     <Router /*basename='/juan'*/>
-      {/*<BottomNavbar isPeluquero={isPeluquero} /> */}
       <div className="app-layout">    
       <ResponsiveNavbar isPeluquero={isPeluquero} />
-      
-
-      {/* <Navbar /> */}  
       <div className="app-content">
         <Routes>
           <Route path='/' element={<ReservaPage />} />
           <Route path="/estado" element={<Estado />} />
           <Route path="/productos" element={<Productos />} />
-          {/*<Route path="/productos" element={<Productos />} />*/}
           <Route path="/login" element={<LoginPeluquero />} />
 
           {/* Ruta protegida para el panel del peluquero */}
           <Route path="/finanzas" element={<ProtectedRoute requiredRole={["administrador", "peluquero"]}><Finanzas /></ProtectedRoute>} />
           <Route path="/agenda" element={<ProtectedRoute requiredRole="peluquero"><Peluquero /></ProtectedRoute>} />
-          <Route path="/reservamanual" element={<ProtectedRoute requiredRole="peluquero"><ReservaManual /></ProtectedRoute>} />
+          <Route path="/reservamanual" element={<ProtectedRoute requiredRole={["administrador", "peluquero"]}><ReservaManual /></ProtectedRoute>} />
           <Route path="/horarios" element={<ProtectedRoute requiredRole="peluquero"><Horarios /></ProtectedRoute>} />
           <Route path="/servicios" element={<ProtectedRoute requiredRole="peluquero"><Servicios /></ProtectedRoute>} />
           <Route path="/administracion" element={<ProtectedRoute requiredRole={["administrador", "peluquero"]}><Administracion /></ProtectedRoute>} />

@@ -74,7 +74,7 @@ const WorkScheduleConfig = () => {
 
   return (
     <div className='div-config'>
-      <h2>Configurar Días y Horarios de Trabajo</h2>
+      <h2 className='h2-horarios' >Configurar Días y Horarios de Trabajo</h2>
       {daysOfWeek.map((day) => (
         <div key={day} className='div-day'>
           <div className='div-trabajo'>

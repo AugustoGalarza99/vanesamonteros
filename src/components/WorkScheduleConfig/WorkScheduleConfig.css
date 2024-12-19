@@ -69,6 +69,13 @@
     cursor: pointer;
 
   }
+
+  .h2-horarios{
+      font-family: var(--font);
+      margin-top: 15px;
+      font-size: 24px;  
+      text-align: center;
+  }
   
   .cyberpunk-checkbox:before {
     content: "";

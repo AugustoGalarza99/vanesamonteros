@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../firebaseConfig';
 import { collection, getDocs, addDoc, query, where, doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import { RxCalendar } from "react-icons/rx";
 import Swal from 'sweetalert2';
 import './ReservaTurnoManual.css'
 
@@ -248,7 +249,7 @@ const handleAgendar = async (e) => {
     return (
             <form className='form-reserva' onSubmit={handleAgendar}>
                 <div className="titulo">
-                    <h1 className='titulo'>Reservar turno</h1>
+                    <h1 className='titulo'> <RxCalendar /> Reservar turno</h1>
                 </div>  
                 <h3 className='h3'>Completa el siguiente formulario para reservar tu cita</h3>             
                 {/*<div className='div-tel'>*/}
@@ -335,7 +336,7 @@ const handleAgendar = async (e) => {
 
                 </div>
                 <div className='div-button'>
-                <button className='button-turno' type="submit">Agendar Turno</button>
+                <button className='button-turno' type="submit"><RxCalendar />Agendar Turno</button>
                 </div>            
             
         </form>
