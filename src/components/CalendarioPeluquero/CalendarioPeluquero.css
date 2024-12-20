@@ -8,6 +8,7 @@ h3{
   .calendario-navigation {
     display: flex;
     margin-bottom: 10px;
+    margin-right: 30px;
   }  
   .calendario-header {
     display: flex;

@@ -22,6 +22,8 @@ h2{
 .demora{
   font-family: var(--font);
   margin-top: 20px;
+  width: 80%;
+  text-align: center;
 }
 .info-turno{
   display: flex;
