@@ -3,7 +3,7 @@
     margin-top: 10px;
     position: relative;
     display: inline-block;
-    background: linear-gradient(to bottom, #1b1c3f, #4a4e91);
+    background: var(--color-boton);
     color: white;
     font-family: "Segoe UI", sans-serif;
     font-weight: bold;
@@ -19,7 +19,7 @@
   
   /* Hover animation */
   .button-turno:hover {
-    background: linear-gradient(to bottom, #2c2f63, #5b67b7);
+    background: var(--color-boton);
     animation: button-particles 1s ease-in-out infinite;
     transform: translateY(-2px);
   }

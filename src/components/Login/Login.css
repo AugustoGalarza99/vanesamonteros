@@ -84,7 +84,7 @@
     margin: 20px auto; /* Esto centrará el botón horizontalmente */
 
     /*background: linear-gradient(to bottom, #1b1c3f, #4a4e91);*/
-    background: linear-gradient(to bottom, #1b1c3f, #4a4e91);
+    background: var(--color-boton);
    /* Gradient background */
     color: var(--color-letras-boton);
    /* White text color */
@@ -110,7 +110,7 @@
   
   /* Hover animation */
   .button-inicio:hover {
-    background: linear-gradient(to bottom, #2c2f63, #5b67b7);
+    background: var(--color-boton);
     animation: button-particles 1s ease-in-out infinite;
     transform: translateY(-2px);
   }
