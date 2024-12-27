@@ -112,7 +112,7 @@ const handleCancelarTurno = async () => {
                     // Mostrar alerta si faltan menos de 4 horas
                     Swal.fire({
                         title: 'Error al cancelar el turno',
-                        text: 'No puedes cancelar el turno porque faltan menos de 4 horas. Por favor, contacta a tu peluquero.',
+                        text: 'No puedes cancelar el turno porque faltan menos de 4 horas. Por favor, contacta a tu profesional.',
                         icon: 'error',
                         background: 'black',
                         color: 'white',

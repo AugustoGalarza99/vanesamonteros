@@ -10,6 +10,7 @@ const ReservaTurnoManual = () => {
     const [telefono, setTelefono] = useState('');
     const [nombre, setNombre] = useState('');
     const [apellido, setApellido] = useState('');
+    const [dni, setDni] = useState(''); // Estado para el DNI
     const [servicio, setServicio] = useState('');
     const [profesional, setProfesional] = useState('');
     const [fecha, setFecha] = useState('');
@@ -210,6 +211,7 @@ const handleAgendar = async (e) => {
             color: 'white',
             confirmButtonText: 'Ok'
         });
+        setLoading(false);
         return; // No continuar si hay solapamiento
     }
 
@@ -219,6 +221,7 @@ const handleAgendar = async (e) => {
         await addDoc(reservasRef, {
             nombre,
             apellido,
+            dni: dni || null, // Guardar el DNI solo si se proporcionó
             telefono,
             servicio,
             fecha,
@@ -254,8 +257,16 @@ const handleAgendar = async (e) => {
                 <h3 className='h3'>Completa el siguiente formulario para reservar tu cita</h3>             
                 {/*<div className='div-tel'>*/}
                 <div className='div-tel'>
+
+                <input
+                    className='input-gral2'
+                    placeholder='DNI (opcional)'
+                    type="text"
+                    value={dni}
+                    onChange={(e) => setDni(e.target.value)}
+                />
+
                     <input className='input-gral2' placeholder='Nombre' type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} required/>
-                
                 
                     <input
                         className='input-gral2'

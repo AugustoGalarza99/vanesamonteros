@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../../firebaseConfig'; // Asegúrate de importar `auth`
-import { 
-    collection, 
-    addDoc, 
-    updateDoc, 
-    deleteDoc, 
-    doc, 
-    getDocs 
-} from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth'; // Para obtener el usuario actual
 import Swal from 'sweetalert2';
 import './AgregarServicio.css';
@@ -64,7 +57,14 @@ const AgregarServicios = () => {
             };
             const docRef = await addDoc(collection(db, `profesionales/${uid}/servicios`), newServicio);
             setServicios([...servicios, { id: docRef.id, ...newServicio }]);
-            Swal.fire('Servicio agregado correctamente', '', 'success');
+            Swal.fire({
+                    title: "Servicio agregado correctamente",
+                    text: " ",
+                    icon: "success",
+                    background: "black",
+                    color: "white",
+                    confirmButtonText: "Ok",
+                });
             setNombreServicio(''); setDuracion(''); setPrecio('');
         } catch (error) {
             console.error('Error agregando servicio:', error);
@@ -78,7 +78,14 @@ const AgregarServicios = () => {
         try {
             await deleteDoc(doc(db, `profesionales/${uid}/servicios`, id));
             setServicios(servicios.filter(servicio => servicio.id !== id));
-            Swal.fire('Servicio eliminado correctamente', '', 'success');
+            Swal.fire({
+                    title: "Servicio eliminado correctamente",
+                    text: " ",
+                    icon: "success",
+                    background: "black",
+                    color: "white",
+                    confirmButtonText: "Ok",
+                });
         } catch (error) {
             console.error('Error eliminando servicio:', error);
             Swal.fire('Error al eliminar el servicio', '', 'error');
@@ -105,7 +112,14 @@ const AgregarServicios = () => {
                 servicio.id === id ? { ...servicio, ...updatedServicio } : servicio
             ));
             setEditandoServicio(null);
-            Swal.fire('Cambios guardados correctamente', '', 'success');
+            Swal.fire({
+                title: "Cambios guardados correctamente",
+                text: " ",
+                icon: "success",
+                background: "black",
+                color: "white",
+                confirmButtonText: "Ok",
+            })
         } catch (error) {
             console.error('Error guardando cambios del servicio:', error);
             Swal.fire('Error al guardar cambios', '', 'error');

@@ -376,6 +376,7 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
     }
   };
 
+
   // Función para notificar el cambio del horario
 const notificarCambioHorario = (reserva) => {
   const { fecha, horaInicio, telefono } = reserva;
@@ -450,6 +451,7 @@ const finalizarTurno = async (reserva) => {
     console.error('Error al finalizar el turno:', error.message);
   }
 };
+
 
 
 
@@ -560,28 +562,23 @@ const finalizarTurno = async (reserva) => {
         }).then((result) => {
           if (result.isConfirmed) {
             actualizarEstadoTurno(id, 'finalizado');
-            finalizarTurno(reserva); // Llama a la función para finalizar el turno
-    
+            finalizarTurno(reserva); // Llama a la función para finalizar el turno    
             Swal.fire({
               title: 'Turno Finalizado',
               text: '¿Deseas agendar este turno para la próxima semana?',
               icon: 'success',
               showCancelButton: true,
-              confirmButtonText: 'Reservar para próxima semana',
+              confirmButtonText: 'Reservar proximo turno',
               cancelButtonText: 'No deseo reservar',
               background: 'black',
               color: 'white',
             }).then((result) => {
               if (result.isConfirmed) {
-                duplicarReservaParaLaProximaSemana(reserva);
-                Swal.fire({
-                  title: 'Turno agendado para la próxima semana',
-                  icon: 'success',
-                  background: 'black',
-                  color: 'white',
-                });
+                // Redirige a la sección /reservamanual
+                window.location.href = '/reservamanual';
               }
             });
+            
           }
         });
     }
