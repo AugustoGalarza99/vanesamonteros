@@ -13,7 +13,7 @@ function Navbar() {
       <Link to="/"><img src={logo} alt="Logo"/></Link>
       </div>
       <div className='div-titulo'>
-        <h1 className='titulo-h1'>Monteros Vanesa <br />Espacio </h1>
+        <h1 className='titulo-h1'>MONTEROS VANESA <br />ESPACIO </h1>
       </div>
     </nav>
   );
