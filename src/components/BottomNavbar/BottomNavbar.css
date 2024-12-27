@@ -1,16 +1,21 @@
+/* Fondo de la barra de navegación con un fondo transparente */
 .bottom-navbar {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  background: #333;
+  background: rgba(0, 0, 0, 0.6); /* Fondo semi-transparente */
+  backdrop-filter: blur(10px); /* Desenfoque del fondo */
   display: flex;
   justify-content: space-around;
   align-items: center;
   padding: 10px 0;
   z-index: 1000;
+  border-top: 1px solid rgba(255, 255, 255, 0.2); /* Borde superior sutil */
+  border-radius: 10px 10px 0 0; /* Bordes redondeados en la parte superior */
 }
 
+/* Estilo de los iconos */
 .nav-icon {
   color: white;
   text-decoration: none;
@@ -18,41 +23,68 @@
   flex-direction: column;
   align-items: center;
   width: 100px;
+  font-weight: 500;
+  font-size: 14px; /* Un tamaño de texto más pequeño pero legible */
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
+/* Efecto de hover en los iconos */
 .nav-icon:hover {
-  color: #ffcc00;
+  color: #ffcc00; /* Amarillo brillante al hacer hover */
+  transform: scale(1.1); /* Efecto de aumento en el tamaño */
 }
 
+/* Menú desplegable con un fondo suave y bordes redondeados */
 .dropdown-menu {
   position: fixed;
   bottom: 65px;
   left: 50%;
   transform: translateX(-50%);
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
-  padding: 10px;
+  background: rgba(255, 255, 255, 0.9); /* Fondo ligeramente transparente */
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Sombra más suave */
+  padding: 15px;
   z-index: 1000;
   width: 60%;
+  backdrop-filter: blur(8px); /* Desenfoque del fondo */
+  transition: transform 0.3s ease-in-out;
 }
 
+/* Menú de la lista */
 .dropdown-menu ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
+/* Estilo de los elementos de la lista */
 .dropdown-menu ul li {
-  margin: 10px 0;
+  margin: 12px 0;
 }
 
 .dropdown-menu ul li a {
   text-decoration: none;
   color: #333;
   font-size: 16px;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
+/* Efecto de hover en los enlaces del menú */
 .dropdown-menu ul li a:hover {
-  color: #ffcc00;
+  color: #ffcc00; /* Amarillo brillante en el hover */
+  transform: translateX(5px); /* Efecto de desplazamiento suave */
 }
+
+/* Íconos dentro del menú */
+.dropdown-menu ul li a svg {
+  margin-right: 10px;
+}
+
+/* Efecto de desvanecimiento al abrir el menú */
+.dropdown-menu.open {
+  transform: translateY(0);
+}
+  

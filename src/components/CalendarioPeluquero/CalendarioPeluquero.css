@@ -26,7 +26,7 @@ h3{
   }  
   .calendario-hora {
     height: 69px; /* Ajusta según lo necesites */
-    color: white;
+    color: black;
   }
   .calendario-hora.descanso{
     background-color: rgb(70, 69, 69);
@@ -53,11 +53,11 @@ h3{
   }  
   /* Estilo para cada celda de hora */
   .calendario-hora {
-    border-bottom: 1px solid #e0e0e0;
-    border-right: 1px solid #e0e0e0;
+    border-bottom: 1px solid black;
+    border-right: 1px solid black;
     position: relative;
     text-align: center;
-    background-color: #0a0a0a; /* Color de fondo para las horas */
+    background-color: #fee0c4; /* Color de fondo para las horas */
     font-size: 12px; /* Ajusta el tamaño del texto si es necesario */
   }  
   /* Estilo para los eventos */

@@ -71,6 +71,6 @@ html, body, #root {
 }
 @media (max-width: 1000px) {
   html, body, #root{
-    margin-bottom: 20px;
+    padding-bottom: 20px;
   }
 }
