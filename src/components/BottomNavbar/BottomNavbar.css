@@ -4,7 +4,7 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  background: rgba(0, 0, 0, 0.6); /* Fondo semi-transparente */
+  background: rgba(0, 0, 0, 0.281); /* Fondo semi-transparente */
   backdrop-filter: blur(10px); /* Desenfoque del fondo */
   display: flex;
   justify-content: space-around;
