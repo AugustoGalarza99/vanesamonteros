@@ -5,6 +5,15 @@
   font-weight: normal;
   font-style: normal;
 }
+@font-face {
+  font-family: 'Qwerty Ability';
+  src: url('./fonts/Qwerty\ Ability\ -\ Personal\ Use.otf') format('truetype'); /* Ajusta la ruta si es necesario */
+}
+
+body {
+  font-family: 'Qwerty Ability', sans-serif;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -56,8 +65,8 @@ html, body, #root {
   --color-letras-boton: white;
   --color-boton: linear-gradient(to bottom, #1b1c3f, #4a4e91);
   color: black;
-  background-color: #f49aad49;  
-  background: linear-gradient(180deg, #f7d6e0,#d7e3fc,#dec0f1);
+  background: -webkit-linear-gradient(180deg, #ffffff,#fee0c4,#c74410);/* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(180deg, #ffffff,#fee0c4,#c74410);/* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
   input::placeholder { color: rgba(0, 0, 0, 0.493);}
 }
 @media (max-width: 1000px) {
