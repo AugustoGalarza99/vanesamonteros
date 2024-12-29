@@ -300,7 +300,7 @@ const ReservasForm = () => {
         }
     };
     
-    const handleSolicitarCodigo = async () => {
+   {/* const handleSolicitarCodigo = async () => {
         if (whatsapp) {
             const whatsappUrl = `https://wa.me/${whatsapp}?text=Hola,%20necesito%20un%20código%20de%20verificación%20para%20reservar%20mi%20turno.`;
             window.open(whatsappUrl, '_blank');
@@ -328,6 +328,39 @@ const ReservasForm = () => {
             }
         }
     };
+    */}
+
+
+    const handleSolicitarCodigo = async () => {
+        if (whatsapp) {
+            const whatsappUrl = `https://wa.me/${whatsapp}?text=Hola,%20necesito%20un%20código%20de%20verificación%20para%20reservar%20mi%20turno.`;
+            window.location.href = whatsappUrl; // Usa location.href en lugar de window.open
+        } else {
+            try {
+                const peluqueroDocRef = doc(db, 'peluqueros', profesional);
+                const peluqueroDocSnap = await getDoc(peluqueroDocRef);
+    
+                if (peluqueroDocSnap.exists()) {
+                    const whatsappNumber = peluqueroDocSnap.data().whatsapp;
+                    setWhatsapp(whatsappNumber);
+                    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hola,%20necesito%20un%20código%20de%20verificación%20para%20reservar%20mi%20turno.`;
+                    window.location.href = whatsappUrl; // También usa location.href aquí
+                } else {
+                    Swal.fire({
+                        title: 'Error de profesional',
+                        text: 'No se encontró el número de teléfono del profesional, intenta nuevamente.',
+                        icon: 'error',
+                        background: 'black',
+                        color: 'white',
+                        confirmButtonText: 'Ok'
+                    });
+                }
+            } catch (error) {
+                console.error('Error obteniendo el número de WhatsApp:', error);
+            }
+        }
+    };
+    
 
     const handleVerificarCodigo = async () => {
         if (loading) return;
