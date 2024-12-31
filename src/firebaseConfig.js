@@ -5,13 +5,14 @@ import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDjRZaFR-k8_8B-uCpIx8qMcfHC7oXm6wA",
-    authDomain: "peluqueria-fcb86.firebaseapp.com",
-    projectId: "peluqueria-fcb86",
-    storageBucket: "peluqueria-fcb86.firebasestorage.app",
-    messagingSenderId: "418176110672",
-    appId: "1:418176110672:web:b763217633865d85784155"
-  };
+  apiKey: "AIzaSyCU-RjwXuAnyISvigtPYrtdgHppgnYVEB0",
+  authDomain: "monterosvanesa-5069b.firebaseapp.com",
+  projectId: "monterosvanesa-5069b",
+  storageBucket: "monterosvanesa-5069b.firebasestorage.app",
+  messagingSenderId: "207645687930",
+  appId: "1:207645687930:web:dafc45c1d00c7cd1063bc3",
+  measurementId: "G-W7G8S2K21J"
+};
 
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
