@@ -11,7 +11,6 @@ const firebaseConfig = {
   storageBucket: "monterosvanesa-5069b.firebasestorage.app",
   messagingSenderId: "207645687930",
   appId: "1:207645687930:web:dafc45c1d00c7cd1063bc3",
-  measurementId: "G-W7G8S2K21J"
 };
 
 // Inicializar Firebase
