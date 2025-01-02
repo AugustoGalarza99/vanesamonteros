@@ -14,20 +14,20 @@ const Horarios = () => {
   return (
     <div>
 
-      {uidPeluquero ? (
+     {/* {uidPeluquero ? (
         <WorkScheduleManager uidPeluquero={uidPeluquero}/>
       ) : (
         <p>No estás autenticado. Inicia sesión como peluquero.</p>
       )}
 
 
-        {/*{uidPeluquero && <TurnoConfig uidPeluquero={uidPeluquero} />}
+        {uidPeluquero && <TurnoConfig uidPeluquero={uidPeluquero} />}*/}
 
         {uidPeluquero ? (
         <WorkScheduleConfig uidPeluquero={uidPeluquero}/>
       ) : (
         <p>No estás autenticado. Inicia sesión como peluquero.</p>
-      )}*/}
+      )}
     </div>
   );
 };
