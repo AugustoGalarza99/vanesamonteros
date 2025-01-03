@@ -32,13 +32,26 @@ function App() {
   const [isPeluquero, setIsPeluquero] = useState(null); // Estado para verificar si es peluquero
 
   const checkIfPeluquero = async (user) => {
-    const docRef = doc(db, 'peluqueros', user.uid);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      setIsPeluquero(true);
-    } else {
-      setIsPeluquero(false);
+    try {
+      const peluqueroRef = doc(db, 'peluqueros', user.uid);
+      const peluqueroSnap = await getDoc(peluqueroRef);
+  
+      if (peluqueroSnap.exists()) {
+        setIsPeluquero(true);
+        return;
+      }
+  
+      const adminRef = doc(db, 'administradores', user.uid);
+      const adminSnap = await getDoc(adminRef);
+  
+      if (adminSnap.exists()) {
+        setIsPeluquero(true); // Usuario es administrador
+      } else {
+        setIsPeluquero(null); // Usuario no pertenece a ninguna colección
+      }
+    } catch (error) {
+      console.error("Error verificando rol del usuario:", error);
+      setIsPeluquero(null);
     }
   };
 

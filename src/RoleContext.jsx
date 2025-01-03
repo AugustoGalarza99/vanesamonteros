@@ -12,27 +12,41 @@ export const RoleProvider = ({ children }) => {
   const [role, setRole] = useState(null); // Almacenar el rol del usuario
   const [roleLoading, setRoleLoading] = useState(true); // Indicador de carga del rol
 
+  console.log("Rol asignado:", role);
+
+
   useEffect(() => {
     const fetchRole = async () => {
       if (user) {
         try {
-          const userDoc = await getDoc(doc(db, "peluqueros", user.uid));
-          if (userDoc.exists()) {
-            setRole(userDoc.data().rol); // Establecer el rol desde Firestore
+          // Intentar buscar en 'peluqueros'
+          const peluqueroDoc = await getDoc(doc(db, "peluqueros", user.uid));
+          if (peluqueroDoc.exists()) {
+            setRole(peluqueroDoc.data().rol);
           } else {
-            console.error("Usuario no encontrado en la colección 'peluqueros'");
+            console.log("Usuario no encontrado en peluqueros. Buscando en administradores...");
+            // Intentar buscar en 'administradores'
+            const adminDoc = await getDoc(doc(db, "administradores", user.uid));
+            if (adminDoc.exists()) {
+              setRole(adminDoc.data().rol);
+            } else {
+              console.error("Usuario no encontrado en ninguna colección.");
+              setRole(null); // No se encontró en ninguna colección
+            }
           }
         } catch (error) {
-          console.error("Error obteniendo el rol del usuario:", error);
+          console.error("Error al obtener el rol del usuario:", error);
+          setRole(null); // En caso de error, limpiar el rol
         }
       } else {
-        setRole(null); // Si no hay usuario, limpiar el rol
+        setRole(null); // Si no hay usuario autenticado, limpiar el rol
       }
       setRoleLoading(false); // Finalizar la carga del rol
     };
-
+  
     fetchRole();
   }, [user]);
+  
 
   return (
     <RoleContext.Provider value={{ user, role, loading: loading || roleLoading }}>

@@ -7,13 +7,13 @@ import './WorkScheduleConfig.css';
 
 const WorkScheduleConfig = () => {
   const [workDays, setWorkDays] = useState({
-    domingo: { start1: '', end1: '', start2: '', end2: '', isWorking: false },
-    lunes: { start1: '', end1: '', start2: '', end2: '', isWorking: false },
-    martes: { start1: '', end1: '', start2: '', end2: '', isWorking: false },
-    miércoles: { start1: '', end1: '', start2: '', end2: '', isWorking: false },
-    jueves: { start1: '', end1: '', start2: '', end2: '', isWorking: false },
-    viernes: { start1: '', end1: '', start2: '', end2: '', isWorking: false },
-    sábado: { start1: '', end1: '', start2: '', end2: '', isWorking: false },
+    domingo: { start1: '', end1: '', start2: '', end2: '', isWorking: false, intervalo: 30 },
+    lunes: { start1: '', end1: '', start2: '', end2: '', isWorking: false, intervalo: 30 },
+    martes: { start1: '', end1: '', start2: '', end2: '', isWorking: false, intervalo: 30 },
+    miércoles: { start1: '', end1: '', start2: '', end2: '', isWorking: false, intervalo: 30 },
+    jueves: { start1: '', end1: '', start2: '', end2: '', isWorking: false, intervalo: 30 },
+    viernes: { start1: '', end1: '', start2: '', end2: '', isWorking: false, intervalo: 30 },
+    sábado: { start1: '', end1: '', start2: '', end2: '', isWorking: false, intervalo: 30 },
   });
   const [uidPeluquero, setUidPeluquero] = useState(null);
 
@@ -43,19 +43,19 @@ const WorkScheduleConfig = () => {
       Swal.fire({
         title: 'Horario guardado correctamente',
         icon: 'success',
-        background: 'black', 
-        color: 'white', 
-        confirmButtonText: 'Ok'
-    });
+        background: 'black',
+        color: 'white',
+        confirmButtonText: 'Ok',
+      });
     } catch (error) {
       console.error('Error guardando horario: ', error);
       Swal.fire({
-        title: 'Error al guardad el horario',
+        title: 'Error al guardar el horario',
         icon: 'error',
-        background: 'black', 
-        color: 'white', 
-        confirmButtonText: 'Ok'
-    });
+        background: 'black',
+        color: 'white',
+        confirmButtonText: 'Ok',
+      });
     }
   };
 
@@ -69,16 +69,15 @@ const WorkScheduleConfig = () => {
     }));
   };
 
-  // Definir los días de la semana comenzando desde el domingo
   const daysOfWeek = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 
   return (
     <div className='div-config'>
-      <h2 className='h2-horarios' >Configurar Días y Horarios de Trabajo</h2>
+      <h2 className='h2-horarios'>Configurar Días y Horarios de Trabajo</h2>
       {daysOfWeek.map((day) => (
         <div key={day} className='div-day'>
           <div className='div-trabajo'>
-            <h3> ¿Trabajas el día {day.charAt(0).toUpperCase() + day.slice(1)} ?</h3>
+            <h3>¿Trabajas el día {day.charAt(0).toUpperCase() + day.slice(1)}?</h3>
             <label className="cyberpunk-checkbox-label">
               <input
                 className="cyberpunk-checkbox"
@@ -92,7 +91,6 @@ const WorkScheduleConfig = () => {
           {workDays[day].isWorking && (
             <>
               <div className='div-hora1'>
-                {/* Primer rango horario */}
                 <label>
                   Turno mañana
                   <input
@@ -112,7 +110,6 @@ const WorkScheduleConfig = () => {
                   />
                 </label>
               </div>
-              {/* Segundo rango horario */}
               <div className='div-hora2'>
                 <label>
                   Turno tarde
@@ -131,6 +128,21 @@ const WorkScheduleConfig = () => {
                     value={workDays[day].end2}
                     onChange={(e) => handleChange(day, 'end2', e.target.value)}
                   />
+                </label>
+              </div>
+              {/* Selección del intervalo de turnos */}
+              <div className='div-intervalo'>
+                <label>
+                  Intervalo de turnos (minutos)
+                  <select
+                    className='select-intervalo'
+                    value={workDays[day].intervalo}
+                    onChange={(e) => handleChange(day, 'intervalo', parseInt(e.target.value))}
+                  >
+                    <option value={30}>30 minutos</option>
+                    <option value={60}>60 minutos</option>
+                    <option value={90}>90 minutos</option>
+                  </select>
                 </label>
               </div>
             </>

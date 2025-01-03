@@ -16,10 +16,11 @@ const ReservaTurnoManual = () => {
     const [fecha, setFecha] = useState('');
     const [hora, setHora] = useState('');
     const [costoServicio, setCostoServicio] = useState(0); // Para almacenar el costo del servicio
-    const [duracionServicio, setDuracionServicio] = useState(0); // Duración del servicio seleccionado
+    const [duracionServicio, setDuracionServicio] = useState(30); // Duración del servicio seleccionado
     const [servicios, setServicios] = useState([]);
     const [peluqueros, setPeluqueros] = useState([]);
     const [horariosDisponibles, setHorariosDisponibles] = useState([]);
+    const intervaloTurnos = horariosDisponibles.intervalo || 30;
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -83,7 +84,7 @@ const ReservaTurnoManual = () => {
     }, [profesional]); // Este efecto se ejecuta cada vez que cambia el valor de 'profesional'
 
 
-    // Obtener horarios disponibles del peluquero seleccionado y la fecha
+// Obtener horarios disponibles del peluquero seleccionado y la fecha
 const fetchHorariosDisponibles = async () => {
     if (profesional && fecha) {
         try {
@@ -100,7 +101,7 @@ const fetchHorariosDisponibles = async () => {
                 if (horariosDoc.exists()) {
                     const horariosData = horariosDoc.data();
 
-                    // Asegurarse de que el formato sea correcto (ISO y UTC)
+                    // Asegúrate de que el formato de la fecha sea correcto
                     const selectedDate = new Date(`${fecha}T00:00:00Z`); // Fecha en UTC
                     const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
                     const diaSeleccionado = selectedDate.getUTCDay(); // Día de la semana en UTC
@@ -109,6 +110,8 @@ const fetchHorariosDisponibles = async () => {
                     const horariosDelDia = horariosData[dia];
 
                     if (horariosDelDia && horariosDelDia.isWorking) {
+                        const intervaloTurnos = horariosDelDia.intervalo || 30; // Leer el intervalo desde Firebase
+
                         const availableSlots = [];
 
                         // Horarios de la mañana
@@ -120,7 +123,7 @@ const fetchHorariosDisponibles = async () => {
                         while (startTime < endTime) {
                             const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
                             availableSlots.push(slotTime);
-                            startTime.setMinutes(startTime.getMinutes() + 30); // Incrementar 30 minutos
+                            startTime.setMinutes(startTime.getMinutes() + intervaloTurnos); // Incrementa el intervalo leído desde Firebase
                         }
 
                         // Horarios de la tarde
@@ -132,7 +135,7 @@ const fetchHorariosDisponibles = async () => {
                         while (startTime < endTime) {
                             const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
                             availableSlots.push(slotTime);
-                            startTime.setMinutes(startTime.getMinutes() + 30); // Incrementar 30 minutos
+                            startTime.setMinutes(startTime.getMinutes() + intervaloTurnos); // Incrementa el intervalo leído desde Firebase
                         }
 
                         // Filtrar horarios ocupados y solapados
@@ -150,7 +153,7 @@ const fetchHorariosDisponibles = async () => {
                         const horariosFiltrados = availableSlots.filter(slot => {
                             const slotStartTime = new Date(`${fecha}T${slot}`);
                             const slotEndTime = new Date(slotStartTime.getTime() + duracionServicio * 60000);
-                            
+
                             // Verifica que no haya solapamiento
                             return !ocupados.some(({ start, end }) => (
                                 (start < slotEndTime && end > slotStartTime) // Solapamiento
@@ -159,7 +162,7 @@ const fetchHorariosDisponibles = async () => {
 
                         setHorariosDisponibles(horariosFiltrados);
                     } else {
-                        setHorariosDisponibles([]); // Sin horarios disponibles
+                        setHorariosDisponibles([]); // Si el peluquero no trabaja ese día
                     }
                 }
             }
@@ -168,6 +171,7 @@ const fetchHorariosDisponibles = async () => {
         }
     }
 };
+
 useEffect(() => {
     fetchHorariosDisponibles();
 }, [profesional, fecha, duracionServicio]); // Asegúrate de que estas dependencias estén incluidas

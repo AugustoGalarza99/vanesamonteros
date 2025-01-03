@@ -24,6 +24,7 @@ const ReservasForm = () => {
     const [horariosDisponibles, setHorariosDisponibles] = useState([]);
     const [duracionServicio, setDuracionServicio] = useState(0); // Para almacenar la duración del servicio
     const [codigoVerificacion, setCodigoVerificacion] = useState(''); // Estado para almacenar el código de verificación
+    const intervaloTurnos = horariosDisponibles.intervalo || 30;
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -93,90 +94,79 @@ const ReservasForm = () => {
                 try {
                     const peluqueroRef = doc(db, 'peluqueros', profesional);
                     const peluqueroDoc = await getDoc(peluqueroRef);
-    
+        
                     if (peluqueroDoc.exists()) {
                         const peluqueroData = peluqueroDoc.data();
                         const uidPeluquero = peluqueroData.uid;
-    
+        
                         const horariosRef = doc(db, 'horarios', uidPeluquero);
                         const horariosDoc = await getDoc(horariosRef);
-    
+        
                         if (horariosDoc.exists()) {
                             const horariosData = horariosDoc.data();
-                            
-                            const selectedDate = new Date(`${fecha}T00:00:00Z`);
+        
+                            // Asegúrate de que el formato de la fecha sea correcto
+                            const selectedDate = new Date(`${fecha}T00:00:00Z`); // Fecha en UTC
                             const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-                            const diaSeleccionado = selectedDate.getUTCDay();
-                            const dia = diasSemana[diaSeleccionado];
+                            const diaSeleccionado = selectedDate.getUTCDay(); // Día de la semana en UTC
+                            const dia = diasSemana[diaSeleccionado]; // Mapeo al nombre del día en español
+        
                             const horariosDelDia = horariosData[dia];
-    
+        
                             if (horariosDelDia && horariosDelDia.isWorking) {
+                                const intervaloTurnos = horariosDelDia.intervalo || 30; // Leer el intervalo desde Firebase
+        
                                 const availableSlots = [];
-    
-                                // Generación de franjas horarias
-                                const generateSlots = (startHour, endHour) => {
-                                    let startTime = new Date(`1970-01-01T${startHour}:00`);
-                                    let endTime = new Date(`1970-01-01T${endHour}:00`);
-    
-                                    while (startTime < endTime) {
-                                        const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-                                        availableSlots.push(slotTime);
-                                        startTime.setMinutes(startTime.getMinutes() + 30);
-                                    }
-                                };
-    
-                                // Horarios de la mañana y tarde
-                                generateSlots(horariosDelDia.start1, horariosDelDia.end1);
-                                generateSlots(horariosDelDia.start2, horariosDelDia.end2);
-    
+        
+                                // Horarios de la mañana
+                                const startHour1 = horariosDelDia.start1;
+                                const endHour1 = horariosDelDia.end1;
+                                let startTime = new Date(`1970-01-01T${startHour1}:00`);
+                                let endTime = new Date(`1970-01-01T${endHour1}:00`);
+        
+                                while (startTime < endTime) {
+                                    const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+                                    availableSlots.push(slotTime);
+                                    startTime.setMinutes(startTime.getMinutes() + intervaloTurnos); // Incrementa el intervalo leído desde Firebase
+                                }
+        
+                                // Horarios de la tarde
+                                const startHour2 = horariosDelDia.start2;
+                                const endHour2 = horariosDelDia.end2;
+                                startTime = new Date(`1970-01-01T${startHour2}:00`);
+                                endTime = new Date(`1970-01-01T${endHour2}:00`);
+        
+                                while (startTime < endTime) {
+                                    const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+                                    availableSlots.push(slotTime);
+                                    startTime.setMinutes(startTime.getMinutes() + intervaloTurnos); // Incrementa el intervalo leído desde Firebase
+                                }
+        
                                 // Filtrar horarios ocupados y solapados
                                 const reservasRef = collection(db, 'reservas');
-                                const queryReservas = query(reservasRef, where('uidPeluquero', '==', uidPeluquero));
+                                const queryReservas = query(reservasRef, where('fecha', '==', fecha), where('uidPeluquero', '==', uidPeluquero));
                                 const querySnapshot = await getDocs(queryReservas);
-    
-                                // Procesar reservas ocupadas y recurrentes
-                                const ocupados = querySnapshot.docs.flatMap(doc => {
+                                const ocupados = querySnapshot.docs.map(doc => {
                                     const data = doc.data();
-                                    const reservaFecha = new Date(data.fecha);
-                                    const isRecurrente = data.recurrente; // Suponemos que `recurrencia` es una marca booleana en la reserva
-    
-                                    // Si la reserva es recurrente, generar fechas futuras ocupadas
-                                    if (isRecurrente) {
-                                        const ocupadosRecurrentes = [];
-                                        let recurrenteFecha = new Date(reservaFecha);
-    
-                                        while (recurrenteFecha <= selectedDate) {
-                                            if (recurrenteFecha.toISOString().split('T')[0] === fecha) {
-                                                ocupadosRecurrentes.push({
-                                                    start: new Date(`${fecha}T${data.hora}`),
-                                                    end: new Date(new Date(`${fecha}T${data.hora}`).getTime() + data.duracion * 60000)
-                                                });
-                                            }
-                                            recurrenteFecha.setDate(recurrenteFecha.getDate() + 7); // Asumiendo recurrencia semanal
-                                        }
-    
-                                        return ocupadosRecurrentes;
-                                    } else {
-                                        return [{
-                                            start: new Date(`${data.fecha}T${data.hora}`),
-                                            end: new Date(new Date(`${data.fecha}T${data.hora}`).getTime() + data.duracion * 60000)
-                                        }];
-                                    }
+                                    return { 
+                                        start: new Date(`${fecha}T${data.hora}`), 
+                                        end: new Date(new Date(`${fecha}T${data.hora}`).getTime() + data.duracion * 60000) 
+                                    };
                                 });
-    
-                                // Filtrar horarios disponibles considerando solapamientos
+        
                                 const horariosFiltrados = availableSlots.filter(slot => {
                                     const slotStartTime = new Date(`${fecha}T${slot}`);
                                     const slotEndTime = new Date(slotStartTime.getTime() + duracionServicio * 60000);
-                                    
+        
+                                    // Verifica que no haya solapamiento
                                     return !ocupados.some(({ start, end }) => (
-                                        (start < slotEndTime && end > slotStartTime)
+                                        (start < slotEndTime && end > slotStartTime) // Solapamiento
                                     ));
                                 });
-    
+        
                                 setHorariosDisponibles(horariosFiltrados);
                             } else {
-                                setHorariosDisponibles([]);
+                                setHorariosDisponibles([]); // Si el peluquero no trabaja ese día
                             }
                         }
                     }
@@ -185,6 +175,7 @@ const ReservasForm = () => {
                 }
             }
         };
+        
     
         fetchHorariosDisponibles();
     }, [profesional, fecha, duracionServicio]);

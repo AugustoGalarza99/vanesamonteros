@@ -20,36 +20,45 @@ const Caja = ({ uidPeluquero }) => {
   const [peluqueroSeleccionado, setPeluqueroSeleccionado] = useState(null); // Peluquero seleccionado
 
   // Obtener rol y datos del usuario (peluquero o administrador)
-  useEffect(() => {
-    const cargarUsuario = async () => {
-      try {
-        const peluqueroDoc = await getDoc(doc(db, "peluqueros", uidPeluquero));
-        if (peluqueroDoc.exists()) {
-          const datosPeluquero = peluqueroDoc.data();
-          setRolUsuario(datosPeluquero.rol || "peluquero"); // Establecer el rol
-          // Si es administrador, cargar la lista de peluqueros
-          if (datosPeluquero.rol === "administrador") {
-            const peluquerosSnapshot = await getDocs(collection(db, "peluqueros"));
-            const listaPeluqueros = peluquerosSnapshot.docs.map(doc => ({
-              id: doc.id,
-              ...doc.data(),
-            }));
-            setPeluqueros(listaPeluqueros);
-            setPeluqueroSeleccionado("admin"); // Establecer valor por defecto para el admin
-          } else {
-            setPeluqueroSeleccionado(uidPeluquero); // Si es peluquero, se selecciona su propio UID
-          }
-        } else {
-          console.error("No se encontró el peluquero en Firestore.");
-          setRolUsuario("peluquero"); // Rol por defecto si no se encuentra
-        }
-      } catch (error) {
-        console.error("Error cargando el peluquero:", error);
+// Obtener rol y datos del usuario (peluquero o administrador)
+useEffect(() => {
+  const cargarUsuario = async () => {
+    try {
+      // Verificar en la colección de peluqueros
+      const peluqueroDoc = await getDoc(doc(db, "peluqueros", uidPeluquero));
+      if (peluqueroDoc.exists()) {
+        const datosPeluquero = peluqueroDoc.data();
+        setRolUsuario(datosPeluquero.rol || "peluquero"); // Establecer el rol
+        setPeluqueroSeleccionado(uidPeluquero); // Si es peluquero, se selecciona su propio UID
+        return;
       }
-    };
 
-    cargarUsuario();
-  }, [uidPeluquero]);
+      // Si no es peluquero, verificar en la colección de administradores
+      const adminDoc = await getDoc(doc(db, "administradores", uidPeluquero));
+      if (adminDoc.exists()) {
+        const datosAdmin = adminDoc.data();
+        setRolUsuario(datosAdmin.rol || "administrador"); // Establecer el rol
+
+        // Si es administrador, cargar la lista de peluqueros
+        const peluquerosSnapshot = await getDocs(collection(db, "peluqueros"));
+        const listaPeluqueros = peluquerosSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setPeluqueros(listaPeluqueros);
+        setPeluqueroSeleccionado("admin"); // Establecer valor por defecto para el admin
+      } else {
+        console.error("No se encontró el usuario en ninguna colección.");
+        setRolUsuario("desconocido"); // Rol por defecto si no se encuentra
+      }
+    } catch (error) {
+      console.error("Error cargando el usuario:", error);
+    }
+  };
+
+  cargarUsuario();
+}, [uidPeluquero]);
+
 
   // Cargar datos financieros de Firebase para el peluquero seleccionado o todos si es admin
   useEffect(() => {
