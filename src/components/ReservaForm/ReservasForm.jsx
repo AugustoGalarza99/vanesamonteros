@@ -35,23 +35,28 @@ const ReservasForm = () => {
                 const peluquerosRef = collection(db, 'peluqueros');
                 const querySnapshot = await getDocs(peluquerosRef);
                 const peluquerosList = [];
-
+    
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     peluquerosList.push({ id: doc.id, nombre: data.nombre });
                 });
-
-                setPeluqueros(peluquerosList);
-                if (peluquerosList.length > 0) {
-                    setProfesional(peluquerosList[0].id); // Seleccionar el primer peluquero por defecto
+    
+                // Filtrar el peluquero que deseas excluir (por ejemplo, con un id específico)
+                const peluqueroAExcluir = 'sZqQh0TghhSJ0CXRHY81McaemGa2'; // Aquí reemplaza con el id del peluquero que deseas excluir
+                const peluquerosFiltrados = peluquerosList.filter(peluquero => peluquero.id !== peluqueroAExcluir);
+    
+                setPeluqueros(peluquerosFiltrados);
+                if (peluquerosFiltrados.length > 0) {
+                    setProfesional(peluquerosFiltrados[0].id); // Seleccionar el primer peluquero por defecto
                 }
             } catch (error) {
                 console.error('Error obteniendo peluqueros:', error);
             }
         };
-
+    
         fetchPeluqueros();
     }, []);
+    
 
     // Obtener servicios del profesional seleccionado
     useEffect(() => {
