@@ -7,15 +7,24 @@ import { limpiarReservasAntiguas } from '../../reservaService'
 import { es } from 'date-fns/locale';
 import Swal from 'sweetalert2';
 import './CalendarioPeluquero.css';
+import SelectorProfesionales from '../SelectorProfesionales/SelectorProfesionales';
 
 const CalendarioPeluquero = ({ uidPeluquero }) => {
   const [diasTrabajo, setDiasTrabajo] = useState([]);
   const [horariosTrabajo, setHorariosTrabajo] = useState({});
   const [reservas, setReservas] = useState([]);  // Almacenamiento local de reservas
+  const [horarios, setHorarios] = useState([]);
   const [fechaInicial, setFechaInicial] = useState(new Date());
   const [fechasSemana, setFechasSemana] = useState([]);
   const [rangoHorarioGlobal, setRangoHorarioGlobal] = useState({ startHour: 8, endHour: 21 });
   const [modoVista, setModoVista] = useState(1); // Por defecto, 7 días (semana)
+
+  const manejarReservasCargadas = (reservasCargadas) => {
+    setReservas(reservasCargadas);
+  };
+  const manejarHorariosCargados = (horariosCargados) => {
+    setHorarios(horariosCargados);
+  };
 
   // Carga los horarios del peluquero
   const fetchHorariosPeluquero = async () => {
@@ -24,7 +33,6 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
         console.error('uidPeluquero está indefinido');
         return;
       }
-
       console.log('Intentando cargar horarios desde Firebase...');
       const docRef = doc(db, 'horarios', uidPeluquero);
       const docSnap = await getDoc(docRef);
@@ -32,8 +40,7 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
 
       if (docSnap.exists()) {
         const horarioData = docSnap.data();
-        console.log('Horarios obtenidos:', horarioData);
-        
+        console.log('Horarios obtenidos:', horarioData);        
         const diasTrabajo = Object.keys(horarioData).filter(dia => horarioData[dia].isWorking);
         setDiasTrabajo(diasTrabajo);
         setHorariosTrabajo(horarioData);
@@ -48,36 +55,28 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
     // Nueva función para verificar si es el primer turno del día
   const verificarPrimerTurnoDelDia = async () => {
     const now = new Date();
-    const hoy = now.toISOString().split('T')[0]; // Fecha actual en formato "YYYY-MM-DD"
-  
-    // Buscar turnos con estado "en proceso" para el día de hoy
+    const hoy = now.toISOString().split('T')[0]; // Fecha actual en formato "YYYY-MM-DD"  
     const reservasRef = collection(db, 'reservas');
     const q = query(reservasRef, where('status', '==', 'en proceso'), where('fecha', '==', hoy));
-    const querySnapshot = await getDocs(q);
-  
-    // Si no hay turnos en proceso hoy, es el primer turno del día
+    const querySnapshot = await getDocs(q);  
     return querySnapshot.empty;
   };
 
   const calcularRangoHorarioGlobal = (horarioData) => {
     let startHourGlobal = 24; 
-    let endHourGlobal = 0; 
-
+    let endHourGlobal = 0;
     Object.keys(horarioData).forEach((dia) => {
       if (horarioData[dia].isWorking) {
         const { start1, end1, start2, end2 } = horarioData[dia];
         console.log(`Calculando rango global para ${dia}:`, { start1, end1, start2, end2 });
-
         startHourGlobal = Math.min(startHourGlobal, parseInt(start1));
         endHourGlobal = Math.max(endHourGlobal, parseInt(end1));
-
         if (start2 && end2) {
           startHourGlobal = Math.min(startHourGlobal, parseInt(start2));
           endHourGlobal = Math.max(endHourGlobal, parseInt(end2));
         }
       }
     });
-
     setRangoHorarioGlobal({ startHour: startHourGlobal, endHour: endHourGlobal });
     console.log('Rango horario global calculado:', { startHourGlobal, endHourGlobal });
   };
@@ -89,13 +88,11 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
         console.error('uidPeluquero está indefinido');
         return;
       }
-
       console.log('Intentando cargar reservas desde Firebase...');
       const reservasRef = collection(db, 'reservas');
       const q = query(reservasRef, where('uidPeluquero', '==', uidPeluquero));
       const querySnapshot = await getDocs(q);
       console.log('Consulta a Firebase: reservas');
-
       if (!querySnapshot.empty) {
         const reservasData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setReservas(reservasData);
@@ -107,7 +104,7 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
       console.error('Error obteniendo las reservas:', error);
     }
   };
-
+  
   // Calcular las fechas a mostrar (1 día, 3 días o 7 días)
   const calcularFechasSemana = () => {
     const fechas = [];
@@ -586,6 +583,10 @@ const finalizarTurno = async (reserva) => {
 
   return (
     <div className="calendario">
+      <SelectorProfesionales
+        onReservasCargadas={manejarReservasCargadas}
+        onHorariosCargados={manejarHorariosCargados}
+      />
       <div className='div-contenedor-calendar'>
         <div className="calendario-navigation">
           <button className='button-semana' onClick={() => setFechaInicial(prev => addDays(prev, -modoVista))}>
@@ -643,6 +644,8 @@ const finalizarTurno = async (reserva) => {
                   </div>
                 )
                 : null}
+                {renderHorariosDeTrabajo(fecha)}
+                {renderReservas(fecha)}
             </div>
           );
         })}
