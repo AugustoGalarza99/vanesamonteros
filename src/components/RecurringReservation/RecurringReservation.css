@@ -1,0 +1,60 @@
+.recurring-reservation {
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  h2 {
+    text-align: center;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+  
+  label {
+    margin: 10px 0 5px;
+  }
+  
+  input, select, button {
+    padding: 8px;
+    margin-bottom: 15px;
+    font-size: 16px;
+  }
+  
+  button {
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  
+  .turnos-list {
+    margin-top: 20px;
+  }
+  
+  .turno-item {
+    background-color: #f4f4f4;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  button {
+    background-color: #f44336;
+  }
+  
+  button:hover {
+    background-color: #d32f2f;
+  }
+  
