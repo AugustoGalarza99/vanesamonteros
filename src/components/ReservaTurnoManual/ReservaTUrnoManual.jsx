@@ -238,7 +238,7 @@ const handleAgendar = async (e) => {
 
         Swal.fire({
             title: 'Reserva registrada',
-            text: 'Tu reserva ha sido creada exitosamente, muchas gracias.',
+            html: 'Tu reserva ha sido creada exitosamente, muchas gracias. <br><br> <strong>IMPORTANTE:</strong> El turno puede verse modificado en +/- 15 minutos, en caso de serlo seras notificado. <br><br>Gracias por su comprensión',
             icon: 'success',
             background: 'black', 
             color: 'white', 

@@ -24,8 +24,8 @@ const ReservasForm = () => {
     const [horariosDisponibles, setHorariosDisponibles] = useState([]);
     const [duracionServicio, setDuracionServicio] = useState(0); // Para almacenar la duración del servicio
     const [codigoVerificacion, setCodigoVerificacion] = useState(''); // Estado para almacenar el código de verificación
-    const intervaloTurnos = horariosDisponibles.intervalo || 30;
     const [loading, setLoading] = useState(false);
+    const intervaloTurnos = horariosDisponibles.intervalo || 30;
     const navigate = useNavigate();
 
     // Obtener peluqueros al montar el componente
@@ -227,7 +227,7 @@ const ReservasForm = () => {
 
                             Swal.fire({
                                 title: 'Reserva registrada',
-                                text: 'Tu reserva ha sido creada exitosamente, muchas gracias.',
+                                html: 'Tu reserva ha sido creada exitosamente, muchas gracias. <br><br> <strong>IMPORTANTE:</strong> El turno puede verse modificado en +/- 15 minutos, en caso de serlo seras notificado. <br><br>Gracias por su comprensión',
                                 icon: 'success',
                                 background: 'black', 
                                 color: 'white', 
@@ -376,7 +376,7 @@ const ReservasForm = () => {
                     
                     Swal.fire({
                         title: 'Código verificado y reserva creada',
-                        text: 'Tu reserva ha sido creada exitosamente, muchas gracias.',
+                        html: 'Tu reserva ha sido creada exitosamente, muchas gracias. <br><br> <strong>IMPORTANTE:</strong> El turno puede verse modificado en +/- 15 minutos, en caso de serlo seras notificado. <br><br>Gracias por su comprensión',
                         icon: 'success',
                         background: 'black', // Fondo rojo claro
                         color: 'white', // Texto rojo oscuro

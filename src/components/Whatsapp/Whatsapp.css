@@ -1,0 +1,58 @@
+/* Estilos generales para el botón */
+.whatsapp-float {
+    position: fixed;
+    bottom: 70px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background-color: #25d366;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    z-index: 1000;
+    text-decoration: none;
+  }
+  
+  .whatsapp-float:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .whatsapp-icon {
+    width: 35px;
+    height: 35px;
+  }
+  
+  /* Estilos para pantallas mayores a 1000px */
+  @media (min-width: 1000px) {
+    .whatsapp-float {
+      bottom: 50px; /* Ajustar la posición */
+      right: 30px;   /* Ajustar la posición */
+      width: 70px;  /* Tamaño del botón más grande */
+      height: 70px;
+    }
+  
+    .whatsapp-icon {
+      width: 45px;  /* Icono más grande */
+      height: 45px;
+    }
+  }
+  
+  /* Estilos para pantallas menores a 1000px */
+  @media (max-width: 999px) {
+    .whatsapp-float {
+      bottom: 70px; /* Más cerca del borde */
+      right: 20px;   /* Más cerca del borde */
+      width: 50px;  /* Botón más pequeño */
+      height: 50px;
+    }
+  
+    .whatsapp-icon {
+      width: 30px;  /* Icono más pequeño */
+      height: 30px;
+    }
+  }
+  

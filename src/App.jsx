@@ -20,6 +20,7 @@ import './App.css';
 import Finanzas from './pages/Finanzas';
 import Productos from './pages/Productos';
 import Administracion from './pages/Administracion';
+import FloatingWhatsAppButton from './components/Whatsapp/Whatsapp';
 
 
 // Componentes simples para las páginas
@@ -70,6 +71,7 @@ function App() {
   return (
     <RoleProvider>
     <Router /*basename='/juan'*/>
+    <FloatingWhatsAppButton />
       <div className="app-layout">    
       <ResponsiveNavbar isPeluquero={isPeluquero} />
       <div className="app-content">
