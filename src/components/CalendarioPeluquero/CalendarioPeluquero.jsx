@@ -7,24 +7,15 @@ import { limpiarReservasAntiguas } from '../../reservaService'
 import { es } from 'date-fns/locale';
 import Swal from 'sweetalert2';
 import './CalendarioPeluquero.css';
-import SelectorProfesionales from '../SelectorProfesionales/SelectorProfesionales';
 
 const CalendarioPeluquero = ({ uidPeluquero }) => {
   const [diasTrabajo, setDiasTrabajo] = useState([]);
   const [horariosTrabajo, setHorariosTrabajo] = useState({});
   const [reservas, setReservas] = useState([]);  // Almacenamiento local de reservas
-  const [horarios, setHorarios] = useState([]);
   const [fechaInicial, setFechaInicial] = useState(new Date());
   const [fechasSemana, setFechasSemana] = useState([]);
   const [rangoHorarioGlobal, setRangoHorarioGlobal] = useState({ startHour: 8, endHour: 21 });
   const [modoVista, setModoVista] = useState(1); // Por defecto, 7 días (semana)
-
-  const manejarReservasCargadas = (reservasCargadas) => {
-    setReservas(reservasCargadas);
-  };
-  const manejarHorariosCargados = (horariosCargados) => {
-    setHorarios(horariosCargados);
-  };
 
   // Carga los horarios del peluquero
   const fetchHorariosPeluquero = async () => {
@@ -583,10 +574,6 @@ const finalizarTurno = async (reserva) => {
 
   return (
     <div className="calendario">
-      <SelectorProfesionales
-        onReservasCargadas={manejarReservasCargadas}
-        onHorariosCargados={manejarHorariosCargados}
-      />
       <div className='div-contenedor-calendar'>
         <div className="calendario-navigation">
           <button className='button-semana' onClick={() => setFechaInicial(prev => addDays(prev, -modoVista))}>
@@ -644,8 +631,6 @@ const finalizarTurno = async (reserva) => {
                   </div>
                 )
                 : null}
-                {renderHorariosDeTrabajo(fecha)}
-                {renderReservas(fecha)}
             </div>
           );
         })}
