@@ -101,20 +101,19 @@ const fetchHorariosDisponibles = async () => {
                 if (horariosDoc.exists()) {
                     const horariosData = horariosDoc.data();
 
-                    // Asegúrate de que el formato de la fecha sea correcto
-                    const selectedDate = new Date(`${fecha}T00:00:00Z`); // Fecha en UTC
+                    // Formato de fecha
+                    const selectedDate = new Date(`${fecha}T00:00:00Z`);
                     const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-                    const diaSeleccionado = selectedDate.getUTCDay(); // Día de la semana en UTC
-                    const dia = diasSemana[diaSeleccionado]; // Mapeo al nombre del día en español
+                    const diaSeleccionado = selectedDate.getUTCDay();
+                    const dia = diasSemana[diaSeleccionado];
 
                     const horariosDelDia = horariosData[dia];
 
                     if (horariosDelDia && horariosDelDia.isWorking) {
-                        const intervaloTurnos = horariosDelDia.intervalo || 30; // Leer el intervalo desde Firebase
-
+                        const intervaloTurnos = horariosDelDia.intervalo || 30;
                         const availableSlots = [];
 
-                        // Horarios de la mañana
+                        // Generar horarios de la mañana
                         const startHour1 = horariosDelDia.start1;
                         const endHour1 = horariosDelDia.end1;
                         let startTime = new Date(`1970-01-01T${startHour1}:00`);
@@ -123,10 +122,10 @@ const fetchHorariosDisponibles = async () => {
                         while (startTime < endTime) {
                             const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
                             availableSlots.push(slotTime);
-                            startTime.setMinutes(startTime.getMinutes() + intervaloTurnos); // Incrementa el intervalo leído desde Firebase
+                            startTime.setMinutes(startTime.getMinutes() + intervaloTurnos);
                         }
 
-                        // Horarios de la tarde
+                        // Generar horarios de la tarde
                         const startHour2 = horariosDelDia.start2;
                         const endHour2 = horariosDelDia.end2;
                         startTime = new Date(`1970-01-01T${startHour2}:00`);
@@ -135,34 +134,49 @@ const fetchHorariosDisponibles = async () => {
                         while (startTime < endTime) {
                             const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
                             availableSlots.push(slotTime);
-                            startTime.setMinutes(startTime.getMinutes() + intervaloTurnos); // Incrementa el intervalo leído desde Firebase
+                            startTime.setMinutes(startTime.getMinutes() + intervaloTurnos);
                         }
 
-                        // Filtrar horarios ocupados y solapados
+                        // Obtener turnos ocupados para la fecha y profesional
                         const reservasRef = collection(db, 'reservas');
                         const queryReservas = query(reservasRef, where('fecha', '==', fecha), where('uidPeluquero', '==', uidPeluquero));
                         const querySnapshot = await getDocs(queryReservas);
                         const ocupados = querySnapshot.docs.map(doc => {
                             const data = doc.data();
-                            return { 
-                                start: new Date(`${fecha}T${data.hora}`), 
-                                end: new Date(new Date(`${fecha}T${data.hora}`).getTime() + data.duracion * 60000) 
+                            return {
+                                start: new Date(`${fecha}T${data.hora}`),
+                                end: new Date(new Date(`${fecha}T${data.hora}`).getTime() + data.duracion * 60000),
                             };
                         });
 
+                        // Filtrar horarios disponibles sin solapamientos
                         const horariosFiltrados = availableSlots.filter(slot => {
                             const slotStartTime = new Date(`${fecha}T${slot}`);
                             const slotEndTime = new Date(slotStartTime.getTime() + duracionServicio * 60000);
 
-                            // Verifica que no haya solapamiento
                             return !ocupados.some(({ start, end }) => (
-                                (start < slotEndTime && end > slotStartTime) // Solapamiento
+                                start < slotEndTime && end > slotStartTime
                             ));
                         });
 
                         setHorariosDisponibles(horariosFiltrados);
                     } else {
-                        setHorariosDisponibles([]); // Si el peluquero no trabaja ese día
+                        // Mostrar días laborales en orden
+                        const diasSemanaOrdenados = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+                        const diasLaborales = diasSemanaOrdenados.filter(
+                            key => horariosData[key]?.isWorking
+                        );
+
+                        Swal.fire({
+                            title: 'Día no laboral',
+                            text: `El profesional no trabaja los ${dia}. Días laborales: ${diasLaborales.join(', ')}`,
+                            icon: 'error',
+                            background: 'black',
+                            color: 'white',
+                            confirmButtonText: 'Ok',
+                        });
+
+                        setHorariosDisponibles([]);
                     }
                 }
             }

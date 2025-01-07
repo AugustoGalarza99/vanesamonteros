@@ -258,7 +258,7 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
     const fechaTurno = new Date(reserva.fecha);
     const fechaLocal = new Date(fechaTurno.getTime() + (fechaTurno.getTimezoneOffset() * 60000)); 
   
-    const message = `Te recordamos que tienes tu turno el ${fechaLocal.toLocaleDateString()} a las ${reserva.hora} en nuestra peluquería.`;
+    const message = `Hola, te recordamos que tienes tu turno el ${fechaLocal.toLocaleDateString()} a las ${reserva.hora} en Monteros Vanesa Espacio. EN caso de no poder asistir por favor avisar.`;
     const phoneNumber = reserva.telefono; 
   
     if (phoneNumber) {
