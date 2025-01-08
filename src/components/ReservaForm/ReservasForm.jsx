@@ -99,53 +99,63 @@ const ReservasForm = () => {
                 try {
                     const peluqueroRef = doc(db, 'peluqueros', profesional);
                     const peluqueroDoc = await getDoc(peluqueroRef);
-
+        
                     if (peluqueroDoc.exists()) {
                         const peluqueroData = peluqueroDoc.data();
                         const uidPeluquero = peluqueroData.uid;
-
+        
                         const horariosRef = doc(db, 'horarios', uidPeluquero);
                         const horariosDoc = await getDoc(horariosRef);
-
+        
                         if (horariosDoc.exists()) {
                             const horariosData = horariosDoc.data();
-
+        
                             // Formato de fecha
                             const selectedDate = new Date(`${fecha}T00:00:00Z`);
                             const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
                             const diaSeleccionado = selectedDate.getUTCDay();
                             const dia = diasSemana[diaSeleccionado];
-
+        
                             const horariosDelDia = horariosData[dia];
-
+        
                             if (horariosDelDia && horariosDelDia.isWorking) {
                                 const intervaloTurnos = horariosDelDia.intervalo || 30;
                                 const availableSlots = [];
-
+        
                                 // Generar horarios de la mañana
                                 const startHour1 = horariosDelDia.start1;
                                 const endHour1 = horariosDelDia.end1;
                                 let startTime = new Date(`1970-01-01T${startHour1}:00`);
                                 let endTime = new Date(`1970-01-01T${endHour1}:00`);
-
+        
                                 while (startTime < endTime) {
                                     const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-                                    availableSlots.push(slotTime);
+                                    const slotEnd = new Date(startTime.getTime() + duracionServicio * 60000);
+        
+                                    // Excluir turnos que excedan el horario de cierre
+                                    if (slotEnd <= endTime) {
+                                        availableSlots.push(slotTime);
+                                    }
                                     startTime.setMinutes(startTime.getMinutes() + intervaloTurnos);
                                 }
-
+        
                                 // Generar horarios de la tarde
                                 const startHour2 = horariosDelDia.start2;
                                 const endHour2 = horariosDelDia.end2;
                                 startTime = new Date(`1970-01-01T${startHour2}:00`);
                                 endTime = new Date(`1970-01-01T${endHour2}:00`);
-
+        
                                 while (startTime < endTime) {
                                     const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-                                    availableSlots.push(slotTime);
+                                    const slotEnd = new Date(startTime.getTime() + duracionServicio * 60000);
+        
+                                    // Excluir turnos que excedan el horario de cierre
+                                    if (slotEnd <= endTime) {
+                                        availableSlots.push(slotTime);
+                                    }
                                     startTime.setMinutes(startTime.getMinutes() + intervaloTurnos);
                                 }
-
+        
                                 // Obtener turnos ocupados para la fecha y profesional
                                 const reservasRef = collection(db, 'reservas');
                                 const queryReservas = query(reservasRef, where('fecha', '==', fecha), where('uidPeluquero', '==', uidPeluquero));
@@ -157,17 +167,17 @@ const ReservasForm = () => {
                                         end: new Date(new Date(`${fecha}T${data.hora}`).getTime() + data.duracion * 60000),
                                     };
                                 });
-
+        
                                 // Filtrar horarios disponibles sin solapamientos
                                 const horariosFiltrados = availableSlots.filter(slot => {
                                     const slotStartTime = new Date(`${fecha}T${slot}`);
                                     const slotEndTime = new Date(slotStartTime.getTime() + duracionServicio * 60000);
-
+        
                                     return !ocupados.some(({ start, end }) => (
                                         start < slotEndTime && end > slotStartTime
                                     ));
                                 });
-
+        
                                 setHorariosDisponibles(horariosFiltrados);
                             } else {
                                 // Mostrar días laborales en orden
@@ -175,7 +185,7 @@ const ReservasForm = () => {
                                 const diasLaborales = diasSemanaOrdenados.filter(
                                     key => horariosData[key]?.isWorking
                                 );
-
+        
                                 Swal.fire({
                                     title: 'Día no laboral',
                                     text: `El profesional no trabaja los ${dia}. Días laborales: ${diasLaborales.join(', ')}`,
@@ -184,7 +194,7 @@ const ReservasForm = () => {
                                     color: 'white',
                                     confirmButtonText: 'Ok',
                                 });
-
+        
                                 setHorariosDisponibles([]);
                             }
                         }
@@ -194,6 +204,7 @@ const ReservasForm = () => {
                 }
             }
         };
+        
         
     
         fetchHorariosDisponibles();

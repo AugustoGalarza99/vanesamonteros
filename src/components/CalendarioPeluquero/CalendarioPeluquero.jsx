@@ -258,23 +258,34 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
     const fechaTurno = new Date(reserva.fecha);
     const fechaLocal = new Date(fechaTurno.getTime() + (fechaTurno.getTimezoneOffset() * 60000)); 
   
-    const message = `Hola, te recordamos que tienes tu turno el ${fechaLocal.toLocaleDateString()} a las ${reserva.hora} en Monteros Vanesa Espacio. EN caso de no poder asistir por favor avisar.`;
+    const message = `Hola! 👋
+Te esperamos para tu turno el 
+🗓 ${fechaLocal.toLocaleDateString()} a las ${reserva.hora} en Monteros Vanesa Espacio. 
+
+En caso de no poder asistir por favor avísanos 🙌🏽
+¡Gracias! ❤`;
+
     const phoneNumber = reserva.telefono; 
-  
+
     if (phoneNumber) {
-      const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-      window.open(whatsappURL, '_blank'); 
+        // Detecta si la aplicación de WhatsApp está instalada
+        const whatsappBaseURL = navigator.userAgent.includes('Windows') || navigator.userAgent.includes('Mac') 
+            ? 'https://web.whatsapp.com' // Usa WhatsApp Web si estás en PC
+            : 'https://api.whatsapp.com'; // Usa WhatsApp App si no se detecta escritorio
+
+        const whatsappURL = `${whatsappBaseURL}/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+        window.open(whatsappURL, '_blank'); 
     } else {
-      Swal.fire({
-          title: 'Error',
-          text: 'No se encontró el número de teléfono para el cliente',
-          icon: 'error',
-          background: 'black',
-          color: 'white',
-          confirmButtonText: 'Ok'
-      });
+        Swal.fire({
+            title: 'Error',
+            text: 'No se encontró el número de teléfono para el cliente',
+            icon: 'error',
+            background: 'black',
+            color: 'white',
+            confirmButtonText: 'Ok'
+        });
     }
-  };
+};
 
   const handleCancelTurn = async (reserva) => {
     Swal.fire({

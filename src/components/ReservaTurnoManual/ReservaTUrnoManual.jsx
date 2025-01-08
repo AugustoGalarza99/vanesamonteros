@@ -121,7 +121,12 @@ const fetchHorariosDisponibles = async () => {
 
                         while (startTime < endTime) {
                             const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-                            availableSlots.push(slotTime);
+                            const slotEnd = new Date(startTime.getTime() + duracionServicio * 60000);
+
+                            // Excluir turnos que excedan el horario de cierre
+                            if (slotEnd <= endTime) {
+                                availableSlots.push(slotTime);
+                            }
                             startTime.setMinutes(startTime.getMinutes() + intervaloTurnos);
                         }
 
@@ -133,7 +138,12 @@ const fetchHorariosDisponibles = async () => {
 
                         while (startTime < endTime) {
                             const slotTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-                            availableSlots.push(slotTime);
+                            const slotEnd = new Date(startTime.getTime() + duracionServicio * 60000);
+
+                            // Excluir turnos que excedan el horario de cierre
+                            if (slotEnd <= endTime) {
+                                availableSlots.push(slotTime);
+                            }
                             startTime.setMinutes(startTime.getMinutes() + intervaloTurnos);
                         }
 
@@ -185,6 +195,7 @@ const fetchHorariosDisponibles = async () => {
         }
     }
 };
+
 
 useEffect(() => {
     fetchHorariosDisponibles();
