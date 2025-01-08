@@ -1,0 +1,348 @@
+h3{
+    color: var(--color-letras);
+  }
+  .calendario {
+      display: flex;
+      flex-direction: column; 
+    }  
+    .calendario-navigation {
+      display: flex;
+      margin-bottom: 10px;
+      margin-right: 30px;
+    }  
+    .calendario-header {
+      display: flex;
+      justify-content: space-around;
+    }  
+    .calendario-grid {
+      display: flex;
+    }  
+    .calendario-column {
+      position: relative;
+      flex: 1;
+    }  
+    .horas-container {
+      position: relative;
+    }  
+    .calendario-hora {
+      height: 69px; /* Ajusta según lo necesites */
+      color: black;
+    }
+    .calendario-hora.descanso{
+      background-color: rgb(70, 69, 69);
+    } 
+    .calendario-hora.trabajando{
+      display: flex;
+      justify-content: center; /* Centra horizontalmente */
+      align-items: center;     /* Centra verticalmente */
+    } 
+    .espacio-en-blanco {
+      background-color: transparent; /* O el color que desees para los espacios en blanco */
+      height: 30px; /* Asegúrate de que tenga la misma altura que las franjas horarias */
+      color: transparent; /* Ocultar el texto si no lo necesitas */
+    }
+    /* Contenedor del calendario */
+  .calendario-contenedor {
+      position: relative;
+      width: 100%;
+      max-width: 700px; /* Ajusta esto si necesitas más ancho para el calendario */
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 50px); /* Cada celda será de 50px de ancho */
+      grid-auto-rows: 50px; /* Cada celda será de 50px de alto por 30 minutos */
+      border: 1px solid #ccc;
+    }  
+    /* Estilo para cada celda de hora */
+    .calendario-hora {
+      border-bottom: 1px solid black;
+      border-right: 1px solid black;
+      position: relative;
+      text-align: center;
+      background-color: #fee0c4; /* Color de fondo para las horas */
+      font-size: 12px; /* Ajusta el tamaño del texto si es necesario */
+    }  
+    /* Estilo para los eventos */
+    .reserva {
+      text-align: center;
+      position: absolute;
+      width: 100%; /* El evento cubre todo el ancho de la celda */
+      max-width: 100%; /* Máximo ancho de 50px para cada evento */
+      background-color: #f50505; /* Color de fondo del evento */
+      color: white;
+      box-sizing: border-box;
+      font-size: 12px; /* Ajusta el tamaño de texto del evento */
+      border: 1px solid black;
+      cursor: pointer;
+    }  
+    /* Estilo para los estados de las reservas */
+    .reserva-pendiente {
+      display: flex;
+      justify-content: center;
+      background-color: #f50505; /* Color de fondo del evento */
+      text-align: center;
+      position: absolute;
+      width: 100%; /* El evento cubre todo el ancho de la celda */
+      max-width: 100%; /* Máximo ancho de 50px para cada evento */
+      color: white;
+      padding: 5px;
+      box-sizing: border-box;
+      font-size: 12px; /* Ajusta el tamaño de texto del evento */   
+      border: 1px solid black;
+      cursor: pointer;
+    }  
+    .reserva-en-proceso {
+      display: flex;
+      justify-content: center;
+      background-color: #ff9800;    
+      text-align: center;
+      position: absolute;
+      width: 100%; /* El evento cubre todo el ancho de la celda */
+      max-width: 100%; /* Máximo ancho de 50px para cada evento */
+      color: white;
+      box-sizing: border-box;
+      font-size: 12px; /* Ajusta el tamaño de texto del evento */
+      border: 1px solid black;
+      cursor: pointer;
+    }  
+    .reserva-finalizada {
+      display: flex;
+      justify-content: center;
+      text-align: center;
+      position: absolute;
+      width: 100%; /* El evento cubre todo el ancho de la celda */
+      max-width: 100%; /* Máximo ancho de 50px para cada evento */
+      background-color: #4caf50;
+      color: white;
+      box-sizing: border-box;
+      font-size: 12px; /* Ajusta el tamaño de texto del evento */
+      border: 1px solid black;
+      cursor: pointer;
+    }
+    .calendario-navigation{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .button-semana{
+      margin-top: 10px;
+      width: 100%;
+      margin-left: 10px;
+      position: relative;
+      display: inline-block;
+      background: var(--color-boton);
+      color: var(--color-letras-boton);
+      font-family: var(--font);
+      font-weight: bold;
+      font-size: 16px;
+      border: none;
+      border-radius: 30px;
+      padding: 10px;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      animation: button-shimmer 2s infinite;
+      transition: all 0.3s ease-in-out;
+    }
+    .calendario-dia{
+      color: var(--color-letras);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .div-dia{
+      display: flex;
+      justify-content: center;
+      text-align: center;
+    }
+    .button-semana:hover {
+      background: var(--color-boton);
+      animation: button-particles 1s ease-in-out infinite;
+      transform: translateY(-2px);
+    }
+    .button-semana:active {
+      transform: scale(0.95);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    @keyframes button-shimmer {
+      0% {
+        background-position: left top;
+      }
+      100% {
+        background-position: right bottom;
+      }
+    }
+    @keyframes button-particles {
+      0% {
+        background-position: left top;
+      }
+    
+      100% {
+        background-position: right bottom;
+      }
+    }
+      .text{
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: var(--font);
+      }
+      .calendario-view-buttons{
+        display: flex;
+      }
+      .div-contenedor-calendar{
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+      }
+      .button-dias{
+        margin-top: 10px;  
+        margin-left: 10px;
+        position: relative;
+        display: inline-block;
+        background: var(--color-boton);
+        color: var(--color-letras-boton);
+        font-family: var(--font);
+        font-weight: bold;
+        font-size: 16px;
+        border: none;
+        border-radius: 30px;
+        padding: 10px;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        animation: button-shimmer 2s infinite;
+        transition: all 0.3s ease-in-out;
+      }
+      .btn-info{
+        background-color: yellow;
+        color: black;
+        padding: 10px 15px;
+        border: 0;
+        border-radius: .25em;
+        font-size: 1em;
+        margin-bottom: 20px;
+      }
+      .btn-cambio{
+        background-color: rgb(11, 230, 128);
+        color: black;
+        padding: 10px 15px;
+        border: 0;
+        border-radius: .25em;
+        font-size: 1em;
+      }
+      /*VISTA MOBILE -350px*/
+      @media (min-width: 150px) {
+        .button-semana{
+          font-size: 12px;
+        }
+        .button-dias{
+          font-size: 12px;
+          }
+        .button-codigo{
+            font-size: 12px;
+        }
+        .calendario-header{
+          display: flex;
+          justify-content: space-around;
+          text-align: center;
+        }
+        .calendario-dia{
+          display: flex;
+          font-size: 14px;
+          align-items: center;
+          justify-content: space-around;
+        }
+        .text{
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        .swal2-title{
+          font-size: 20px;
+        }
+        }
+      /*VISTA MOBILE*/
+      @media (min-width: 450px) {
+        .button-semana{
+          font-size: 14px;
+        }
+        .button-dias{
+          font-size: 14px;
+          }
+        .button-codigo{
+            font-size: 14px;
+        }
+        .calendario-header{
+          display: flex;
+          justify-content: space-around;
+          text-align: center;
+        }
+        .calendario-dia{
+          display: flex;
+          font-size: 14px;
+          align-items: center;
+          justify-content: space-around;
+        }
+        .text{
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 14px;
+        }
+        .swal2-title{
+          font-size: 20px;
+          .label-edit{
+            font-size: 10px;
+          }
+        }
+        }
+  
+        .vista-dia .calendario-dia {
+          font-size: 20px; /* Tamaño más grande para un solo día */
+        }
+        
+        .vista-tres .calendario-dia {
+          font-size: 15px; /* Tamaño medio para tres días */
+        }
+        
+        .vista-semana .calendario-dia {
+          font-size: 10px; /* Tamaño más pequeño para toda la semana */
+        }
+        .vista-dia .text {
+          font-size: 14px; /* Más grande para un solo día */
+        }
+        
+        .vista-tres .text {
+          font-size: 10px; /* Tamaño medio para tres días */
+        }
+        
+        .vista-semana .text {
+          font-size: 6px; /* Tamaño más pequeño para toda la semana */
+        }
+        
+      .button-oculto {
+          display: none;
+      }
+  
+      /* Mostrar el botón solo si la resolución es mayor a 1024px */
+      @media (min-width: 1024px) {
+          .button-oculto {
+            margin-top: 10px;  
+            margin-left: 10px;
+            position: relative;
+            display: inline-block;
+            background: var(--color-boton);
+            color: var(--color-letras-boton);
+            font-family: var(--font);
+            font-weight: bold;
+            font-size: 16px;
+            border: none;
+            border-radius: 30px;
+            padding: 10px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: button-shimmer 2s infinite;
+            transition: all 0.3s ease-in-out;
+          }
+      }
+        
