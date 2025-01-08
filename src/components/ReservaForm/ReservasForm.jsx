@@ -187,8 +187,8 @@ const ReservasForm = () => {
                                 );
         
                                 Swal.fire({
-                                    title: 'Día no laboral',
-                                    text: `El profesional no trabaja los ${dia}. Días laborales: ${diasLaborales.join(', ')}`,
+                                    title: 'DIA NO LABORAL',
+                                    text: `ESTA PROFESIONAL ATIENDE LOS DIAS: ${diasLaborales.map(d => d.toUpperCase()).join(', ')}.`,
                                     icon: 'error',
                                     background: 'black',
                                     color: 'white',
