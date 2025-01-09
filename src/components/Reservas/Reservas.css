@@ -1,0 +1,42 @@
+.reservas-container {
+    width: 90%; /* Ancho del 90% */
+    margin: 0 auto; /* Centrado horizontal */
+    display: flex; /* Opcional: Configura el display */
+    flex-direction: column; /* Asegura que los elementos se apilen verticalmente */
+    align-items: center; /* Centra los elementos hijos horizontalmente (opcional) */
+}
+.button-acciones {
+    position: relative !important;
+    display: inline-block !important;
+    background: var(--color-boton) !important;
+    color: var(--color-letras-boton) !important;
+    font-family: "Segoe UI", sans-serif !important;
+    font-weight: bold !important;
+    font-size: 12px !important;
+    border: none !important;
+    border-radius: 30px !important;
+    cursor: pointer !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
+    animation: button-shimmer 2s infinite !important;
+    transition: all 0.3s ease-in-out;
+}  
+.button-acciones:hover {
+    background: var(--color-boton);
+    animation: button-particles 1s ease-in-out infinite;
+    transform: translateY(-2px);
+}
+.button-acciones:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+.custom-table th,
+.custom-table td {
+  font-size: 14px; /* Tamaño predeterminado para pantallas grandes */
+}
+
+@media (max-width: 1000px) {
+  .custom-table th,
+  .custom-table td {
+    font-size: 12px; /* Ajuste para pantallas medianas (tablets) */
+  }
+}

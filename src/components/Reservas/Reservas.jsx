@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../firebaseConfig";
-import { Table, TableHead, TableRow, TableCell, TableBody, MenuItem, Select, InputLabel, FormControl, Button } from "@mui/material";
-import { collection, getDocs, doc, getDoc, updateDoc } from "firebase/firestore";
+import { Table, TableHead, TableRow, TableCell, TableBody, MenuItem, Select, InputLabel, FormControl, Button, TableContainer, Paper } from "@mui/material";
+import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import Swal from "sweetalert2";
 import "./Reservas.css";
 
@@ -301,6 +301,50 @@ const actualizarEstadoTurno = async (reservaId, nuevoEstado) => {
     console.error("Error actualizando el estado del turno:", error);
   }
 };
+const handleCancelTurn = async (reserva) => {
+  Swal.fire({
+      title: '¿Estás seguro?',
+      text: '¿Estás seguro de que deseas cancelar esta reserva?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, cancelar',
+      cancelButtonText: 'No, mantener',
+      background: 'black',
+      color: 'white'
+  }).then(async (result) => {
+      if (result.isConfirmed) {
+          try {
+              const reservaId = reserva.id;
+              const reservaRef = doc(db, 'reservas', reservaId);
+              await deleteDoc(reservaRef);
+
+              // Actualizar estado local
+              setReservasFiltradas((prevReservas) =>
+                  prevReservas.filter((item) => item.id !== reservaId)
+              );
+
+              Swal.fire({
+                  title: 'Turno Cancelado',
+                  text: 'El turno ha sido cancelado y eliminado.',
+                  icon: 'success',
+                  background: 'black',
+                  color: 'white',
+                  confirmButtonText: 'Ok'
+              });
+          } catch (error) {
+              console.error('Error al cancelar el turno:', error);
+              Swal.fire({
+                  title: 'Error',
+                  text: 'Hubo un problema al cancelar el turno.',
+                  icon: 'error',
+                  background: 'black',
+                  color: 'white',
+                  confirmButtonText: 'Ok'
+              });
+          }
+      }
+  });
+};
 
 
   const manejarClickReserva = (reserva) => {
@@ -434,11 +478,13 @@ const actualizarEstadoTurno = async (reservaId, nuevoEstado) => {
 
   return (
     <div className="reservas-container">
-      <h1>Gestión de Reservas</h1>
+      <div>
+      <h3>Gestión de Reservas</h3>
+      </div>
 
       {rolUsuario === "administrador" && peluqueros.length > 0 && (
         <FormControl fullWidth>
-          <InputLabel id="select-peluquero-label">Seleccionar Profesional</InputLabel>
+          <InputLabel id="select-peluquero-label"></InputLabel>
           <Select
             labelId="select-peluquero-label"
             value={peluqueroSeleccionado}
@@ -453,8 +499,8 @@ const actualizarEstadoTurno = async (reservaId, nuevoEstado) => {
           </Select>
         </FormControl>
       )}
-
-      <Table>
+    <TableContainer component={Paper}>
+      <Table className="custom-table">
         <TableHead>
           <TableRow>
             <TableCell>Fecha</TableCell>
@@ -481,8 +527,8 @@ const actualizarEstadoTurno = async (reservaId, nuevoEstado) => {
                 <TableCell>{reserva.status}</TableCell> 
                 <TableCell>
                   <Button
-                    variant="outlined"
-                    color="primary"
+                    className="button-acciones"
+                    variant="outlined"                    
                     onClick={() => manejarClickReserva(reserva)}
                   >
                     Acciones
@@ -492,6 +538,7 @@ const actualizarEstadoTurno = async (reservaId, nuevoEstado) => {
             ))}
         </TableBody>
       </Table>
+      </TableContainer>
     </div>
   );
 };

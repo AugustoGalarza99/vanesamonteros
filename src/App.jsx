@@ -89,7 +89,7 @@ function App() {
           <Route path="/horarios" element={<ProtectedRoute requiredRole="peluquero"><Horarios /></ProtectedRoute>} />
           <Route path="/servicios" element={<ProtectedRoute requiredRole="peluquero"><Servicios /></ProtectedRoute>} />
           <Route path="/administracion" element={<ProtectedRoute requiredRole={["administrador", "peluquero"]}><Administracion /></ProtectedRoute>} />
-          <Route path="/turnos" element={<ProtectedRoute requiredRole="administrador"><Turnos /></ProtectedRoute>} />
+          <Route path="/gestionreservas" element={<ProtectedRoute requiredRole="administrador"><Turnos /></ProtectedRoute>} />
 
           {/* Si el usuario intenta ir a una ruta que no existe */}
           <Route path="*" element={<NotFound />} />

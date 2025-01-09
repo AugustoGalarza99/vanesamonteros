@@ -4,7 +4,7 @@ import { auth, db } from '../../firebaseConfig';
 import { getDoc, doc } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import './BottomNavbar.css';
-import { FiHome, FiUser, FiMoreVertical, FiInfo, FiClock, FiXCircle, FiClipboard, FiBriefcase, FiPieChart, FiShoppingCart } from 'react-icons/fi';
+import { FiHome, FiUser, FiMoreVertical, FiInfo, FiClock, FiXCircle, FiClipboard, FiBriefcase, FiPieChart, FiShoppingCart, FiTool } from 'react-icons/fi';
 import { RxCalendar } from "react-icons/rx";
 
 function BottomNavbar({ isPeluquero }) {
@@ -67,6 +67,7 @@ function BottomNavbar({ isPeluquero }) {
                 <li><Link to="/reservamanual" onClick={() => setIsMenuOpen(false)}> <RxCalendar size={16} /> Reserva manual</Link></li>
                 <li><Link to="/finanzas" onClick={() => setIsMenuOpen(false)}> <FiPieChart size={16} /> Finanzas</Link></li>
                 <li><Link to="/administracion" onClick={() => setIsMenuOpen(false)}> <FiUser size={16} /> Administracion</Link></li>
+                <li><Link to="/gestionreservas" onClick={() => setIsMenuOpen(false)}> <FiTool size={16} /> Gestion reservas</Link></li>
               </>
             )}
             <li><a onClick={() => { auth.signOut(); setIsMenuOpen(false); }}> <FiXCircle size={16} /> Cerrar Sesión</a></li>
