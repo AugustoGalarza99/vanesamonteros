@@ -40,6 +40,7 @@ function DesktopNavbar({ isPeluquero }) {
             <li><Link to="/reservamanual"><RxCalendar size={24} /> Reserva manual</Link></li>
             <li><Link to="/finanzas"><FiPieChart size={24} /> Finanzas</Link></li>
             <li><Link to="/administracion"><FiUser size={24} /> Administracion</Link></li>
+            <li><Link to="/turnos"><FiUser size={24} /> Turnos</Link></li>
           </>
         )}
         {user ? (
