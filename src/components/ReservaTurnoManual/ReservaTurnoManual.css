@@ -351,19 +351,25 @@
   justify-content: center;
   align-items: center;
 }
-.punk-checkbox {
+.div-recurrencia{
+  margin-bottom: 50px;
+}
+/* From Uiverse.io by adamgiebl */ 
+.cyberpunk-checkbox2 {
   appearance: none;
-  width: 20px;
-  height: 20px;
-  border: 2px solid white;
+  width: 15px;
+  height: 15px;
+  border: 2px solid black;
   border-radius: 5px;
+  margin-top: 15px;
+  margin-right: 10px;
   background-color: transparent;
   display: inline-block;
   position: relative;   
   cursor: pointer;
-  margin-left: 20px;
 }
-.punk-checkbox:before {
+
+.cyberpunk-checkbox2:before {
   content: "";
   background-color: green;
   display: block;
@@ -376,8 +382,7 @@
   border-radius: 3px;
   transition: all 0.3s ease-in-out;
 }
-.punk-checkbox:checked:before {
+
+.cyberpunk-checkbox2:checked:before {
   transform: translate(-50%, -50%) scale(1);
 }
-
-

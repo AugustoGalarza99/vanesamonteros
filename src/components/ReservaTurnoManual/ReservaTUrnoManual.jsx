@@ -24,6 +24,10 @@ const ReservaTurnoManual = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
+        // Nuevos estados para recurrencia
+        const [esRecurrente, setEsRecurrente] = useState(false);
+        const [intervaloRecurrencia, setIntervaloRecurrencia] = useState(7);
+
     // Obtener peluqueros al montar el componente
     useEffect(() => {
         const fetchPeluqueros = async () => {
@@ -82,6 +86,43 @@ const ReservaTurnoManual = () => {
 
         fetchServicios();
     }, [profesional]); // Este efecto se ejecuta cada vez que cambia el valor de 'profesional'
+
+    const obtenerFechaActual = () => {
+        const hoy = new Date();
+        return hoy.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+    };
+    const obtenerFechaMaxima = () => {
+        const hoy = new Date();
+        const fechaMaxima = new Date(hoy);
+        fechaMaxima.setDate(hoy.getDate() + 60); // Sumar 60 días
+        return fechaMaxima.toISOString().split('T')[0];
+    };
+    const filtrarHorariosDelDia = (fechaSeleccionada) => {
+        const ahora = new Date();
+        const fechaSeleccionadaObj = new Date(`${fechaSeleccionada}T00:00:00`);
+        
+        return horariosDisponibles.filter(horario => {
+            const [horas, minutos] = horario.split(':').map(Number);
+            const horaTurno = new Date(fechaSeleccionadaObj.getFullYear(), fechaSeleccionadaObj.getMonth(), fechaSeleccionadaObj.getDate(), horas, minutos);
+    
+            // Si es el día actual, solo mostrar horarios futuros
+            if (fechaSeleccionadaObj.toDateString() === ahora.toDateString()) {
+                return horaTurno > ahora;
+            }
+    
+            // Si no es el día actual, mostrar todos los horarios
+            return true;
+        });
+    };
+    
+    
+
+    useEffect(() => {
+        if (fecha) {
+            const horariosFiltrados = filtrarHorariosDelDia(fecha);
+            setHorariosDisponibles(horariosFiltrados);
+        }
+    }, [fecha]); // Solo ejecuta el efecto cuando cambia `fecha`
 
 
 // Obtener horarios disponibles del peluquero seleccionado y la fecha
@@ -245,34 +286,50 @@ const handleAgendar = async (e) => {
     }
 
     try {
-        // Guardar la reserva en Firestore
-        const reservasRef = collection(db, 'reservas');
-        await addDoc(reservasRef, {
-            nombre,
-            apellido,
-            dni: dni || null, // Guardar el DNI solo si se proporcionó
-            telefono,
-            servicio,
-            fecha,
-            hora, // Se guarda en formato 24 horas
-            duracion: duracionServicio,
-            uidPeluquero: profesional,
-            costoServicio,
-            status: 'Sin realizar' // Establecer el estado de la reserva
-        });
+        const reservas = [];
+        let currentFecha = new Date(`${fecha}T${hora}`);
+
+        for (let i = 0; i < (esRecurrente ? 10 : 1); i++) {
+            reservas.push({
+                nombre,
+                apellido,
+                dni: dni || null,
+                telefono,
+                servicio,
+                fecha: currentFecha.toISOString().split('T')[0],
+                hora: currentFecha.toTimeString().split(' ')[0].slice(0, 5),
+                duracion: duracionServicio,
+                uidPeluquero: profesional,
+                costoServicio,
+                status: 'Sin realizar',
+                recurrente: esRecurrente,
+                intervaloRecurrencia: esRecurrente ? intervaloRecurrencia : null,
+            });
+
+            if (esRecurrente) {
+                currentFecha.setDate(currentFecha.getDate() + intervaloRecurrencia);
+            }
+        }
+
+        for (const reserva of reservas) {
+            await addDoc(collection(db, 'reservas'), reserva);
+        }
 
         Swal.fire({
             title: 'Reserva registrada',
-            html: 'Tu reserva ha sido creada exitosamente, muchas gracias. <br><br> <strong>IMPORTANTE:</strong> El turno puede verse modificado en +/- 15 minutos, en caso de serlo seras notificado. <br><br>Gracias por su comprensión',
+            text: esRecurrente
+                ? 'Tus reservas recurrentes han sido creadas exitosamente.'
+                : 'Tu reserva ha sido creada exitosamente.',
             icon: 'success',
-            background: 'black', 
-            color: 'white', 
-            confirmButtonText: 'Ok'
+            background: 'black',
+            color: 'white',
+            confirmButtonText: 'Ok',
         });
-        navigate('/agenda'); // Redirigir al inicio o a otra página después de crear la reserva
+
+        navigate('/agenda');
     } catch (error) {
         console.error('Error al crear la reserva:', error);
-    } finally{
+    } finally {
         setLoading(false);
     }
 };
@@ -356,6 +413,8 @@ const handleAgendar = async (e) => {
                         type="date"
                         value={fecha}
                         onChange={(e) => setFecha(e.target.value)}
+                        min={obtenerFechaActual()}
+                        max={obtenerFechaMaxima()}
                         required
                     />
                 </div>
@@ -373,6 +432,32 @@ const handleAgendar = async (e) => {
                             <option key={h} value={h}>{h}</option>
                         ))}
                     </select>
+                    <div className='div-recurrencia'>
+                <label>
+                    <input
+                        type="checkbox"
+                        className="cyberpunk-checkbox2"
+                        checked={esRecurrente}
+                        onChange={(e) => setEsRecurrente(e.target.checked)}
+                    />
+                    Turno recurrente
+                </label>
+
+                {esRecurrente && (
+                    <div>
+                        <label>Repetir cada:</label>
+                        <select
+                        className='select-seccion2'
+                            value={intervaloRecurrencia}
+                            onChange={(e) => setIntervaloRecurrencia(Number(e.target.value))}
+                        >
+                            <option value={7}>7 días</option>
+                            <option value={14}>14 días</option>
+                            <option value={21}>21 días</option>
+                        </select>
+                    </div>
+                )}
+            </div>
 
                 </div>
                 <div className='div-button'>

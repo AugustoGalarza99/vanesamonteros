@@ -92,6 +92,42 @@ const ReservasForm = () => {
         fetchServicios();
     }, [profesional]); // Este efecto se ejecuta cada vez que cambia el valor de 'profesional'
 
+        const obtenerFechaActual = () => {
+            const hoy = new Date();
+            return hoy.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+        };
+        const obtenerFechaMaxima = () => {
+            const hoy = new Date();
+            const fechaMaxima = new Date(hoy);
+            fechaMaxima.setDate(hoy.getDate() + 60); // Sumar 60 días
+            return fechaMaxima.toISOString().split('T')[0];
+        };
+        const filtrarHorariosDelDia = (fechaSeleccionada) => {
+            const ahora = new Date();
+            const fechaSeleccionadaObj = new Date(`${fechaSeleccionada}T00:00:00`);
+            
+            return horariosDisponibles.filter(horario => {
+                const [horas, minutos] = horario.split(':').map(Number);
+                const horaTurno = new Date(fechaSeleccionadaObj.getFullYear(), fechaSeleccionadaObj.getMonth(), fechaSeleccionadaObj.getDate(), horas, minutos);
+        
+                // Si es el día actual, solo mostrar horarios futuros
+                if (fechaSeleccionadaObj.toDateString() === ahora.toDateString()) {
+                    return horaTurno > ahora;
+                }
+        
+                // Si no es el día actual, mostrar todos los horarios
+                return true;
+            });
+        };
+        
+        
+    
+        useEffect(() => {
+            if (fecha) {
+                const horariosFiltrados = filtrarHorariosDelDia(fecha);
+                setHorariosDisponibles(horariosFiltrados);
+            }
+        }, [fecha]); // Solo ejecuta el efecto cuando cambia `fecha`
 
     useEffect(() => {
         const fetchHorariosDisponibles = async () => {
@@ -548,6 +584,8 @@ const ReservasForm = () => {
                         type="date"
                         value={fecha}
                         onChange={(e) => setFecha(e.target.value)}
+                        min={obtenerFechaActual()}
+                        max={obtenerFechaMaxima()}
                         required
                     />
                 </div>
