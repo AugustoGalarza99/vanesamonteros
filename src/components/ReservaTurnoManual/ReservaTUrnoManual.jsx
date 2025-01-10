@@ -258,7 +258,7 @@ const handleAgendar = async (e) => {
             duracion: duracionServicio,
             uidPeluquero: profesional,
             costoServicio,
-            status: 'Pendiente' // Establecer el estado de la reserva
+            status: 'Sin realizar' // Establecer el estado de la reserva
         });
 
         Swal.fire({

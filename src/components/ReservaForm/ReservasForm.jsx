@@ -247,7 +247,7 @@ const ReservasForm = () => {
                                 duracion: duracionServicio, // Guarda la duración
                                 horaFin: endTime.toISOString(), // Guarda la hora de fin
                                 uidPeluquero: profesional, // Registrar el UID del peluquero seleccionado
-                                status: 'Pendiente' // Establecer el estado de la reserva
+                                status: 'Sin realizar' // Establecer el estado de la reserva
                             });
 
                             Swal.fire({
@@ -466,7 +466,7 @@ const ReservasForm = () => {
                 duracion: duracionServicio, // Guarda la duración
                 horaFin: endTime.toISOString(), // Guarda la hora de fin
                 uidPeluquero: profesional, // Registrar el UID del peluquero seleccionado
-                status: 'Pendiente' // Establecer el estado de la reserva
+                status: 'Sin realizar' // Establecer el estado de la reserva
             });
     
             console.log('Reserva creada con éxito');

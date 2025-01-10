@@ -212,7 +212,7 @@ const CalendarioPeluquero = ({ uidPeluquero }) => {
 
         let estiloReserva = '';
         switch (status) {
-          case 'Pendiente':
+          case 'Sin realizar':
             estiloReserva = 'reserva-pendiente';
             break;
           case 'en proceso':
@@ -457,9 +457,9 @@ const finalizarTurno = async (reserva) => {
   const manejarClickReserva = (reserva) => {
     const { status, id, duracion, horaInicio, fecha, telefono } = reserva;
   
-    if (status === 'Pendiente') {
+    if (status === 'Sin realizar') {
       Swal.fire({
-        title: 'Turno Pendiente',
+        title: 'Turno sin realizar',
         text: '¿Qué acción desea realizar?',
         icon: 'question',
         showCancelButton: true,
