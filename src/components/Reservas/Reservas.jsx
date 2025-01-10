@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../firebaseConfig";
-import { Table, TableHead, TableRow, TableCell, TableBody, MenuItem, Select, InputLabel, FormControl, Button, TableContainer, Paper } from "@mui/material";
+import { Table, TableHead, TableRow, TableCell, TableBody, MenuItem, Select, InputLabel, FormControl, Button, TableContainer, Paper, TextField } from "@mui/material";
 import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import Swal from "sweetalert2";
 import "./Reservas.css";
@@ -12,6 +12,7 @@ const Reservas = ({ uidPeluquero }) => {
   const [reservas, setReservas] = useState([]);
   const [reservasFiltradas, setReservasFiltradas] = useState([]);
   const [reservasLocal, setReservasLocal] = useState([]);
+  const [fechaSeleccionada, setFechaSeleccionada] = useState(""); // Nueva fecha seleccionada
 
   const obtenerNombreProfesional = async (uid) => {
     console.log(`Consultando nombre del profesional con UID: ${uid}`);
@@ -67,6 +68,29 @@ const Reservas = ({ uidPeluquero }) => {
 
     cargarUsuario();
   }, [uidPeluquero]);
+
+    // Filtrar reservas cuando cambia la fecha seleccionada
+    useEffect(() => {
+      if (fechaSeleccionada) {
+        const reservasFiltradas = reservas.filter(
+          (reserva) => reserva.fecha === fechaSeleccionada
+        );
+        setReservasFiltradas(reservasFiltradas);
+      } else {
+        setReservasFiltradas(reservas);
+      }
+    }, [fechaSeleccionada, reservas]);
+  
+    const manejarCambioFecha = (event) => {
+      setFechaSeleccionada(event.target.value);
+    };
+  
+// Función para formatear fechas
+const formatearFecha = (fecha) => {
+  const partes = fecha.split("-"); // Divide la fecha en partes
+  return `${partes[2]}-${partes[1]}-${partes[0]}`; // Reorganiza como dd-mm-yyyy
+};
+
 
   useEffect(() => {
     const cargarReservas = async () => {
@@ -481,8 +505,10 @@ const handleCancelTurn = async (reserva) => {
       <div>
       <h3>Gestión de Reservas</h3>
       </div>
-
+      <div className="div-control">
       {rolUsuario === "administrador" && peluqueros.length > 0 && (
+        <>
+        <div>
         <FormControl fullWidth>
           <InputLabel id="select-peluquero-label"></InputLabel>
           <Select
@@ -497,8 +523,22 @@ const handleCancelTurn = async (reserva) => {
               </MenuItem>
             ))}
           </Select>
+          
         </FormControl>
+        </div>
+        <div>
+        <TextField
+            type="date"
+            label="Seleccionar Fecha"
+            value={fechaSeleccionada}
+            onChange={manejarCambioFecha}
+            InputLabelProps={{ shrink: true }}
+            style={{ marginBottom: "20px" }}
+          />
+          </div>
+          </>
       )}
+      </div>
     <TableContainer component={Paper}>
       <Table className="custom-table">
         <TableHead>
@@ -518,7 +558,7 @@ const handleCancelTurn = async (reserva) => {
             .filter((reserva) => reserva.status !== "finalizado") // Filtrar turnos finalizados
             .map((reserva) => (
               <TableRow key={reserva.id}>
-                <TableCell>{reserva.fecha}</TableCell>
+                <TableCell>{formatearFecha(reserva.fecha)}</TableCell>
                 <TableCell>{reserva.hora}</TableCell>
                 <TableCell>{reserva.horaFin}</TableCell>
                 <TableCell>{`${reserva.nombre} ${reserva.apellido}`}</TableCell>
