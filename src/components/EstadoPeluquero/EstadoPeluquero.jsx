@@ -24,7 +24,7 @@ const EstadoPeluquero = () => {
             const reservas = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
             // Filtrar el turno del cliente por DNI
-            const turnoCliente = reservas.find(reserva => reserva.dni === dni && reserva.status.toLowerCase() === 'Sin realizar');
+            const turnoCliente = reservas.find(reserva => reserva.dni === dni && reserva.status.toLowerCase() === 'sin realizar');
             
             if (turnoCliente) {
                 setTurno(turnoCliente);
@@ -48,7 +48,7 @@ const EstadoPeluquero = () => {
                 turnosPrevios.forEach(turnoPrevio => {
                     const duracionTurno = turnoPrevio.duracion || 30; // Usar 30 minutos como predeterminado si no se especifica duración
 
-                    if (turnoPrevio.status === 'Sin realizar') {
+                    if (turnoPrevio.status === 'sin realizar') {
                         // Sumar la duración del turno pendiente
                         demoraTotal += duracionTurno;
                     } else if (turnoPrevio.status === 'en proceso' && turnoPrevio.startTime) {

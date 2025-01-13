@@ -61,7 +61,8 @@ function BottomNavbar({ isPeluquero }) {
             <li><Link to="/estado" onClick={() => setIsMenuOpen(false)}> <FiInfo size={16} /> Estado</Link></li>
             {isPeluquero && (
               <>
-                <li><Link to="/agenda" onClick={() => setIsMenuOpen(false)}> <FiClipboard size={16} /> Agenda</Link></li>
+                <li><Link to="/agenda" onClick={() => setIsMenuOpen(false)}> <FiClipboard size={16} /> Agenda 1</Link></li>
+                <li><Link to="/agendados" onClick={() => setIsMenuOpen(false)}> <FiClipboard size={16} /> Agenda 2</Link></li>
                 <li><Link to="/servicios" onClick={() => setIsMenuOpen(false)}> <FiBriefcase size={16} /> Servicios</Link></li>
                 <li><Link to="/horarios" onClick={() => setIsMenuOpen(false)}> <FiClock size={16} /> Horarios</Link></li>
                 <li><Link to="/reservamanual" onClick={() => setIsMenuOpen(false)}> <RxCalendar size={16} /> Reserva manual</Link></li>

@@ -34,7 +34,8 @@ function DesktopNavbar({ isPeluquero }) {
         <li><Link to="/productos"><FiShoppingCart size={24} /> Productos</Link></li>
         {isPeluquero && (
           <>
-            <li><Link to="/agenda"><FiClipboard size={24} /> Agenda</Link></li>
+            <li><Link to="/agenda"><FiClipboard size={24} /> Agenda 1</Link></li>
+            <li><Link to="/agendados"><FiClipboard size={24} /> Agenda 2</Link></li>
             <li><Link to="/servicios"><FiBriefcase size={24} /> Servicios</Link></li>
             <li><Link to="/horarios"><FiClock size={24} /> Horarios</Link></li>
             <li><Link to="/reservamanual"><RxCalendar size={24} /> Reserva manual</Link></li>

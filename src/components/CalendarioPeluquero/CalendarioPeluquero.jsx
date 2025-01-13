@@ -399,7 +399,12 @@ const notificarCambioHorario = (reserva) => {
 Nueva fecha y hora: ${fechaLocal.toLocaleDateString()} a las ${horaInicio}. 
 Duración estimada: ${reserva.duracion} minutos. Gracias por tu comprensión.`;
 
-  const whatsappURL = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+  // Detectar si usar WhatsApp Web o WhatsApp App
+  const whatsappBaseURL = navigator.userAgent.includes('Windows') || navigator.userAgent.includes('Mac')
+    ? 'https://web.whatsapp.com' // Usa WhatsApp Web si estás en PC
+    : 'https://api.whatsapp.com'; // Usa WhatsApp App si no se detecta escritorio
+
+  const whatsappURL = `${whatsappBaseURL}/send?phone=${telefono}&text=${encodeURIComponent(mensaje)}`;
   window.open(whatsappURL, '_blank'); // Abrir WhatsApp
 };
 

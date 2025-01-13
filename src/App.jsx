@@ -22,6 +22,7 @@ import Productos from './pages/Productos';
 import Administracion from './pages/Administracion';
 import FloatingWhatsAppButton from './components/Whatsapp/Whatsapp';
 import Turnos from './pages/Turnos';
+import ReservasDoss from './pages/ReservasDos';
 
 
 // Componentes simples para las páginas
@@ -85,6 +86,7 @@ function App() {
           {/* Ruta protegida para el panel del peluquero */}
           <Route path="/finanzas" element={<ProtectedRoute requiredRole={["administrador", "peluquero"]}><Finanzas /></ProtectedRoute>} />
           <Route path="/agenda" element={<ProtectedRoute requiredRole="peluquero"><Peluquero /></ProtectedRoute>} />
+          <Route path="/agendados" element={<ProtectedRoute requiredRole="peluquero"><ReservasDoss /></ProtectedRoute>} />
           <Route path="/reservamanual" element={<ProtectedRoute requiredRole={["administrador", "peluquero"]}><ReservaManual /></ProtectedRoute>} />
           <Route path="/horarios" element={<ProtectedRoute requiredRole="peluquero"><Horarios /></ProtectedRoute>} />
           <Route path="/servicios" element={<ProtectedRoute requiredRole="peluquero"><Servicios /></ProtectedRoute>} />

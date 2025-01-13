@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../firebaseConfig";
 import { Table, TableHead, TableRow, TableCell, TableBody, MenuItem, Select, InputLabel, FormControl, Button, TableContainer, Paper, TextField } from "@mui/material";
-import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where } from "firebase/firestore";
 import Swal from "sweetalert2";
-import "./Reservas.css";
+import "./AgendaDos.css";
 
-const Reservas = ({ uidPeluquero }) => {
+const ReservasDos = ({ uidPeluquero }) => {
   const [rolUsuario, setRolUsuario] = useState("peluquero");
   const [peluqueros, setPeluqueros] = useState([]);
   const [peluqueroSeleccionado, setPeluqueroSeleccionado] = useState("admin");
@@ -15,138 +15,101 @@ const Reservas = ({ uidPeluquero }) => {
   const [fechaSeleccionada, setFechaSeleccionada] = useState(""); // Fecha seleccionada
 
   const obtenerNombreProfesional = async (uid) => {
-    console.log(`Consultando nombre del profesional con UID: ${uid}`);
     try {
       const peluqueroDoc = await getDoc(doc(db, "peluqueros", uid));
-      if (peluqueroDoc.exists()) {
-        const nombreCompleto = peluqueroDoc.data().nombre || "";
-        return nombreCompleto.split(" (")[0];
-      }
-      return "Profesional no encontrado";
+      return peluqueroDoc.exists() ? peluqueroDoc.data().nombre : "Profesional no encontrado";
     } catch (error) {
-      console.error(`Error obteniendo el nombre del profesional con UID ${uid}:`, error);
+      console.error("Error obteniendo el nombre del profesional:", error);
       return "Error obteniendo nombre";
     }
-  };
+  };;
 
   useEffect(() => {
-    const cargarUsuario = async () => {
-      console.log("Cargando usuario...");
+    const cargarReservasDelPeluquero = async () => {
       try {
+        if (reservasLocal.length > 0) {
+          console.log("Usando reservas almacenadas localmente.");
+          setReservasFiltradas(reservasLocal);
+          return;
+        }
+  
         if (!uidPeluquero) {
-          console.error("UID de peluquero no proporcionado.");
+          console.error("El UID del peluquero no está definido");
           return;
         }
-
-        const peluqueroDoc = await getDoc(doc(db, "peluqueros", uidPeluquero));
-        console.log("Resultado de consulta de peluquero:", peluqueroDoc.exists());
-        if (peluqueroDoc.exists()) {
-          setRolUsuario("peluquero");
-          setPeluqueroSeleccionado(uidPeluquero);
-          return;
-        }
-
-        const adminDoc = await getDoc(doc(db, "administradores", uidPeluquero));
-        console.log("Resultado de consulta de administrador:", adminDoc.exists());
-        if (adminDoc.exists()) {
-          setRolUsuario("administrador");
-          const peluquerosSnapshot = await getDocs(collection(db, "peluqueros"));
-          const listaPeluqueros = peluquerosSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          console.log("Lista de peluqueros cargada:", listaPeluqueros);
-          setPeluqueros(listaPeluqueros);
-          setPeluqueroSeleccionado("admin");
+  
+        console.log("Cargando reservas desde Firebase...");
+        const reservasRef = collection(db, "reservas");
+        const q = query(reservasRef, where("uidPeluquero", "==", uidPeluquero));
+        const querySnapshot = await getDocs(q);
+  
+        if (!querySnapshot.empty) {
+          const reservasCargadas = await Promise.all(
+            querySnapshot.docs.map(async (docReserva) => {
+              const reserva = docReserva.data();
+  
+              // Calcular hora de finalización
+              const [horaInicio, minutosInicio] = reserva.hora.split(":").map(Number);
+              const duracion = reserva.duracion || 0;
+              const horaFin = new Date();
+              horaFin.setHours(horaInicio, minutosInicio + duracion);
+              const horaFinTexto = horaFin.toTimeString().split(" ")[0].substring(0, 5);
+  
+              // Obtener nombre del profesional
+              const nombrePeluquero = await obtenerNombreProfesional(uidPeluquero);
+  
+              return {
+                ...reserva,
+                id: docReserva.id,
+                horaFin: horaFinTexto, // Agregamos la hora de finalización
+                nombrePeluquero,
+              };
+            })
+          );
+  
+          reservasCargadas.sort(
+            (a, b) =>
+              new Date(`${a.fecha}T${a.hora}`) - new Date(`${b.fecha}T${b.hora}`)
+          );
+  
+          console.log("Reservas cargadas y ordenadas:", reservasCargadas);
+  
+          setReservas(reservasCargadas);
+          setReservasLocal(reservasCargadas);
+          setReservasFiltradas(reservasCargadas);
         } else {
-          console.error("Usuario no encontrado en peluqueros ni administradores.");
+          console.log("No se encontraron reservas para este peluquero");
+          setReservas([]);
+          setReservasFiltradas([]);
         }
       } catch (error) {
-        console.error("Error cargando usuario:", error);
+        console.error("Error cargando las reservas del peluquero:", error);
       }
     };
-
-    cargarUsuario();
-  }, [uidPeluquero]);
-
-    // Filtrar reservas cuando cambia la fecha seleccionada
-    useEffect(() => {
-      if (fechaSeleccionada) {
-        const reservasFiltradas = reservas.filter(
-          (reserva) => reserva.fecha === fechaSeleccionada
-        );
-        setReservasFiltradas(reservasFiltradas);
-      } else {
-        setReservasFiltradas(reservas);
-      }
-    }, [fechaSeleccionada, reservas]);
   
-    const manejarCambioFecha = (event) => {
-      setFechaSeleccionada(event.target.value);
-    };
-  
+    cargarReservasDelPeluquero();
+  }, [uidPeluquero, reservasLocal]);
+
+
+  // Filtrar reservas por fecha seleccionada
+  useEffect(() => {
+    if (fechaSeleccionada) {
+      const filtradas = reservas.filter((reserva) => reserva.fecha === fechaSeleccionada);
+      setReservasFiltradas(filtradas);
+    } else {
+      setReservasFiltradas(reservas);
+    }
+  }, [fechaSeleccionada, reservas]);
+
+  const manejarCambioFecha = (event) => {
+    setFechaSeleccionada(event.target.value);
+  };
 // Función para formatear fechas
 const formatearFecha = (fecha) => {
   const partes = fecha.split("-"); // Divide la fecha en partes
   return `${partes[2]}-${partes[1]}-${partes[0]}`; // Reorganiza como dd-mm-yyyy
 };
 
-
-  useEffect(() => {
-    const cargarReservas = async () => {
-      if (reservasLocal.length > 0) {
-        console.log("Usando reservas almacenadas localmente.");
-        setReservasFiltradas(reservasLocal);
-        return;
-      }
-
-      console.log("Cargando reservas desde Firebase...");
-      try {
-        const snapshot = await getDocs(collection(db, "reservas"));
-        console.log(`Número de reservas obtenidas: ${snapshot.size}`);
-
-        const reservasCargadas = await Promise.all(
-          snapshot.docs.map(async (docReserva) => {
-            const reserva = docReserva.data();
-
-            // Calcular hora de finalización
-            const [horaInicio, minutosInicio] = reserva.hora.split(":").map(Number);
-            const duracion = reserva.duracion || 0;
-            const horaFin = new Date();
-            horaFin.setHours(horaInicio, minutosInicio + duracion);
-            const horaFinTexto = horaFin.toTimeString().split(" ")[0].substring(0, 5);
-
-            // Obtener nombre del profesional
-            const nombrePeluquero = await obtenerNombreProfesional(reserva.uidPeluquero);
-
-            return {
-              ...reserva,
-              id: docReserva.id,
-              horaFin: horaFinTexto,
-              nombrePeluquero,
-            };
-          })
-        );
-
-        reservasCargadas.sort((a, b) => {
-          const fechaA = new Date(`${a.fecha}T${a.hora}`);
-          const fechaB = new Date(`${b.fecha}T${b.hora}`);
-          return fechaA - fechaB; // Orden ascendente
-        });
-
-        console.log("Reservas cargadas y ordenadas:", reservasCargadas);
-        setReservas(reservasCargadas);
-        setReservasLocal(reservasCargadas);
-        setReservasFiltradas(reservasCargadas);
-      } catch (error) {
-        console.error("Error cargando reservas:", error);
-      }
-    };
-
-    if (peluqueroSeleccionado) {
-      cargarReservas();
-    }
-  }, [peluqueroSeleccionado, reservasLocal]);
 
   useEffect(() => {
     const filtrarReservas = () => {
@@ -527,40 +490,18 @@ const handleCancelTurn = async (reserva) => {
   return (
     <div className="reservas-container">
       <div>
-      <h3>Gestión de Reservas</h3>
+      <h3>Mis Reservas</h3>
       </div>
-      <div className="div-control">
-      {rolUsuario === "administrador" && peluqueros.length > 0 && (
-        <>
-        <div>
-        <FormControl fullWidth>
-          <InputLabel id="select-peluquero-label"></InputLabel>
-          <Select
-            labelId="select-peluquero-label"
-            value={peluqueroSeleccionado}
-            onChange={(e) => setPeluqueroSeleccionado(e.target.value)}
-          >
-            <MenuItem value="admin">Todos los profesionales</MenuItem>
-            {peluqueros.map((peluquero) => (
-              <MenuItem key={peluquero.id} value={peluquero.uid}>
-                {peluquero.nombre.split(" (")[0]}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        </div>
-        <div>
-        <TextField
-          type="date"
-          label="Seleccionar Fecha"
-          value={fechaSeleccionada}
-          onChange={(e) => setFechaSeleccionada(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-        />
-          </div>
-          </>
-      )}
-      </div>
+
+      <TextField
+        label="Filtrar por fecha"
+        type="date"
+        value={fechaSeleccionada}
+        onChange={manejarCambioFecha}
+        InputLabelProps={{ shrink: true }}
+        style={{ marginBottom: "20px" }}
+      />
+
     <TableContainer component={Paper}>
       <Table className="custom-table">
         <TableHead>
@@ -605,4 +546,4 @@ const handleCancelTurn = async (reserva) => {
   );
 };
 
-export default Reservas;
+export default ReservasDos;
