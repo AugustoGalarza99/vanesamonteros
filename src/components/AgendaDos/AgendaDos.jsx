@@ -3,7 +3,6 @@ import { db } from "../../firebaseConfig";
 import { Table, TableHead, TableRow, TableCell, TableBody, MenuItem, Select, InputLabel, FormControl, Button, TableContainer, Paper, TextField } from "@mui/material";
 import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where } from "firebase/firestore";
 import Swal from "sweetalert2";
-import "./AgendaDos.css";
 
 const ReservasDos = ({ uidPeluquero }) => {
   const [rolUsuario, setRolUsuario] = useState("peluquero");
