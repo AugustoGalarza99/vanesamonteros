@@ -58,4 +58,5 @@ function DesktopNavbar({ isPeluquero }) {
   );
 }
 
+
 export default DesktopNavbar;
