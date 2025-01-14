@@ -15,7 +15,7 @@ const Reservas = ({ uidPeluquero }) => {
   const [fechaSeleccionada, setFechaSeleccionada] = useState(""); // Fecha seleccionada
 
   const obtenerNombreProfesional = async (uid) => {
-    console.log(`Consultando nombre del profesional con UID: ${uid}`);
+    /*console.log(`Consultando nombre del profesional con UID: ${uid}`);*/
     try {
       const peluqueroDoc = await getDoc(doc(db, "peluqueros", uid));
       if (peluqueroDoc.exists()) {
@@ -582,7 +582,19 @@ const handleCancelTurn = async (reserva) => {
                   <TableCell>{`${reserva.nombre} ${reserva.apellido}`}</TableCell>
                   <TableCell>{reserva.servicio}</TableCell>
                   <TableCell>{reserva.nombrePeluquero}</TableCell>
-                  <TableCell>{reserva.status}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`status-label ${
+                        reserva.status === "Sin realizar"
+                          ? "status-sin-realizar"
+                          : reserva.status === "en proceso"
+                          ? "status-en-proceso"
+                          : ""
+                      }`}
+                    >
+                      {reserva.status}
+                    </span>
+                  </TableCell>
                   <TableCell>
                     <Button
                       className="button-acciones"
@@ -630,7 +642,17 @@ const handleCancelTurn = async (reserva) => {
               </div>
               <div className="card-row">
                 <span>Estado:</span>
-                <p>{reserva.status}</p>
+                <p
+                  className={
+                    reserva.status === "Sin realizar"
+                      ? "status-sin-realizar"
+                      : reserva.status === "en proceso"
+                      ? "status-en-proceso"
+                      : ""
+                  }
+                >
+                  {reserva.status}
+                </p>
               </div>
               <Button
                 className="button-acciones"

@@ -65,7 +65,7 @@ h3 {
 .custom-table td {
   padding: 0.8rem;
   text-align: left;
-  font-size: 0.85rem;
+  font-size: 0.80rem;
   border-bottom: 1px solid #ddd;
 }
 
@@ -136,3 +136,56 @@ h3 {
     color: #777;
   }
 }
+/* Estilo base para la fila de la tarjeta */
+.card-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font);
+  font-size: 16px;
+  margin: 10px 0;
+}
+
+/* Estilo base para el estado */
+.card-row p {
+  margin: 0;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Estado: sin realizar */
+.card-row .status-sin-realizar {
+  background-color: #e74c3c; /* Rojo elegante */
+  color: #ffffff !important; /* Letras blancas */
+}
+
+/* Estado: en proceso */
+.card-row .status-en-proceso {
+  background-color: #f1c40f; /* Amarillo elegante */
+  color: #000000 !important; /* Letras negras */
+}
+
+/* Estilo base para el contenedor del estado */
+.status-label {
+  display: inline-block; /* El tamaño del contenedor coincide con el texto */
+  padding: 4px 8px; /* Espaciado interno para que se vea más elegante */
+  border-radius: 10px; /* Bordes redondeados */
+  font-size: 14px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+/* Estado: sin realizar */
+.status-sin-realizar {
+  background-color: #e74c3c; /* Rojo elegante */
+  color: #ffffff; /* Letras blancas */
+}
+
+/* Estado: en proceso */
+.status-en-proceso {
+  background-color: #f1c40f; /* Amarillo elegante */
+  color: #000000; /* Letras negras */
+}
+
