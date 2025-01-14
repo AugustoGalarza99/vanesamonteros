@@ -92,77 +92,77 @@ const formatearFecha = (fecha) => {
 };
 
 
-  useEffect(() => {
-    const cargarReservas = async () => {
-      if (reservasLocal.length > 0) {
-        console.log("Usando reservas almacenadas localmente.");
-        setReservasFiltradas(reservasLocal);
-        return;
-      }
-
-      console.log("Cargando reservas desde Firebase...");
-      try {
-        const snapshot = await getDocs(collection(db, "reservas"));
-        console.log(`Número de reservas obtenidas: ${snapshot.size}`);
-
-        const reservasCargadas = await Promise.all(
-          snapshot.docs.map(async (docReserva) => {
-            const reserva = docReserva.data();
-
-            // Calcular hora de finalización
-            const [horaInicio, minutosInicio] = reserva.hora.split(":").map(Number);
-            const duracion = reserva.duracion || 0;
-            const horaFin = new Date();
-            horaFin.setHours(horaInicio, minutosInicio + duracion);
-            const horaFinTexto = horaFin.toTimeString().split(" ")[0].substring(0, 5);
-
-            // Obtener nombre del profesional
-            const nombrePeluquero = await obtenerNombreProfesional(reserva.uidPeluquero);
-
-            return {
-              ...reserva,
-              id: docReserva.id,
-              horaFin: horaFinTexto,
-              nombrePeluquero,
-            };
-          })
-        );
-
-        reservasCargadas.sort((a, b) => {
-          const fechaA = new Date(`${a.fecha}T${a.hora}`);
-          const fechaB = new Date(`${b.fecha}T${b.hora}`);
-          return fechaA - fechaB; // Orden ascendente
-        });
-
-        console.log("Reservas cargadas y ordenadas:", reservasCargadas);
-        setReservas(reservasCargadas);
-        setReservasLocal(reservasCargadas);
-        setReservasFiltradas(reservasCargadas);
-      } catch (error) {
-        console.error("Error cargando reservas:", error);
-      }
-    };
-
-    if (peluqueroSeleccionado) {
-      cargarReservas();
+useEffect(() => {
+  const cargarReservas = async () => {
+    if (reservasLocal.length > 0) {
+      console.log("Usando reservas almacenadas localmente.");
+      setReservasFiltradas(reservasLocal);
+      return;
     }
-  }, [peluqueroSeleccionado, reservasLocal]);
 
-  useEffect(() => {
-    const filtrarReservas = () => {
-      const reservasFiltradas = reservasLocal.filter((reserva) => {
-        const coincideProfesional =
-          peluqueroSeleccionado === "admin" || reserva.uidPeluquero === peluqueroSeleccionado;
-        const coincideFecha = !fechaSeleccionada || reserva.fecha === fechaSeleccionada;
-        return coincideProfesional && coincideFecha;
+    console.log("Cargando reservas desde Firebase...");
+    try {
+      const snapshot = await getDocs(collection(db, "reservas"));
+      console.log(`Número de reservas obtenidas: ${snapshot.size}`);
+
+      const reservasCargadas = await Promise.all(
+        snapshot.docs.map(async (docReserva) => {
+          const reserva = docReserva.data();
+
+          // Calcular hora de finalización
+          const [horaInicio, minutosInicio] = reserva.hora.split(":").map(Number);
+          const duracion = reserva.duracion || 0;
+          const horaFin = new Date();
+          horaFin.setHours(horaInicio, minutosInicio + duracion);
+          const horaFinTexto = horaFin.toTimeString().split(" ")[0].substring(0, 5);
+
+          // Obtener nombre del profesional
+          const nombrePeluquero = await obtenerNombreProfesional(reserva.uidPeluquero);
+
+          return {
+            ...reserva,
+            id: docReserva.id,
+            horaFin: horaFinTexto,
+            nombrePeluquero,
+          };
+        })
+      );
+
+      reservasCargadas.sort((a, b) => {
+        const fechaA = new Date(`${a.fecha}T${a.hora}`);
+        const fechaB = new Date(`${b.fecha}T${b.hora}`);
+        return fechaA - fechaB; // Orden ascendente
       });
-  
-      setReservasFiltradas(reservasFiltradas);
-    };
-  
-    filtrarReservas();
-  }, [peluqueroSeleccionado, fechaSeleccionada, reservasLocal]);
-  
+
+      console.log("Reservas cargadas y ordenadas:", reservasCargadas);
+      setReservas(reservasCargadas);
+      setReservasLocal(reservasCargadas);
+      setReservasFiltradas(reservasCargadas);
+    } catch (error) {
+      console.error("Error cargando reservas:", error);
+    }
+  };
+
+  if (peluqueroSeleccionado) {
+    cargarReservas();
+  }
+}, [peluqueroSeleccionado, reservasLocal]);
+
+useEffect(() => {
+  const filtrarReservas = () => {
+    const reservasFiltradas = reservasLocal.filter((reserva) => {
+      const coincideProfesional =
+        peluqueroSeleccionado === "admin" || reserva.uidPeluquero === peluqueroSeleccionado;
+      const coincideFecha = !fechaSeleccionada || reserva.fecha === fechaSeleccionada;
+      return coincideProfesional && coincideFecha;
+    });
+
+    setReservasFiltradas(reservasFiltradas);
+  };
+
+  filtrarReservas();
+}, [peluqueroSeleccionado, fechaSeleccionada, reservasLocal]);
+
   
 
   const handleRemindTurn = (reserva) => {
@@ -526,83 +526,126 @@ const handleCancelTurn = async (reserva) => {
 
   return (
     <div className="reservas-container">
-      <div>
       <h3>Gestión de Reservas</h3>
-      </div>
       <div className="div-control">
-      {rolUsuario === "administrador" && peluqueros.length > 0 && (
-        <>
-        <div>
-        <FormControl fullWidth>
-          <InputLabel id="select-peluquero-label"></InputLabel>
-          <Select
-            labelId="select-peluquero-label"
-            value={peluqueroSeleccionado}
-            onChange={(e) => setPeluqueroSeleccionado(e.target.value)}
-          >
-            <MenuItem value="admin">Todos los profesionales</MenuItem>
-            {peluqueros.map((peluquero) => (
-              <MenuItem key={peluquero.id} value={peluquero.uid}>
-                {peluquero.nombre.split(" (")[0]}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        </div>
-        <div>
-        <TextField
-          type="date"
-          label="Seleccionar Fecha"
-          value={fechaSeleccionada}
-          onChange={(e) => setFechaSeleccionada(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-        />
-          </div>
+        {rolUsuario === "administrador" && peluqueros.length > 0 && (
+          <>
+            <FormControl fullWidth>
+              <InputLabel id="select-peluquero-label">Profesional</InputLabel>
+              <Select
+                labelId="select-peluquero-label"
+                value={peluqueroSeleccionado}
+                onChange={(e) => setPeluqueroSeleccionado(e.target.value)}
+              >
+                <MenuItem value="admin">Todos los profesionales</MenuItem>
+                {peluqueros.map((peluquero) => (
+                  <MenuItem key={peluquero.id} value={peluquero.uid}>
+                    {peluquero.nombre.split(" (")[0]}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              type="date"
+              label="Seleccionar Fecha"
+              value={fechaSeleccionada}
+              onChange={(e) => setFechaSeleccionada(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
           </>
-      )}
+        )}
       </div>
-    <TableContainer component={Paper}>
-      <Table className="custom-table">
-        <TableHead>
-          <TableRow>
-            <TableCell>Fecha</TableCell>
-            <TableCell>Hora</TableCell>
-            <TableCell>Hora Fin</TableCell>
-            <TableCell>Cliente</TableCell>
-            <TableCell>Servicio</TableCell>
-            <TableCell>Profesional</TableCell>
-            <TableCell>Estado</TableCell>
-            <TableCell>Acciones</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {reservasFiltradas
-            .filter((reserva) => reserva.status !== "finalizado") // Filtrar turnos finalizados
-            .map((reserva) => (
-              <TableRow key={reserva.id}>
-                <TableCell>{formatearFecha(reserva.fecha)}</TableCell>
-                <TableCell>{reserva.hora}</TableCell>
-                <TableCell>{reserva.horaFin}</TableCell>
-                <TableCell>{`${reserva.nombre} ${reserva.apellido}`}</TableCell>
-                <TableCell>{reserva.servicio}</TableCell>
-                <TableCell>{reserva.nombrePeluquero}</TableCell>
-                <TableCell>{reserva.status}</TableCell>
-                <TableCell>
-                  <Button
-                    className="button-acciones"
-                    variant="outlined"
-                    onClick={() => manejarClickReserva(reserva)}
-                  >
-                    Acciones
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-        </TableBody>
-      </Table>
+  
+      {/* Tabla: Visible solo en pantallas grandes */}
+      <TableContainer component={Paper} className="custom-table-container">
+        <Table className="custom-table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Fecha</TableCell>
+              <TableCell>Hora</TableCell>
+              <TableCell>Hora Fin</TableCell>
+              <TableCell>Cliente</TableCell>
+              <TableCell>Servicio</TableCell>
+              <TableCell>Profesional</TableCell>
+              <TableCell>Estado</TableCell>
+              <TableCell>Acciones</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {reservasFiltradas
+              .filter((reserva) => reserva.status !== "finalizado")
+              .map((reserva) => (
+                <TableRow key={reserva.id}>
+                  <TableCell>{formatearFecha(reserva.fecha)}</TableCell>
+                  <TableCell>{reserva.hora}</TableCell>
+                  <TableCell>{reserva.horaFin}</TableCell>
+                  <TableCell>{`${reserva.nombre} ${reserva.apellido}`}</TableCell>
+                  <TableCell>{reserva.servicio}</TableCell>
+                  <TableCell>{reserva.nombrePeluquero}</TableCell>
+                  <TableCell>{reserva.status}</TableCell>
+                  <TableCell>
+                    <Button
+                      className="button-acciones"
+                      variant="outlined"
+                      onClick={() => manejarClickReserva(reserva)}
+                    >
+                      Acciones
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
       </TableContainer>
+  
+      {/* Tarjetas: Visible solo en pantallas pequeñas */}
+      <div className="reservas-cards">
+        {reservasFiltradas
+          .filter((reserva) => reserva.status !== "finalizado")
+          .map((reserva) => (
+            <div className="reservas-card" key={reserva.id}>
+              <div className="card-row">
+                <span>Fecha:</span>
+                <p>{formatearFecha(reserva.fecha)}</p>
+              </div>
+              <div className="card-row">
+                <span>Hora inicio:</span>
+                <p>{reserva.hora}</p>
+              </div>
+              <div className="card-row">
+                <span>Hora fin:</span>
+                <p>{reserva.horaFin}</p>
+              </div>
+              <div className="card-row">
+                <span>Cliente:</span>
+                <p>{`${reserva.nombre} ${reserva.apellido}`}</p>
+              </div>
+              <div className="card-row">
+                <span>Servicio:</span>
+                <p>{reserva.servicio}</p>
+              </div>
+              <div className="card-row">
+                <span>Profesional:</span>
+                <p>{reserva.nombrePeluquero}</p>
+              </div>
+              <div className="card-row">
+                <span>Estado:</span>
+                <p>{reserva.status}</p>
+              </div>
+              <Button
+                className="button-acciones"
+                variant="outlined"
+                onClick={() => manejarClickReserva(reserva)}
+              >
+                Acciones
+              </Button>
+            </div>
+          ))}
+      </div>
     </div>
   );
+  
+  
 };
 
 export default Reservas;
