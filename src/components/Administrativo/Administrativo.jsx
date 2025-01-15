@@ -1,10 +1,11 @@
-// src/pages/Administracion.jsx
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { useRole } from "../../RoleContext";
 import CambiarContraseña from "../CambiarContraseña/CambiarContraseña";
-import SubirProducto from "../SubirProducto/SubirProducto";
-import AdminProductos from "../AdminProductos/AdminProductos";
-import './Administrativo.css'
+import './Administrativo.css';
+
+// Lazy load para componentes que solo se usan en el rol "administrador"
+const SubirProducto = lazy(() => import("../SubirProducto/SubirProducto"));
+const AdminProductos = lazy(() => import("../AdminProductos/AdminProductos"));
 
 const Administrativo = () => {
   const { role } = useRole(); // Obtener el rol del usuario desde el contexto
@@ -18,9 +19,13 @@ const Administrativo = () => {
         <CambiarContraseña />
       )}
 
-      {/* Componente visible solo para el rol administrador */}
-      {role === "administrador" && <SubirProducto />}
-      {role === "administrador" && <AdminProductos />}
+      {/* Componentes visibles solo para el rol administrador */}
+      {role === "administrador" && (
+        <Suspense fallback={<div>Cargando...</div>}>
+          <SubirProducto />
+          <AdminProductos />
+        </Suspense>
+      )}
     </div>
   );
 };
