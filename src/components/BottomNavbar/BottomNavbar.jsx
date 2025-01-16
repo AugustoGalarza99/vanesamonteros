@@ -47,14 +47,14 @@ function BottomNavbar() {
                 <li><Link to="/servicios" onClick={() => setIsMenuOpen(false)}><FiBriefcase size={16} /> Servicios</Link></li>
                 <li><Link to="/horarios" onClick={() => setIsMenuOpen(false)}><FiClock size={16} /> Horarios</Link></li>
                 <li><Link to="/reservamanual" onClick={() => setIsMenuOpen(false)}><RxCalendar size={16} /> Reserva manual</Link></li>
-                <li><Link to="/finanzas" onClick={() => setIsMenuOpen(false)}><FiPieChart size={16} /> Finanzas</Link></li>
+                {/*<li><Link to="/finanzas" onClick={() => setIsMenuOpen(false)}><FiPieChart size={16} /> Finanzas</Link></li>*/}
                 <li><Link to="/administracion" onClick={() => setIsMenuOpen(false)}><FiUser size={16} /> Administración</Link></li>
               </>
             )}
             {role === 'administrador' && (
               <>
                 <li><Link to="/reservamanual" onClick={() => setIsMenuOpen(false)}><RxCalendar size={16} /> Reserva manual</Link></li>
-                <li><Link to="/finanzas" onClick={() => setIsMenuOpen(false)}><FiPieChart size={16} /> Finanzas</Link></li>
+                {/*<li><Link to="/finanzas" onClick={() => setIsMenuOpen(false)}><FiPieChart size={16} /> Finanzas</Link></li>*/}
                 <li><Link to="/administracion" onClick={() => setIsMenuOpen(false)}><FiUser size={16} /> Administración</Link></li>
                 <li><Link to="/gestionreservas" onClick={() => setIsMenuOpen(false)}><FiTool size={16} /> Gestión Reservas</Link></li>
               </>

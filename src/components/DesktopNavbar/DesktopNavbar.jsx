@@ -31,7 +31,7 @@ function DesktopNavbar() {
             <li><Link to="/servicios"><FiBriefcase size={24} /> Servicios</Link></li>
             <li><Link to="/horarios"><FiClock size={24} /> Horarios</Link></li>
             <li><Link to="/reservamanual"><RxCalendar size={24} /> Reserva manual</Link></li>
-            <li><Link to="/finanzas"><FiPieChart size={24} /> Finanzas</Link></li>
+            {/*<li><Link to="/finanzas"><FiPieChart size={24} /> Finanzas</Link></li>*/}
             <li><Link to="/administracion"><FiUser size={24} /> Administración</Link></li>
           </>
         )}
@@ -40,7 +40,7 @@ function DesktopNavbar() {
         {role === 'administrador' && (
           <>
             <li><Link to="/reservamanual"><RxCalendar size={24} /> Reserva manual</Link></li>
-            <li><Link to="/finanzas"><FiPieChart size={24} /> Finanzas</Link></li>
+            {/*<li><Link to="/finanzas"><FiPieChart size={24} /> Finanzas</Link></li>*/}
             <li><Link to="/administracion"><FiUser size={24} /> Administración</Link></li>
             <li><Link to="/gestionreservas"><FiTool size={24} /> Gestión Reservas</Link></li>
           </>

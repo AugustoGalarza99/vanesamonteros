@@ -84,7 +84,7 @@ function App() {
           <Route path="/login" element={<LoginPeluquero />} />
 
           {/* Ruta protegida para el panel del peluquero */}
-          <Route path="/finanzas" element={<ProtectedRoute requiredRole={["administrador", "peluquero"]}><Finanzas /></ProtectedRoute>} />
+          {/*<Route path="/finanzas" element={<ProtectedRoute requiredRole={["administrador", "peluquero"]}><Finanzas /></ProtectedRoute>} />*/}
           {/*<Route path="/agenda" element={<ProtectedRoute requiredRole="peluquero"><Peluquero /></ProtectedRoute>} />*/}
           <Route path="/agenda" element={<ProtectedRoute requiredRole="peluquero"><ReservasDoss /></ProtectedRoute>} />
           <Route path="/reservamanual" element={<ProtectedRoute requiredRole={["administrador", "peluquero"]}><ReservaManual /></ProtectedRoute>} />

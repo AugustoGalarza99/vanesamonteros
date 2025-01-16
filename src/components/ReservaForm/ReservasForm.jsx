@@ -25,7 +25,8 @@ const ReservasForm = () => {
     const [duracionServicio, setDuracionServicio] = useState(0); // Para almacenar la duración del servicio
     const [codigoVerificacion, setCodigoVerificacion] = useState(''); // Estado para almacenar el código de verificación
     const [loading, setLoading] = useState(false);
-    const intervaloTurnos = horariosDisponibles.intervalo || 30;
+    const profesionalSeleccionado = peluqueros.find(p => p.id === profesional)?.nombre || '';
+    const intervaloTurnos = horariosDisponibles.intervalo || 15;
     const navigate = useNavigate();
 
     // Obtener peluqueros al montar el componente
@@ -390,18 +391,23 @@ const ReservasForm = () => {
 
     const handleSolicitarCodigo = async () => {
         if (whatsapp) {
-            const whatsappUrl = `https://wa.me/${whatsapp}?text=Hola,%20necesito%20un%20código%20de%20verificación%20para%20reservar%20mi%20turno.`;
-            window.location.href = whatsappUrl; // Usa location.href en lugar de window.open
+            const profesionalNombre = peluqueros.find(p => p.id === profesional)?.nombre || '';
+            const profesionalNombreSinParentesis = profesionalNombre.replace(/\s*\(.*?\)\s*/g, '').trim();
+            const whatsappUrl = `https://wa.me/${whatsapp}?text=Hola,%20necesito%20el%20código%20de%20verificación%20para%20reservar%20mi%20turno%20con%20${encodeURIComponent(profesionalNombreSinParentesis)}.`;
+            window.location.href = whatsappUrl; // Redirige al número de WhatsApp
         } else {
             try {
                 const peluqueroDocRef = doc(db, 'peluqueros', profesional);
                 const peluqueroDocSnap = await getDoc(peluqueroDocRef);
-    
+        
                 if (peluqueroDocSnap.exists()) {
                     const whatsappNumber = peluqueroDocSnap.data().whatsapp;
                     setWhatsapp(whatsappNumber);
-                    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hola,%20necesito%20un%20código%20de%20verificación%20para%20reservar%20mi%20turno.`;
-                    window.location.href = whatsappUrl; // También usa location.href aquí
+                    const profesionalNombre = peluqueros.find(p => p.id === profesional)?.nombre || '';
+                    const profesionalNombreSinParentesis = profesionalNombre.replace(/\s*\(.*?\)\s*/g, '').trim();
+                    const whatsappUrl = `https://wa.me/${whatsapp}?text=Hola,%20necesito%20el%20código%20de%20verificación%20para%20reservar%20mi%20turno%20con%20${encodeURIComponent(profesionalNombreSinParentesis)}.`;
+
+                    window.location.href = whatsappUrl; // Redirige al número de WhatsApp
                 } else {
                     Swal.fire({
                         title: 'Error de profesional',
@@ -417,6 +423,7 @@ const ReservasForm = () => {
             }
         }
     };
+    
     
 
     const handleVerificarCodigo = async () => {
