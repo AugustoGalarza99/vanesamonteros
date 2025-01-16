@@ -20,12 +20,12 @@ const Administrativo = () => {
       )}
 
       {/* Componentes visibles solo para el rol administrador */}
-      {role === "administrador" && (
+      {/*{role === "administrador" && (
         <Suspense fallback={<div>Cargando...</div>}>
           <SubirProducto />
           <AdminProductos />
         </Suspense>
-      )}
+      )}*/}
     </div>
   );
 };

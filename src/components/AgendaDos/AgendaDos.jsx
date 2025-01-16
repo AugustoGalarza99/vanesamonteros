@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../firebaseConfig";
 import { Table, TableHead, TableRow, TableCell, TableBody, MenuItem, Select, InputLabel, FormControl, Button, TableContainer, Paper, TextField } from "@mui/material";
-import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where, setDoc } from "firebase/firestore";
+import { limpiarReservasAntiguas } from '../../reservaService'
 import Swal from "sweetalert2";
 
 const ReservasDos = ({ uidPeluquero }) => {
@@ -358,133 +359,152 @@ const handleCancelTurn = async (reserva) => {
 
 
   const manejarClickReserva = (reserva) => {
-    const { status, id, duracion, horaInicio, fecha, telefono } = reserva;
-  
-    if (status === 'Sin realizar') {
-      Swal.fire({
-        title: 'Turno sin realizar',
-        text: '¿Qué acción desea realizar?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Iniciar Turno',
-        cancelButtonText: 'Cancelar Turno',
-        showDenyButton: true,
-        denyButtonText: 'Recordar Turno',
-        footer: `
-          <button id="editarDuracionBtn" class="btn btn-info">Editar duración y hora de inicio</button>
-          <button id="notificarCambioBtn" class="btn btn-cambio">Notificar Cambio</button>
-        `,
-        background: 'black',
-        color: 'white',
-        didRender: () => {
-          // Agregar evento para el botón de Editar
-          document.getElementById('editarDuracionBtn')?.addEventListener('click', () => {
-            Swal.close(); // Cerrar el Swal actual
-            editarDuracionYHora(reserva); // Llama a la función para editar duración y hora
-          });
-  
-          // Agregar evento para el botón de Notificar Cambio
-          document.getElementById('notificarCambioBtn')?.addEventListener('click', () => {
-            Swal.close(); // Cerrar el Swal actual
-            notificarCambioHorario(reserva); // Llama a la función para notificar cambio
-          });
-        },
-      }).then((result) => {
-        if (result.isConfirmed) {
-          actualizarEstadoTurno(id, 'en proceso');
-          Swal.fire({
-            title: 'Turno Iniciado',
-            icon: 'success',
-            background: 'black',
-            color: 'white',
-          });
-          const isFirstTurnToday = verificarPrimerTurnoDelDia();
-          if (isFirstTurnToday) {
-            limpiarReservasAntiguas();
-          }
-        } else if (result.isDenied) {
-          handleRemindTurn(reserva);
-          Swal.fire({
-            title: 'Recordatorio enviado',
-            icon: 'success',
-            background: 'black',
-            color: 'white',
-          });
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-          handleCancelTurn(reserva);
-        }
-      });
-  
-      // Lógica para manejar el clic en "Editar Duración y Hora de Inicio"
-      document.getElementById("editarDuracionBtn")?.addEventListener("click", () => {
-        // Abrir un Swal para editar la duración y la hora de inicio
+      const { status, id, duracion, horaInicio, fecha, telefono } = reserva;
+    
+      if (status === 'Sin realizar') {
         Swal.fire({
-          title: 'Editar duración y hora de inicio',
-          html: `
-          <div>
-            <label for="duracionInput" class="label-edit">Nueva duración (en minutos):</label>
-            <input id="duracionInput" class="swal2-input" type="number" value="${reserva.duracion}" min="1" max="180" step="1">
-          </div>
-          <div>
-            <label for="horaInicioInput">Nueva hora de inicio:</label>
-            <input id="horaInicioInput" class="swal2-input" type="time" value="${reserva.hora || reserva.horaInicio}">
-          </div>
-          `,
+          title: 'Turno sin realizar',
+          text: '¿Qué acción desea realizar?',
+          icon: 'question',
           showCancelButton: true,
-          confirmButtonText: 'Guardar Cambios',
+          confirmButtonText: 'Turno realizado',
+          cancelButtonText: 'Cancelar Turno',
+          showDenyButton: true,
+          denyButtonText: 'Recordar Turno',
+          footer: `
+            <button id="editarDuracionBtn" class="btn btn-info">Editar duración y hora de inicio</button>
+            <button id="notificarCambioBtn" class="btn btn-cambio">Notificar Cambio</button>
+          `,
           background: 'black',
           color: 'white',
-          preConfirm: () => {
-            const nuevaDuracion = parseInt(document.getElementById('duracionInput').value, 10);
-            const nuevaHoraInicio = document.getElementById('horaInicioInput').value;
-        
-            if (!isNaN(nuevaDuracion) && nuevaDuracion > 0 && nuevaHoraInicio) {
-              return { nuevaDuracion, nuevaHoraInicio };
-            } else {
-              Swal.showValidationMessage('Por favor, ingresa valores válidos');
+          didRender: () => {
+            // Agregar evento para el botón de Editar
+            document.getElementById('editarDuracionBtn')?.addEventListener('click', () => {
+              Swal.close(); // Cerrar el Swal actual
+              editarDuracionYHora(reserva); // Llama a la función para editar duración y hora
+            });
+    
+            // Agregar evento para el botón de Notificar Cambio
+            document.getElementById('notificarCambioBtn')?.addEventListener('click', () => {
+              Swal.close(); // Cerrar el Swal actual
+              notificarCambioHorario(reserva); // Llama a la función para notificar cambio
+            });
+          },
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            try {
+              // Cambiar el estado del turno a "Finalizado"
+              await actualizarEstadoTurno(id, 'finalizado');
+    
+              // Verificar si es el primer turno del día
+              const isFirstTurnToday = await verificarPrimerTurnoDelDia();
+              if (isFirstTurnToday) {
+                await limpiarReservasAntiguas();
+              }
+    
+              // Finalizar el turno
+              await finalizarTurno(reserva);
+    
+              Swal.fire({
+                title: 'Turno Confirmado',
+                text: 'El turno se ha registrado como realizado.',
+                icon: 'success',
+                background: 'black',
+                color: 'white',
+              });
+            } catch (error) {
+              console.error('Error al confirmar el turno:', error.message);
+              Swal.fire({
+                title: 'Error',
+                text: 'Hubo un problema al confirmar el turno. Inténtelo nuevamente.',
+                icon: 'error',
+                background: 'black',
+                color: 'white',
+              });
             }
-          }
-        }).then((result) => {
-          if (result.isConfirmed) {
-            const { nuevaDuracion, nuevaHoraInicio } = result.value;
-            // Llamar a la función para actualizar Firebase
-            editarDuracionYHoraTurno(reserva.id, nuevaDuracion, nuevaHoraInicio);
-          }
-        });
-      });
-    } else if (status === 'en proceso') {
-        Swal.fire({
-            title: 'Turno en Proceso',
-            text: '¿Desea finalizar este turno?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Finalizar Turno',
-            background: 'black',
-            color: 'white',
-        }).then((result) => {
-          if (result.isConfirmed) {
-            actualizarEstadoTurno(id, 'finalizado');
-            finalizarTurno(reserva); // Llama a la función para finalizar el turno    
+          } else if (result.isDenied) {
+            handleRemindTurn(reserva);
             Swal.fire({
-              title: 'Turno Finalizado',
-              text: '¿Deseas agendar este turno para la próxima semana?',
+              title: 'Recordatorio enviado',
               icon: 'success',
-              showCancelButton: true,
-              confirmButtonText: 'Reservar proximo turno',
-              cancelButtonText: 'No deseo reservar',
               background: 'black',
               color: 'white',
-            }).then((result) => {
-              if (result.isConfirmed) {
-                // Redirige a la sección /reservamanual
-                window.location.href = '/reservamanual';
-              }
             });
-            
+          } else if (result.dismiss === Swal.DismissReason.cancel) {
+            handleCancelTurn(reserva);
           }
         });
-    }
-  };
+    
+        // Lógica para manejar el clic en "Editar Duración y Hora de Inicio"
+        document.getElementById("editarDuracionBtn")?.addEventListener("click", () => {
+          // Abrir un Swal para editar la duración y la hora de inicio
+          Swal.fire({
+            title: 'Editar duración y hora de inicio',
+            html: `
+            <div>
+              <label for="duracionInput" class="label-edit">Nueva duración (en minutos):</label>
+              <input id="duracionInput" class="swal2-input" type="number" value="${reserva.duracion}" min="1" max="180" step="1">
+            </div>
+            <div>
+              <label for="horaInicioInput">Nueva hora de inicio:</label>
+              <input id="horaInicioInput" class="swal2-input" type="time" value="${reserva.hora || reserva.horaInicio}">
+            </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Guardar Cambios',
+            background: 'black',
+            color: 'white',
+            preConfirm: () => {
+              const nuevaDuracion = parseInt(document.getElementById('duracionInput').value, 10);
+              const nuevaHoraInicio = document.getElementById('horaInicioInput').value;
+          
+              if (!isNaN(nuevaDuracion) && nuevaDuracion > 0 && nuevaHoraInicio) {
+                return { nuevaDuracion, nuevaHoraInicio };
+              } else {
+                Swal.showValidationMessage('Por favor, ingresa valores válidos');
+              }
+            }
+          }).then((result) => {
+            if (result.isConfirmed) {
+              const { nuevaDuracion, nuevaHoraInicio } = result.value;
+              // Llamar a la función para actualizar Firebase
+              editarDuracionYHoraTurno(reserva.id, nuevaDuracion, nuevaHoraInicio);
+            }
+          });
+        });
+      } else if (status === 'en proceso') {
+          Swal.fire({
+              title: 'Turno en Proceso',
+              text: '¿Desea finalizar este turno?',
+              icon: 'question',
+              showCancelButton: true,
+              confirmButtonText: 'Finalizar Turno',
+              background: 'black',
+              color: 'white',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              actualizarEstadoTurno(id, 'finalizado');
+              finalizarTurno(reserva); // Llama a la función para finalizar el turno    
+              Swal.fire({
+                title: 'Turno Finalizado',
+                text: '¿Deseas agendar este turno para la próxima semana?',
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonText: 'Reservar proximo turno',
+                cancelButtonText: 'No deseo reservar',
+                background: 'black',
+                color: 'white',
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  // Redirige a la sección /reservamanual
+                  window.location.href = '/reservamanual';
+                }
+              });
+              
+            }
+          });
+      }
+    };
 
   return (
     <div className="reservas-container">
@@ -501,21 +521,22 @@ const handleCancelTurn = async (reserva) => {
         style={{ marginBottom: "20px" }}
       />
 
-    <TableContainer component={Paper}>
-      <Table className="custom-table">
-        <TableHead>
-          <TableRow>
-            <TableCell>Fecha</TableCell>
-            <TableCell>Hora</TableCell>
-            <TableCell>Hora Fin</TableCell>
-            <TableCell>Cliente</TableCell>
-            <TableCell>Servicio</TableCell>
-            <TableCell>Profesional</TableCell>
-            <TableCell>Estado</TableCell>
-            <TableCell>Acciones</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
+    {/* Tabla: Visible solo en pantallas grandes */}
+          <TableContainer component={Paper} className="custom-table-container">
+            <Table className="custom-table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Fecha</TableCell>
+                  <TableCell>Hora</TableCell>
+                  <TableCell>Hora Fin</TableCell>
+                  <TableCell>Cliente</TableCell>
+                  <TableCell>Servicio</TableCell>
+                  <TableCell>Profesional</TableCell>
+                  <TableCell>Estado</TableCell>
+                  <TableCell>Acciones</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
           {reservasFiltradas
             .filter((reserva) => reserva.status !== "finalizado") // Filtrar turnos finalizados
             .map((reserva) => (
@@ -526,7 +547,19 @@ const handleCancelTurn = async (reserva) => {
                 <TableCell>{`${reserva.nombre} ${reserva.apellido}`}</TableCell>
                 <TableCell>{reserva.servicio}</TableCell>
                 <TableCell>{reserva.nombrePeluquero}</TableCell>
-                <TableCell>{reserva.status}</TableCell>
+                <TableCell>
+                                    <span
+                                      className={`status-label ${
+                                        reserva.status === "Sin realizar"
+                                          ? "status-sin-realizar"
+                                          : reserva.status === "en proceso"
+                                          ? "status-en-proceso"
+                                          : ""
+                                      }`}
+                                    >
+                                      {reserva.status}
+                                    </span>
+                                  </TableCell>
                 <TableCell>
                   <Button
                     className="button-acciones"
@@ -541,8 +574,62 @@ const handleCancelTurn = async (reserva) => {
         </TableBody>
       </Table>
       </TableContainer>
-    </div>
-  );
+      {/* Tarjetas: Visible solo en pantallas pequeñas */}
+            <div className="reservas-cards">
+              {reservasFiltradas
+                .filter((reserva) => reserva.status !== "finalizado")
+                .map((reserva) => (
+                  <div className="reservas-card" key={reserva.id}>
+                    <div className="card-row">
+                      <span>Fecha:</span>
+                      <p>{formatearFecha(reserva.fecha)}</p>
+                    </div>
+                    <div className="card-row">
+                      <span>Hora inicio:</span>
+                      <p>{reserva.hora}</p>
+                    </div>
+                    <div className="card-row">
+                      <span>Hora fin:</span>
+                      <p>{reserva.horaFin}</p>
+                    </div>
+                    <div className="card-row">
+                      <span>Cliente:</span>
+                      <p>{`${reserva.nombre} ${reserva.apellido}`}</p>
+                    </div>
+                    <div className="card-row">
+                      <span>Servicio:</span>
+                      <p>{reserva.servicio}</p>
+                    </div>
+                    <div className="card-row">
+                      <span>Profesional:</span>
+                      <p>{reserva.nombrePeluquero}</p>
+                    </div>
+                    <div className="card-row">
+                      <span>Estado:</span>
+                      <p
+                        className={
+                          reserva.status === "Sin realizar"
+                            ? "status-sin-realizar"
+                            : reserva.status === "en proceso"
+                            ? "status-en-proceso"
+                            : ""
+                        }
+                      >
+                        {reserva.status}
+                      </p>
+                    </div>
+                    <Button
+                      className="button-acciones"
+                      variant="outlined"
+                      onClick={() => manejarClickReserva(reserva)}
+                    >
+                      Acciones
+                    </Button>
+                  </div>
+                ))}
+            </div>
+          </div>
+        );
 };
 
 export default ReservasDos;

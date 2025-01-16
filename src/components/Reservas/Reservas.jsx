@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../firebaseConfig";
 import { Table, TableHead, TableRow, TableCell, TableBody, MenuItem, Select, InputLabel, FormControl, Button, TableContainer, Paper, TextField } from "@mui/material";
-import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where, setDoc } from "firebase/firestore";
+import { limpiarReservasAntiguas } from '../../reservaService'
 import Swal from "sweetalert2";
 import "./Reservas.css";
 
@@ -404,7 +405,7 @@ const handleCancelTurn = async (reserva) => {
         text: '¿Qué acción desea realizar?',
         icon: 'question',
         showCancelButton: true,
-        confirmButtonText: 'Iniciar Turno',
+        confirmButtonText: 'Turno realizado',
         cancelButtonText: 'Cancelar Turno',
         showDenyButton: true,
         denyButtonText: 'Recordar Turno',
@@ -427,18 +428,37 @@ const handleCancelTurn = async (reserva) => {
             notificarCambioHorario(reserva); // Llama a la función para notificar cambio
           });
         },
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
-          actualizarEstadoTurno(id, 'en proceso');
-          Swal.fire({
-            title: 'Turno Iniciado',
-            icon: 'success',
-            background: 'black',
-            color: 'white',
-          });
-          const isFirstTurnToday = verificarPrimerTurnoDelDia();
-          if (isFirstTurnToday) {
-            limpiarReservasAntiguas();
+          try {
+            // Cambiar el estado del turno a "Finalizado"
+            await actualizarEstadoTurno(id, 'finalizado');
+  
+            // Verificar si es el primer turno del día
+            const isFirstTurnToday = await verificarPrimerTurnoDelDia();
+            if (isFirstTurnToday) {
+              await limpiarReservasAntiguas();
+            }
+  
+            // Finalizar el turno
+            await finalizarTurno(reserva);
+  
+            Swal.fire({
+              title: 'Turno Confirmado',
+              text: 'El turno se ha registrado como realizado.',
+              icon: 'success',
+              background: 'black',
+              color: 'white',
+            });
+          } catch (error) {
+            console.error('Error al confirmar el turno:', error.message);
+            Swal.fire({
+              title: 'Error',
+              text: 'Hubo un problema al confirmar el turno. Inténtelo nuevamente.',
+              icon: 'error',
+              background: 'black',
+              color: 'white',
+            });
           }
         } else if (result.isDenied) {
           handleRemindTurn(reserva);

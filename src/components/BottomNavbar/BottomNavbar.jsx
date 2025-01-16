@@ -26,8 +26,7 @@ function BottomNavbar() {
       <nav className="bottom-navbar">
         <Link to="/" className="nav-icon"><FiHome size={24} /> Reserva</Link>
         <Link to="/estado" className="nav-icon"><FiInfo size={24} /> Estado</Link>
-        <Link to="/productos" className="nav-icon"><FiShoppingCart size={24} /> Productos
-        </Link>
+        {/*<Link to="/productos" className="nav-icon"><FiShoppingCart size={24} /> Productos</Link>*/}
         {user ? (
           <div className="nav-icon" onClick={toggleMenu}>
             <FiMoreVertical size={24} /> Más</div>
@@ -43,8 +42,8 @@ function BottomNavbar() {
             <li><Link to="/estado" onClick={() => setIsMenuOpen(false)}><FiInfo size={16} /> Estado</Link></li>
             {role === 'peluquero' && (
               <>
-                <li><Link to="/agenda" onClick={() => setIsMenuOpen(false)}><FiClipboard size={16} /> Agenda 1</Link></li>
-                <li><Link to="/agendados" onClick={() => setIsMenuOpen(false)}><FiClipboard size={16} /> Agenda 2</Link></li>
+                {/*<li><Link to="/agenda" onClick={() => setIsMenuOpen(false)}><FiClipboard size={16} /> Agenda 1</Link></li>*/}
+                <li><Link to="/agenda" onClick={() => setIsMenuOpen(false)}><FiClipboard size={16} /> Agenda</Link></li>
                 <li><Link to="/servicios" onClick={() => setIsMenuOpen(false)}><FiBriefcase size={16} /> Servicios</Link></li>
                 <li><Link to="/horarios" onClick={() => setIsMenuOpen(false)}><FiClock size={16} /> Horarios</Link></li>
                 <li><Link to="/reservamanual" onClick={() => setIsMenuOpen(false)}><RxCalendar size={16} /> Reserva manual</Link></li>
