@@ -77,14 +77,16 @@ const EstadoDemoras = () => {
     // Obtener el estado de demora del profesional
     const getEstadoProfesional = (demora) => {
         if (isToday(demora.fecha)) {
+            if (demora.demora === 0) {
+                return "El profesional no tiene demora"; // Si la demora es 0
+            }
             return `Demora de ${demora.demora} minutos`; // Si la fecha es de hoy
         }
-        return "El profesional no tiene demoras"; // Si no hay demora para hoy
+        return "El profesional no tiene demora"; // Si no hay demora para hoy
     };
 
     return (
         <div className="estado-demoras-container">
-            <h2 className="estado-demoras-title">Estado de demoras</h2>
             {!isDataLoaded ? (
                 <p>Cargando datos...</p>
             ) : (

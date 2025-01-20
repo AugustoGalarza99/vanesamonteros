@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../firebaseConfig"; // Ajusta la ruta a tu configuración de Firebase
 import { collection, getDocs, doc, setDoc, Timestamp } from "firebase/firestore";
+import Swal from 'sweetalert2';
 import './DemorasProfesional.css';
 
 const DemorasProfesionales = () => {
@@ -47,7 +48,14 @@ const DemorasProfesionales = () => {
                     { merge: true }
                 );
             }
-            alert("Demoras actualizadas correctamente.");
+            Swal.fire({
+                title: "Demora registrada correctamente",
+                text: " Recuerda que si tus turnos se acomodan volver a ingresar el valor 0 como demora. Al finalizar el dia automaticamente la demora volvera a 0 ",
+                icon: "success",
+                background: "black",
+                color: "white",
+                confirmButtonText: "Ok",
+            });
         } catch (error) {
             console.error("Error al guardar las demoras:", error);
         }
