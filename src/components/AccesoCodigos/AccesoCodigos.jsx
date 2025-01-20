@@ -49,7 +49,7 @@ const AccesoCodigos = () => {
   }
 
   return (
-    <div>
+    <div className='codigos'>
       <h3>Códigos de Verificación</h3>
       <table>
         <thead>

@@ -2,7 +2,6 @@ import React from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth'; // Importar el hook de autenticación
 import { auth } from '../firebaseConfig'; // Importar configuración de Firebase
 import Reservas from '../components/Reservas/Reservas';
-import AccesoCodigos from '../components/AccesoCodigos/AccesoCodigos';
 
 
 const Turnos = () => {
@@ -13,7 +12,6 @@ const Turnos = () => {
 
   return (
     <div>
-      <AccesoCodigos />
       {uidPeluquero ? (
         <Reservas uidPeluquero={uidPeluquero} />
       ) : (

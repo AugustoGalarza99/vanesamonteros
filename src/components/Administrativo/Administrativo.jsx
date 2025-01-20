@@ -12,7 +12,7 @@ const Administrativo = () => {
 
   return (
     <div>
-      <h2 className="h2-panel">Panel de Administración</h2>
+      
 
       {/* Componente visible para todos los roles, incluido peluquero */}
       {(role === "peluquero" || role === "administrador") && (

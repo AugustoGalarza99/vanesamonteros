@@ -1,0 +1,100 @@
+/* Contenedor principal */
+.demoras-container {
+    font-family: var(--font);
+    width: 80%;
+    margin: 20px auto;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Título */
+.demoras-title {
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Tabla */
+.demoras-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 auto;
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.demoras-table thead {
+    background-color: #4caf50;
+    color: rgb(0, 0, 0);
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+.demoras-table thead th {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.demoras-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.demoras-table tbody tr:last-of-type {
+    border-bottom: none;
+}
+
+.demoras-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.demoras-table tbody td {
+    padding: 10px 15px;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Input */
+.demoras-input {
+    width: 95%;
+    padding: 8px 10px;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    outline: none;
+    font-size: 14px;
+}
+
+.demoras-input:focus {
+    border-color: #4caf50;
+    box-shadow: 0 0 4px rgba(76, 175, 80, 0.5);
+}
+
+/* Botón */
+.demoras-button {
+    display: block;
+    margin: 20px auto 0;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.demoras-button:hover {
+    background-color: #45a049;
+}
+
+.demoras-button:active {
+    background-color: #3e8e41;
+}
+
+.demoras-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
