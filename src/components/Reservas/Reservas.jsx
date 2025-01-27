@@ -582,7 +582,7 @@ const handleCancelTurn = async (reserva) => {
           <TableHead>
             <TableRow>
               <TableCell>Fecha</TableCell>
-              <TableCell>Hora</TableCell>
+              <TableCell>Hora Inicio</TableCell>
               <TableCell>Hora Fin</TableCell>
               <TableCell>Cliente</TableCell>
               <TableCell>Servicio</TableCell>
