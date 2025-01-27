@@ -393,7 +393,8 @@ const ReservasForm = () => {
         if (whatsapp) {
             const profesionalNombre = peluqueros.find(p => p.id === profesional)?.nombre || '';
             const profesionalNombreSinParentesis = profesionalNombre.replace(/\s*\(.*?\)\s*/g, '').trim();
-            const whatsappUrl = `https://wa.me/${whatsapp}?text=Hola,%20necesito%20el%20código%20de%20verificación%20para%20reservar%20mi%20turno%20con%20${encodeURIComponent(profesionalNombreSinParentesis)}.`;
+            const cleanWhatsappNumber = whatsapp.replace(/\+/g, '').trim();
+            const whatsappUrl = `https://wa.me/${cleanWhatsappNumber}?text=Hola,%20necesito%20el%20código%20de%20verificación%20para%20reservar%20mi%20turno%20con%20${encodeURIComponent(profesionalNombreSinParentesis)}.`;
             window.location.href = whatsappUrl; // Redirige al número de WhatsApp
         } else {
             try {
@@ -405,7 +406,8 @@ const ReservasForm = () => {
                     setWhatsapp(whatsappNumber);
                     const profesionalNombre = peluqueros.find(p => p.id === profesional)?.nombre || '';
                     const profesionalNombreSinParentesis = profesionalNombre.replace(/\s*\(.*?\)\s*/g, '').trim();
-                    const whatsappUrl = `https://wa.me/${whatsapp}?text=Hola,%20necesito%20el%20código%20de%20verificación%20para%20reservar%20mi%20turno%20con%20${encodeURIComponent(profesionalNombreSinParentesis)}.`;
+                    const cleanWhatsappNumber = whatsappNumber.replace(/\+/g, '').trim();
+                    const whatsappUrl = `https://wa.me/${cleanWhatsappNumber}?text=Hola,%20necesito%20el%20código%20de%20verificación%20para%20reservar%20mi%20turno%20con%20${encodeURIComponent(profesionalNombreSinParentesis)}.`;
 
                     window.location.href = whatsappUrl; // Redirige al número de WhatsApp
                 } else {

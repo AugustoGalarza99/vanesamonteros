@@ -139,6 +139,7 @@ const WorkScheduleConfig = () => {
                     value={workDays[day].intervalo}
                     onChange={(e) => handleChange(day, 'intervalo', parseInt(e.target.value))}
                   >
+                    <option value={10}>10 minutos</option>
                     <option value={15}>15 minutos</option>
                     <option value={30}>30 minutos</option>
                     <option value={60}>60 minutos</option>
