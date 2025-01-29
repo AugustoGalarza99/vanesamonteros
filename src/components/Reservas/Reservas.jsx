@@ -14,6 +14,7 @@ const Reservas = ({ uidPeluquero }) => {
   const [reservasFiltradas, setReservasFiltradas] = useState([]); // Reservas filtradas
   const [reservasLocal, setReservasLocal] = useState([]);
   const [fechaSeleccionada, setFechaSeleccionada] = useState(""); // Fecha seleccionada
+  const [nombreBuscado, setNombreBuscado] = useState("");
 
   const obtenerNombreProfesional = async (uid) => {
     /*console.log(`Consultando nombre del profesional con UID: ${uid}`);*/
@@ -92,6 +93,9 @@ const formatearFecha = (fecha) => {
   return `${partes[2]}-${partes[1]}-${partes[0]}`; // Reorganiza como dd-mm-yyyy
 };
 
+const reservasFiltradasPorNombre = reservasFiltradas.filter((reserva) =>
+  `${reserva.nombre} ${reserva.apellido}`.toLowerCase().includes(nombreBuscado.toLowerCase())
+);
 
 useEffect(() => {
   const cargarReservas = async () => {
@@ -575,6 +579,17 @@ const handleCancelTurn = async (reserva) => {
           </>
         )}
       </div>
+
+      {/* Buscador */}
+      <div className="div-control">
+        <TextField
+          label="Buscar Cliente"
+          variant="outlined"
+          value={nombreBuscado}
+          onChange={(e) => setNombreBuscado(e.target.value)}
+          fullWidth
+        />
+      </div>
   
       {/* Tabla: Visible solo en pantallas grandes */}
       <TableContainer component={Paper} className="custom-table-container">
@@ -592,7 +607,7 @@ const handleCancelTurn = async (reserva) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {reservasFiltradas
+            {reservasFiltradasPorNombre
               .filter((reserva) => reserva.status !== "finalizado")
               .map((reserva) => (
                 <TableRow key={reserva.id}>
@@ -632,7 +647,7 @@ const handleCancelTurn = async (reserva) => {
   
       {/* Tarjetas: Visible solo en pantallas pequeñas */}
       <div className="reservas-cards">
-        {reservasFiltradas
+        {reservasFiltradasPorNombre
           .filter((reserva) => reserva.status !== "finalizado")
           .map((reserva) => (
             <div className="reservas-card" key={reserva.id}>
