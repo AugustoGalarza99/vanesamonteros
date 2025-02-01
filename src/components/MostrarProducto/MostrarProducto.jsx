@@ -16,7 +16,7 @@ const MostrarProductos = () => {
       }));
   
       if (productosData.length > 0) {
-        console.log("Productos cargados desde Firebase:", productosData);
+        /*console.log("Productos cargados desde Firebase:", productosData);*/
         // Guardar datos en localStorage
         localStorage.setItem("productos", JSON.stringify(productosData));
         localStorage.setItem("productosTimestamp", Date.now());
@@ -35,12 +35,12 @@ const MostrarProductos = () => {
     
     // Si no hay datos locales o son inválidos, cargar desde Firebase.
     if (!productosLocales.length || !Array.isArray(productosLocales)) {
-      console.log("No hay datos locales o son inválidos, cargando desde Firebase...");
+      /*console.log("No hay datos locales o son inválidos, cargando desde Firebase...");*/
       await cargarProductosDesdeFirebase();
       return;
     }
   
-    console.log("Verificando si hay cambios en Firebase...");
+    /*console.log("Verificando si hay cambios en Firebase...");*/
   
     try {
       const productosSnapshot = await getDocs(collection(db, "productos"));
@@ -63,12 +63,12 @@ const MostrarProductos = () => {
         });
   
       if (hayCambios) {
-        console.log("Se detectaron cambios en los productos, actualizando datos locales...");
+        /*console.log("Se detectaron cambios en los productos, actualizando datos locales...");*/
         localStorage.setItem("productos", JSON.stringify(productosData));
         localStorage.setItem("productosTimestamp", Date.now());
         setProductos(productosData);
       } else {
-        console.log("Los datos locales están actualizados, usando datos locales.");
+       /* console.log("Los datos locales están actualizados, usando datos locales.");*/
         setProductos(productosLocales);
       }
     } catch (error) {
@@ -100,10 +100,10 @@ const verificarActualizacion = async () => {
   const unDiaEnMs = 24 * 60 * 60 * 1000;
 
   if (tiempoTranscurrido > unDiaEnMs) {
-    console.log("Datos locales desactualizados, verificando cambios...");
+   /* console.log("Datos locales desactualizados, verificando cambios...");*/
     await cargarProductosDesdeFirebase();
   } else {
-    console.log("Usando datos locales.");
+   /* console.log("Usando datos locales.");*/
     setProductos(productosLocales);
   }
 };

@@ -53,7 +53,7 @@ function DesktopNavbar() {
             onClick={() => {
               auth.signOut()
                 .then(() => {
-                  console.log('Sesión cerrada exitosamente.');
+                  /*console.log('Sesión cerrada exitosamente.');*/
                 })
                 .catch((error) => {
                   console.error('Error al cerrar sesión:', error);

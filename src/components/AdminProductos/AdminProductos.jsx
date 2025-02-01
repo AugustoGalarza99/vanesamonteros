@@ -36,14 +36,13 @@ const AdminProductos = () => {
         const tiempoTranscurrido = tiempoActual - timestampLocal;
   
         if (productosLocales.length && tiempoTranscurrido < unDiaEnMs) {
-          console.log("Usando productos locales.");
           setProductos(productosLocales);
           setProductosFiltrados(productosLocales);
           return;
         }
       }
   
-      console.log("Cargando productos desde Firebase...");
+     /*console.log("Cargando productos desde Firebase...");*/
       const productosData = await cargarProductosDesdeFirebase();
   
       localStorage.setItem("adminProductos", JSON.stringify(productosData));

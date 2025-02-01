@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+/*import React, { useState, useEffect } from 'react';
 import { doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc, addDoc, setDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { addDays, startOfWeek, format, isSameDay } from 'date-fns';
@@ -655,4 +655,4 @@ const finalizarTurno = async (reserva) => {
   );
 };
 
-export default CalendarioPeluquero;
+export default CalendarioPeluquero;*/

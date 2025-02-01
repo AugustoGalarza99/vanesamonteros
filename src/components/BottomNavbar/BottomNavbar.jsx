@@ -16,7 +16,7 @@ function BottomNavbar() {
 
   const handleLogout = () => {
     auth.signOut().then(() => {
-      console.log('Sesión cerrada.');
+      /*console.log('Sesión cerrada.');*/
       setIsMenuOpen(false);
     });
   };

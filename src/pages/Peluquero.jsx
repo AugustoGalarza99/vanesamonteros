@@ -1,5 +1,5 @@
 // src/pages/ReservaPage.js
-import React from 'react';
+/*import React from 'react';
 import PanelPeluquero from '../components/PanelPeluquero/PanelPeluquero';
 
 const Peluquero = () => {
@@ -10,4 +10,4 @@ const Peluquero = () => {
   );
 };
 
-export default Peluquero;
+export default Peluquero;*/

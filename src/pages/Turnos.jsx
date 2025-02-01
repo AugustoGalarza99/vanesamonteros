@@ -8,7 +8,7 @@ const Turnos = () => {
   const [user] = useAuthState(auth); // Obtener el usuario autenticado
   const uidPeluquero = user ? user.uid : null;
 
-  console.log("UID Peluquero:", uidPeluquero); // Verifica si el UID se obtiene correctamente
+  /*console.log("UID Peluquero:", uidPeluquero); // Verifica si el UID se obtiene correctamente*/
 
   return (
     <div>

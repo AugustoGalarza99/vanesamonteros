@@ -319,7 +319,7 @@ const ReservasForm = () => {
                                 // Llamar a la función para solicitar el código
                                 handleSolicitarCodigo();
                             } else if (result.isDismissed) {
-                                console.log('El usuario canceló la solicitud de código');
+                                /*console.log('El usuario canceló la solicitud de código');*/
                             }
                         });
                         setVerificado(false);
@@ -345,7 +345,7 @@ const ReservasForm = () => {
                         // Llamar a la función para solicitar el código
                         handleSolicitarCodigo();
                     } else if (result.isDismissed) {
-                        console.log('El usuario canceló la solicitud de código');
+                        /*console.log('El usuario canceló la solicitud de código');*/
                     }
                 });
                 setVerificado(false);
@@ -514,7 +514,7 @@ const ReservasForm = () => {
                 status: 'Sin realizar' // Establecer el estado de la reserva
             });
     
-            console.log('Reserva creada con éxito');
+            /*console.log('Reserva creada con éxito');*/
         } catch (error) {
             console.error('Error al crear la reserva:', error);
             Swal.fire({
@@ -538,7 +538,7 @@ const ReservasForm = () => {
                 apellido: apellido,
                 verificado: true,
             });
-            console.log('Cliente guardado como verificado en Firebase');
+            /*console.log('Cliente guardado como verificado en Firebase');*/
         } catch (error) {
             console.error('Error al guardar el cliente:', error);
         }

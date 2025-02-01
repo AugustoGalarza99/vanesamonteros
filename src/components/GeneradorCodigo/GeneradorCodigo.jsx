@@ -55,7 +55,7 @@ const GeneradorCodigo = () => {
                 codigoVerificacion: codigoGenerado,
                 nombre: nombrePeluquero, // Guardar el nombre obtenido desde la colección "peluqueros"
             });
-            console.log("Código guardado en Firebase para el usuario:", user.uid);
+            /*console.log("Código guardado en Firebase para el usuario:", user.uid);*/
         } catch (error) {
             console.error("Error al guardar el código en Firebase:", error);
         } finally {

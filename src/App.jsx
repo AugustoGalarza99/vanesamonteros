@@ -6,7 +6,6 @@ import { getDoc, doc } from 'firebase/firestore';
 import { auth, db } from './firebaseConfig'; // Asegúrate de que la ruta sea correcta
 import Navbar from './components/Navbar/Navbar';
 import ReservaPage from './pages/ReservaPage';
-import Peluquero from './pages/Peluquero';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import LoginPeluquero from './pages/Login';
 import Estado from './pages/Estado';

@@ -4,6 +4,7 @@ import { Table, TableHead, TableRow, TableCell, TableBody, MenuItem, Select, Inp
 import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where, setDoc } from "firebase/firestore";
 import { limpiarReservasAntiguas } from '../../reservaService'
 import Swal from "sweetalert2";
+import './AgendaDos.css'
 
 const ReservasDos = ({ uidPeluquero }) => {
   const [rolUsuario, setRolUsuario] = useState("peluquero");
@@ -28,17 +29,17 @@ const ReservasDos = ({ uidPeluquero }) => {
     const cargarReservasDelPeluquero = async () => {
       try {
         if (reservasLocal.length > 0) {
-          console.log("Usando reservas almacenadas localmente.");
+          /*console.log("Usando reservas almacenadas localmente.");*/
           setReservasFiltradas(reservasLocal);
           return;
         }
   
         if (!uidPeluquero) {
-          console.error("El UID del peluquero no está definido");
+          /*console.error("El UID del peluquero no está definido");*/
           return;
         }
   
-        console.log("Cargando reservas desde Firebase...");
+        /*console.log("Cargando reservas desde Firebase...");*/
         const reservasRef = collection(db, "reservas");
         const q = query(reservasRef, where("uidPeluquero", "==", uidPeluquero));
         const querySnapshot = await getDocs(q);
@@ -72,18 +73,18 @@ const ReservasDos = ({ uidPeluquero }) => {
               new Date(`${a.fecha}T${a.hora}`) - new Date(`${b.fecha}T${b.hora}`)
           );
   
-          console.log("Reservas cargadas y ordenadas:", reservasCargadas);
+          /*console.log("Reservas cargadas y ordenadas:", reservasCargadas);*/
   
           setReservas(reservasCargadas);
           setReservasLocal(reservasCargadas);
           setReservasFiltradas(reservasCargadas);
         } else {
-          console.log("No se encontraron reservas para este peluquero");
+         /* console.log("No se encontraron reservas para este peluquero");*/
           setReservas([]);
           setReservasFiltradas([]);
         }
       } catch (error) {
-        console.error("Error cargando las reservas del peluquero:", error);
+       /* console.error("Error cargando las reservas del peluquero:", error);*/
       }
     };
   
@@ -210,7 +211,7 @@ const finalizarTurno = async (reserva) => {
     // Guardar los datos actualizados en Firebase con setDoc
     await setDoc(controlRef, controlData, { merge: true });
 
-    console.log('Turno actualizado a finalizado y registrado en la colección control.');
+    /*console.log('Turno actualizado a finalizado y registrado en la colección control.');*/
   } catch (error) {
     console.error('Error al finalizar el turno:', error.message);
   }

@@ -33,7 +33,7 @@ const Reservas = ({ uidPeluquero }) => {
 
   useEffect(() => {
     const cargarUsuario = async () => {
-      console.log("Cargando usuario...");
+      /*console.log("Cargando usuario...");*/
       try {
         if (!uidPeluquero) {
           console.error("UID de peluquero no proporcionado.");
@@ -41,7 +41,7 @@ const Reservas = ({ uidPeluquero }) => {
         }
 
         const peluqueroDoc = await getDoc(doc(db, "peluqueros", uidPeluquero));
-        console.log("Resultado de consulta de peluquero:", peluqueroDoc.exists());
+        /*console.log("Resultado de consulta de peluquero:", peluqueroDoc.exists());*/
         if (peluqueroDoc.exists()) {
           setRolUsuario("peluquero");
           setPeluqueroSeleccionado(uidPeluquero);
@@ -49,7 +49,7 @@ const Reservas = ({ uidPeluquero }) => {
         }
 
         const adminDoc = await getDoc(doc(db, "administradores", uidPeluquero));
-        console.log("Resultado de consulta de administrador:", adminDoc.exists());
+       /* console.log("Resultado de consulta de administrador:", adminDoc.exists());*/
         if (adminDoc.exists()) {
           setRolUsuario("administrador");
           const peluquerosSnapshot = await getDocs(collection(db, "peluqueros"));
@@ -57,7 +57,7 @@ const Reservas = ({ uidPeluquero }) => {
             id: doc.id,
             ...doc.data(),
           }));
-          console.log("Lista de peluqueros cargada:", listaPeluqueros);
+          /*console.log("Lista de peluqueros cargada:", listaPeluqueros);*/
           setPeluqueros(listaPeluqueros);
           setPeluqueroSeleccionado("admin");
         } else {
@@ -100,15 +100,15 @@ const reservasFiltradasPorNombre = reservasFiltradas.filter((reserva) =>
 useEffect(() => {
   const cargarReservas = async () => {
     if (reservasLocal.length > 0) {
-      console.log("Usando reservas almacenadas localmente.");
+      /*console.log("Usando reservas almacenadas localmente.");*/
       setReservasFiltradas(reservasLocal);
       return;
     }
 
-    console.log("Cargando reservas desde Firebase...");
+    /*console.log("Cargando reservas desde Firebase...");*/
     try {
       const snapshot = await getDocs(collection(db, "reservas"));
-      console.log(`Número de reservas obtenidas: ${snapshot.size}`);
+      /*console.log(`Número de reservas obtenidas: ${snapshot.size}`);*/
 
       const reservasCargadas = await Promise.all(
         snapshot.docs.map(async (docReserva) => {
@@ -139,7 +139,7 @@ useEffect(() => {
         return fechaA - fechaB; // Orden ascendente
       });
 
-      console.log("Reservas cargadas y ordenadas:", reservasCargadas);
+      /*console.log("Reservas cargadas y ordenadas:", reservasCargadas);*/
       setReservas(reservasCargadas);
       setReservasLocal(reservasCargadas);
       setReservasFiltradas(reservasCargadas);
@@ -252,7 +252,7 @@ const finalizarTurno = async (reserva) => {
     // Guardar los datos actualizados en Firebase con setDoc
     await setDoc(controlRef, controlData, { merge: true });
 
-    console.log('Turno actualizado a finalizado y registrado en la colección control.');
+    /*console.log('Turno actualizado a finalizado y registrado en la colección control.');*/
   } catch (error) {
     console.error('Error al finalizar el turno:', error.message);
   }

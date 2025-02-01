@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+/*import React, { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
 import GeneradorCodigo from '../GeneradorCodigo/GeneradorCodigo';
 import CalendarioPeluquero from '../CalendarioPeluquero/CalendarioPeluquero';
@@ -32,4 +32,4 @@ const PanelPeluquero = () => {
     );
 };
 
-export default PanelPeluquero;
+export default PanelPeluquero;*/

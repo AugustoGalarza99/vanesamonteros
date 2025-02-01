@@ -12,7 +12,7 @@ export const RoleProvider = ({ children }) => {
   const [role, setRole] = useState(null); // Almacenar el rol del usuario
   const [roleLoading, setRoleLoading] = useState(true); // Indicador de carga del rol
 
-  console.log("Rol asignado:", role);
+  /*console.log("Rol asignado:", role);*/
 
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export const RoleProvider = ({ children }) => {
           if (peluqueroDoc.exists()) {
             setRole(peluqueroDoc.data().rol);
           } else {
-            console.log("Usuario no encontrado en peluqueros. Buscando en administradores...");
+            /*console.log("Usuario no encontrado en peluqueros. Buscando en administradores...");*/
             // Intentar buscar en 'administradores'
             const adminDoc = await getDoc(doc(db, "administradores", user.uid));
             if (adminDoc.exists()) {
