@@ -2,7 +2,6 @@ import React from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth'; // Importar hooks de autenticación
 import { auth } from '../firebaseConfig'; // Importar la configuración de Firebase
 import ReservasDos from '../components/AgendaDos/AgendaDos';
-import GeneradorCodigo from '../components/GeneradorCodigo/GeneradorCodigo';
 
 
 
@@ -14,7 +13,6 @@ const ReservasDoss = () => {
   const uidPeluquero = user ? user.uid : null;
   return (
     <div>
-        <GeneradorCodigo />
         {uidPeluquero ? (
         <ReservasDos uidPeluquero={uidPeluquero}/>
       ) : (

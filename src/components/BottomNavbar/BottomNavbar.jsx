@@ -48,7 +48,7 @@ function BottomNavbar() {
                 <li><Link to="/horarios" onClick={() => setIsMenuOpen(false)}><FiClock size={16} /> Horarios</Link></li>
                 <li><Link to="/reservamanual" onClick={() => setIsMenuOpen(false)}><RxCalendar size={16} /> Reserva manual</Link></li>
                 <li><Link to="/finanzas" onClick={() => setIsMenuOpen(false)}><FiPieChart size={16} /> Finanzas</Link></li>
-                <li><Link to="/administracion" onClick={() => setIsMenuOpen(false)}><FiUser size={16} /> Administración</Link></li>
+                <li><Link to="/miperfil" onClick={() => setIsMenuOpen(false)}><FiUser size={16} /> Mi perfil</Link></li>
               </>
             )}
             {role === 'administrador' && (

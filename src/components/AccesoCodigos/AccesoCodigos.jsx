@@ -1,47 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../firebaseConfig'; // Ajusta el path de tu configuración de Firebase
-import './AccesoCodigos.css'
+import React, { useState, useEffect } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db, auth } from "../../firebaseConfig"; // Asegúrate de importar auth
 
 const AccesoCodigos = () => {
-  const [codigos, setCodigos] = useState([]);
+  const [codigo, setCodigo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const obtenerCodigos = async () => {
+    const obtenerCodigo = async () => {
       try {
-        const codigosCollection = collection(db, 'codigos_verificacion');
-        const querySnapshot = await getDocs(codigosCollection);
+        const user = auth.currentUser; // Obtener usuario autenticado
+        if (!user) {
+          setError("Usuario no autenticado.");
+          setLoading(false);
+          return;
+        }
 
-        const codigosData = [];
-        querySnapshot.forEach((doc) => {
-          const uid = doc.id;
-          const data = doc.data();
+        const docRef = doc(db, "codigos_verificacion", user.uid);
+        const docSnap = await getDoc(docRef);
 
-          if (data.codigoVerificacion && data.nombre) {
-            codigosData.push({
-              uid,
-              nombre: data.nombre,
-              codigoVerificacion: data.codigoVerificacion,
-            });
-          }
-        });
-
-        setCodigos(codigosData);
+        if (docSnap.exists()) {
+          setCodigo(docSnap.data());
+        } else {
+          setError("No se encontró un código de verificación.");
+        }
       } catch (err) {
-        setError('Error al cargar los códigos de verificación.');
+        setError("Error al cargar el código de verificación.");
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
 
-    obtenerCodigos();
+    obtenerCodigo();
   }, []);
 
   if (loading) {
-    return <div>Cargando códigos de verificación...</div>;
+    return <div>Cargando código de verificación...</div>;
   }
 
   if (error) {
@@ -49,8 +45,8 @@ const AccesoCodigos = () => {
   }
 
   return (
-    <div className='codigos'>
-      <h3>Códigos de Verificación</h3>
+    <div className="codigos">
+      <h3>Tu Código de Verificación</h3>
       <table>
         <thead>
           <tr>
@@ -59,12 +55,10 @@ const AccesoCodigos = () => {
           </tr>
         </thead>
         <tbody>
-          {codigos.map((codigo) => (
-            <tr key={codigo.uid}>
-              <td>{codigo.nombre}</td>
-              <td>{codigo.codigoVerificacion}</td>
-            </tr>
-          ))}
+          <tr>
+            <td>{codigo?.nombre}</td>
+            <td>{codigo?.codigoVerificacion}</td>
+          </tr>
         </tbody>
       </table>
     </div>

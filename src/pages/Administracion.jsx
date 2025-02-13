@@ -1,13 +1,13 @@
 import React from "react";
 import Administrativo from "../components/Administrativo/Administrativo";
-import DemorasProfesionales from "../components/DemorasProfesional/DemorasProfesional";
-import AccesoCodigos from "../components/AccesoCodigos/AccesoCodigos"
+import RegistroDemoraAdmin from "../components/RegistroDemoraAdmin/RegistroDemoraAdmin";
+import AccesoCodigosAdmin from "../components/AccesoCodigosAdmin/AccesoCodigosAdmin";
 
 const Administracion = () => {
   return (
     <div>
-        <DemorasProfesionales />
-        <AccesoCodigos />
+        <RegistroDemoraAdmin />
+        <AccesoCodigosAdmin />
         <Administrativo />
     </div>
   );

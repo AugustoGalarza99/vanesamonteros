@@ -10,7 +10,11 @@ export const limpiarReservasAntiguas = async () => {
         const fechaLimite = new Date(hoy.setDate(hoy.getDate() - 1));
 
         // Configura la consulta para obtener las reservas anteriores a tres días
-        const q = query(reservasRef, where('fecha', '<', fechaLimite.toISOString().split('T')[0]));
+        const q = query(
+            reservasRef,
+            where('fecha', '<', fechaLimite.toISOString().split('T')[0]),
+            where("status", "==", "finalizado") // Solo eliminamos las finalizadas
+        );
         const snapshot = await getDocs(q);
 
         const batch = writeBatch(db); // Crea el batch con writeBatch(db)

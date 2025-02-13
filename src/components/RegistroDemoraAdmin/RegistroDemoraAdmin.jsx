@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { db } from "../../firebaseConfig"; // Ajusta la ruta a tu configuración de Firebase
 import { collection, getDocs, doc, setDoc, Timestamp } from "firebase/firestore";
 import Swal from 'sweetalert2';
-import './DemorasProfesional.css';
+import './RegistroDemoraAdmin.css';
 
-const DemorasProfesionales = () => {
+const RegistroDemoraAdmin = () => {
     const [profesionales, setProfesionales] = useState([]);
     const [demoras, setDemoras] = useState({});
 
@@ -96,4 +96,4 @@ const DemorasProfesionales = () => {
     );
 };
 
-export default DemorasProfesionales;
+export default RegistroDemoraAdmin;
