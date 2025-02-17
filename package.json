@@ -2,7 +2,7 @@
   "name": "turnero",
   "private": true,
   "version": "0.0.0",
-  "homepage": "/juan",
+  "homepage": ".",
   "type": "module",
   "scripts": {
     "dev": "vite",

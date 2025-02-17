@@ -1,0 +1,33 @@
+/* Estilo general para el footer */
+.footer {
+    bottom: 0;
+    width: 100%;
+    background-color: transparent;
+    padding: 20px 0;
+    text-align: center;
+    font-size: 14px;
+    color: #ecf0f1;
+    z-index: 10;
+  }
+  
+  /* Contenedor para el contenido del footer */
+  .footer-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  /* Estilo para el enlace "Agenda Smart" */
+  .footer-link {
+    color: rgb(32, 32, 32);
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .footer-link:hover {
+    color: rgb(32, 32, 32);
+    transform: scale(1.05);
+  }
+  

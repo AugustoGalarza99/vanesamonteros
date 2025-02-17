@@ -5,6 +5,10 @@
     height: 100%; /* El contenedor principal ocupa toda la altura */
     overflow: hidden; /* Evita desbordamientos */
   }
+
+  .div-estado{
+    height: 100%;
+  }
   
   /* Navegador en pantallas grandes */
   .responsive-navbar {

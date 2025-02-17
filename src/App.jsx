@@ -23,6 +23,7 @@ import FloatingWhatsAppButton from './components/Whatsapp/Whatsapp';
 import Turnos from './pages/Turnos';
 import ReservasDoss from './pages/ReservasDos';
 import MiPerfil from './pages/MiPerfil';
+import Footer from './components/Footer/Footer';
 
 
 // Componentes simples para las páginas
@@ -72,7 +73,7 @@ function App() {
 
   return (
     <RoleProvider>
-    <Router /*basename='/juan'*/>
+    <Router basename="/">
     <FloatingWhatsAppButton />
       <div className="app-layout">    
       <ResponsiveNavbar isPeluquero={isPeluquero} />
@@ -96,10 +97,11 @@ function App() {
 
           {/* Si el usuario intenta ir a una ruta que no existe */}
           <Route path="*" element={<NotFound />} />
-        </Routes>        
+        </Routes> 
+        <Footer />      
       </div>
       </div> 
-    </Router>
+    </Router>    
     </RoleProvider>
   );
 }

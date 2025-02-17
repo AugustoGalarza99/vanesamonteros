@@ -247,6 +247,7 @@ const finalizarTurno = async (reserva) => {
       servicio: reserva.servicio || 'Desconocido',
       precio: reserva.costoServicio || 0.0,
       uid: uidPeluquero, // Agregar el uid del peluquero
+      formaPago: reserva.formaPago, // Guardar la forma de pago (efectivo o transferencia)
     };
 
     // Guardar los datos actualizados en Firebase con setDoc
@@ -435,14 +436,74 @@ const handleCancelTurn = async (reserva) => {
       }).then(async (result) => {
         if (result.isConfirmed) {
           try {
-            // Cambiar el estado del turno a "Finalizado"
-            await actualizarEstadoTurno(id, 'finalizado');
-  
-            // Verificar si es el primer turno del día
-            const isFirstTurnToday = await verificarPrimerTurnoDelDia();
-            if (isFirstTurnToday) {
-              await limpiarReservasAntiguas();
-            }
+            // **Solicitar la forma de pago antes de continuar**
+              const { isConfirmed, value: formaPago } = await Swal.fire({
+                title: "Seleccionar Forma de Pago",
+                html: `
+                  <style>
+                    /* Asegúrate de aplicar los estilos con mayor especificidad */
+                    .swal2-radio {
+                      display: flex;
+                      flex-direction: column;
+                      align-items: center !important;  /* Importante para que no sea sobrescrito */
+                      background: black !important;   /* Fondo negro */
+                      padding: 10px;
+                      border-radius: 10px;
+                    }
+
+                    .swal2-radio label {
+                      display: flex;
+                      align-items: center;
+                      gap: 8px;
+                      font-size: 18px;
+                      cursor: pointer;
+                    }
+
+                    .swal2-radio input {
+                      accent-color: green;
+                      transform: scale(1.2);
+                    }
+
+                    .swal2-radio label span {
+                      color: white !important;  /* Texto blanco */
+                      background: black !important;  /* Fondo negro */
+                      padding: 4px 8px;
+                      border-radius: 5px;
+                    }
+                  </style>
+
+                  <div class="swal2-radio">
+                    <label><input type="radio" name="formaPago" value="Efectivo"> <span>Efectivo</span></label>
+                    <label><input type="radio" name="formaPago" value="Transferencia"> <span>Transferencia</span></label>
+                    <label><input type="radio" name="formaPago" value="No_aplica"> <span>No aplica</span></label>
+                  </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: "Confirmar",
+                background: "black",
+                color: "white",
+                preConfirm: () => {
+                  const formaPagoSeleccionada = document.querySelector('input[name="formaPago"]:checked')?.value;
+                  if (!formaPagoSeleccionada) {
+                    Swal.showValidationMessage("Debe seleccionar una forma de pago.");
+                  }
+                  return formaPagoSeleccionada;
+                }
+              });
+
+              if (!isConfirmed) return; // Si el usuario cancela, no se finaliza el turno
+
+              // **Actualizar el estado del turno**
+              await actualizarEstadoTurno(id, 'finalizado');
+
+              // **Verificar si es el primer turno del día**
+              const isFirstTurnToday = await verificarPrimerTurnoDelDia();
+              if (isFirstTurnToday) {
+                await limpiarReservasAntiguas();
+              }
+
+              // **Agregar la forma de pago a la reserva**
+              reserva.formaPago = formaPago;
   
             // Finalizar el turno
             await finalizarTurno(reserva);
@@ -608,7 +669,7 @@ const handleCancelTurn = async (reserva) => {
           </TableHead>
           <TableBody>
             {reservasFiltradasPorNombre
-              .filter((reserva) => reserva.status !== "finalizado")
+              .filter((reserva) => reserva.status)
               .map((reserva) => (
                 <TableRow key={reserva.id}>
                   <TableCell>{formatearFecha(reserva.fecha)}</TableCell>
@@ -622,8 +683,8 @@ const handleCancelTurn = async (reserva) => {
                       className={`status-label ${
                         reserva.status === "Sin realizar"
                           ? "status-sin-realizar"
-                          : reserva.status === "en proceso"
-                          ? "status-en-proceso"
+                          : reserva.status === "finalizado"
+                          ? "status-finalizado"
                           : ""
                       }`}
                     >
@@ -648,7 +709,7 @@ const handleCancelTurn = async (reserva) => {
       {/* Tarjetas: Visible solo en pantallas pequeñas */}
       <div className="reservas-cards">
         {reservasFiltradasPorNombre
-          .filter((reserva) => reserva.status !== "finalizado")
+          .filter((reserva) => reserva.status)
           .map((reserva) => (
             <div className="reservas-card" key={reserva.id}>
               <div className="card-row">
@@ -681,8 +742,8 @@ const handleCancelTurn = async (reserva) => {
                   className={
                     reserva.status === "Sin realizar"
                       ? "status-sin-realizar"
-                      : reserva.status === "en proceso"
-                      ? "status-en-proceso"
+                      : reserva.status === "finalizado"
+                      ? "status-finalizado"
                       : ""
                   }
                 >

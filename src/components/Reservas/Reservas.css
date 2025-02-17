@@ -28,7 +28,8 @@
 /* Estilos base */
 .reservas-container {
   padding: 1rem;
-  font-family: 'Arial', sans-serif;
+  font-family: var(--font);
+  height: 100%;
 }
 
 h3 {
@@ -185,9 +186,9 @@ h3 {
   color: #ffffff; /* Letras blancas */
 }
 
-/* Estado: en proceso */
-.status-en-proceso {
-  background-color: #f1c40f; /* Amarillo elegante */
+/* Estado: finalizado */
+.status-finalizado {
+  background-color: #0ff12d; /* Amarillo elegante */
   color: #000000; /* Letras negras */
-}
-
+  }
+  

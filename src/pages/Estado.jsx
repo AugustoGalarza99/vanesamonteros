@@ -5,7 +5,7 @@ import EstadoDemoras from '../components/EstadoDemoras/EstadoDemoras';
 
 const Estado = () => {
   return (
-    <div>
+    <div className='div-estado'>
         <EstadoPeluquero />
         <EstadoDemoras />
     </div>
