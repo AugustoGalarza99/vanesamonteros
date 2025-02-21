@@ -31,6 +31,19 @@ const Reservas = ({ uidPeluquero }) => {
     }
   };
 
+      // Limpiar reservas antiguas al montar el componente
+      useEffect(() => {
+        const limpiarAlMontar = async () => {
+          try {
+            await limpiarReservasAntiguas();
+          } catch (error) {
+            console.error('Error al limpiar reservas antiguas al montar:', error);
+          }
+        };
+    
+        limpiarAlMontar();
+      }, []); // Dependencia vacía: se ejecuta solo al montar
+
   useEffect(() => {
     const cargarUsuario = async () => {
       /*console.log("Cargando usuario...");*/
@@ -495,13 +508,6 @@ const handleCancelTurn = async (reserva) => {
 
               // **Actualizar el estado del turno**
               await actualizarEstadoTurno(id, 'finalizado');
-
-              // **Verificar si es el primer turno del día**
-              const isFirstTurnToday = await verificarPrimerTurnoDelDia();
-              if (isFirstTurnToday) {
-                await limpiarReservasAntiguas();
-              }
-
               // **Agregar la forma de pago a la reserva**
               reserva.formaPago = formaPago;
   

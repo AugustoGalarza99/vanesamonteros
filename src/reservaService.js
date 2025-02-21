@@ -5,29 +5,35 @@ export const limpiarReservasAntiguas = async () => {
     try {
         const reservasRef = collection(db, 'reservas');
         
-        // Obtiene la fecha de tres días atrás
+        // Obtiene la fecha de un día atrás
         const hoy = new Date();
-        const fechaLimite = new Date(hoy.setDate(hoy.getDate() - 1));
+        const fechaLimite = new Date(hoy.setDate(hoy.getDate() - 2));
 
-        // Configura la consulta para obtener las reservas anteriores a tres días
-        const q = query(
-            reservasRef,
-            where('fecha', '<', fechaLimite.toISOString().split('T')[0]),
-            where("status", "==", "finalizado") // Solo eliminamos las finalizadas
-        );
+        // Primero obtenemos solo las reservas con estado "finalizado"
+        const q = query(reservasRef, where("status", "==", "finalizado"));
         const snapshot = await getDocs(q);
 
-        const batch = writeBatch(db); // Crea el batch con writeBatch(db)
-        
-        // Añade cada reserva a eliminar al batch
+        // Creamos un nuevo batch
+        const batch = writeBatch(db);
+        let tieneEliminaciones = false;
+
+        // Filtramos manualmente las reservas con fecha menor a fechaLimite
         snapshot.forEach((doc) => {
-            batch.delete(doc.ref);
+            const data = doc.data();
+            if (data.fecha < fechaLimite.toISOString().split('T')[0]) {
+                batch.delete(doc.ref);
+                tieneEliminaciones = true;
+            }
         });
 
-        // Ejecuta la eliminación en batch
-        await batch.commit();
-        console.log('Reservas anteriores a tres días eliminadas.');
+        // Solo ejecutamos el commit si hay eliminaciones
+        if (tieneEliminaciones) {
+            await batch.commit();
+            //console.log('Reservas antiguas eliminadas.');
+        } else {
+            //console.log('No hay reservas antiguas para eliminar.');
+        }
     } catch (error) {
-        console.error('Error al eliminar reservas antiguas:', error);
+        //console.error('Error al eliminar reservas antiguas:', error);
     }
 };
