@@ -302,9 +302,9 @@ const ReservasForm = () => {
 
                     } else {
                         Swal.fire({
-                            title: 'No estás verificado',
-                            text: 'Debes verificar tu número de DNI y Telefono para agendar un turno. Solicita el codigo y cuando lo tengas pegalo en la parte inferior por unica vez. Si ya te verificaste por primera vez revisa tu DNI y telefono que hayan sido ingresados correctamente.',
-                            icon: 'error',
+                            title: 'Aun no eres cliente',
+                            text: 'Solicita el código de verificación a tu profesional para agendar tu turno y cuando lo tengas pégalo debajo por única vez. Si ya te verificaste revisa que tus datos sean correctos. Este paso es por única vez.',
+                            icon: 'warning',
                             showCancelButton: true,
                             confirmButtonText: 'Solicitar Código',
                             cancelButtonText: 'Tengo el codigo',
@@ -328,9 +328,9 @@ const ReservasForm = () => {
                 }
             } else {
                 Swal.fire({
-                    title: 'No estás verificado',
-                    text: 'Debes verificar tu número de DNI y Telefono para agendar un turno. Solicita el codigo y cuando lo tengas pegalo en la parte inferior por unica vez. Si ya te verificaste por primera vez revisa tu DNI y telefono que hayan sido ingresados correctamente.',
-                    icon: 'error',
+                    title: 'Aun no eres cliente',
+                    text: 'Solicita el código de verificación a tu profesional para agendar tu turno y cuando lo tengas pégalo debajo por única vez. Si ya te verificaste revisa que tus datos sean correctos. Este paso es por única vez.',
+                    icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Solicitar Código',
                     cancelButtonText: 'Tengo el codigo',
