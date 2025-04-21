@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebaseConfig';
-import { collection, getDocs, addDoc, query, where, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, where, doc, getDoc, setDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { RxCalendar } from "react-icons/rx";
 import Swal from 'sweetalert2';
@@ -123,6 +123,26 @@ const ReservaTurnoManual = () => {
             setHorariosDisponibles(horariosFiltrados);
         }
     }, [fecha]); // Solo ejecuta el efecto cuando cambia `fecha`
+
+    const guardarClienteVerificadoSiNoExiste = async () => {
+        try {
+            const clienteRef = doc(db, 'clientes', telefono);
+            const clienteSnap = await getDoc(clienteRef);
+    
+            if (!clienteSnap.exists() || !clienteSnap.data().verificado) {
+                await setDoc(clienteRef, {
+                    dni,
+                    telefono,
+                    nombre,
+                    apellido,
+                    verificado: true,
+                });
+            }
+        } catch (error) {
+            console.error('Error al guardar el cliente como verificado:', error);
+        }
+    };
+    
 
 
 // Obtener horarios disponibles del peluquero seleccionado y la fecha
@@ -311,6 +331,9 @@ const handleAgendar = async (e) => {
             }
         }
 
+        await guardarClienteVerificadoSiNoExiste();
+
+
         for (const reserva of reservas) {
             await addDoc(collection(db, 'reservas'), reserva);
         }
@@ -366,7 +389,7 @@ const handleAgendar = async (e) => {
                 
                     <input
                         className='input-gral2'
-                        placeholder='Telefono'
+                        placeholder='Ingresa numero de telefono incluyendo caracteristica'
                         type="text"
                         value={telefono}
                         onChange={(e) => setTelefono(e.target.value)}

@@ -261,7 +261,7 @@ const ReservasForm = () => {
             if (!querySnapshot.empty) {
                 for (const doc of querySnapshot.docs) {
                     const userData = doc.data(); // Obtener datos del usuario
-                    if (userData.telefono === telefono && userData.verificado) {
+                    if (userData.verificado){
                         setVerificado(true);
 
                         // Guardar la reserva en Firestore
@@ -557,7 +557,7 @@ const ReservasForm = () => {
                 <div className='div-tel'>
                 <input className='input-gral2' type="text" placeholder='Ingresa tu nombre' value={nombre} onChange={(e) => setNombre(e.target.value)} required />
                 <input className='input-gral2' type="text" placeholder='Ingresa tu apellido' value={apellido} onChange={(e) => setApellido(e.target.value)} required />
-                <input className='input-gral2' type="text" placeholder='Ingresa tu número de teléfono' value={telefono} onChange={(e) => {const value = e.target.value; if (/^\d*$/.test(value)) {setTelefono(value);}}} required />
+                <input className='input-gral2' type="text" placeholder='Ingresa tu número de teléfono incluyendo caracteristica' value={telefono} onChange={(e) => {const value = e.target.value; if (/^\d*$/.test(value)) {setTelefono(value);}}} required />
             </div>
             <div className='div-date'>
                 <label className='titulo-servicio'>Selecciona tu profesional</label>
