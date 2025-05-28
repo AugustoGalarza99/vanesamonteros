@@ -120,15 +120,6 @@ const ReservasForm = () => {
                 return true;
             });
         };
-        
-        
-    
-        useEffect(() => {
-            if (fecha) {
-                const horariosFiltrados = filtrarHorariosDelDia(fecha);
-                setHorariosDisponibles(horariosFiltrados);
-            }
-        }, [fecha]); // Solo ejecuta el efecto cuando cambia `fecha`
 
     useEffect(() => {
         const fetchHorariosDisponibles = async () => {
@@ -215,7 +206,19 @@ const ReservasForm = () => {
                                     ));
                                 });
         
-                                setHorariosDisponibles(horariosFiltrados);
+                                const horariosUnicos = [...new Set(horariosFiltrados)];
+                                setHorariosDisponibles(horariosUnicos);
+
+                                if (horariosUnicos.length === 0) {
+                                Swal.fire({
+                                    title: 'Sin turnos disponibles',
+                                    text: 'En la fecha seleccionada ya no quedan turnos disponibles. Por favor, elige otra fecha.',
+                                    icon: 'warning',
+                                    background: 'black',
+                                    color: 'white',
+                                    confirmButtonText: 'Cambiar fecha',
+                                });
+                                }
                             } else {
                                 // Mostrar días laborales en orden
                                 const diasSemanaOrdenados = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
@@ -590,7 +593,7 @@ const ReservasForm = () => {
                         setCostoServicio(selectedService.precio); // Actualiza el costo del servicio
                     }}>
                         {servicios.map((s) => (
-                            <option key={s.nombre} value={s.nombre}> {`${s.nombre} - $${s.precio} - (${s.duracion} min)`}</option>
+                            <option key={s.id} value={s.nombre}> {`${s.nombre} - $${s.precio} - (${s.duracion} min)`}</option>
                         ))}
                     </select>
                 </div>
