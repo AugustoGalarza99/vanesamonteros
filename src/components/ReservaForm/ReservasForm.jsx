@@ -257,21 +257,38 @@ const ReservasForm = () => {
             const clientesRef = collection(db, 'clientes'); // Referencia a la colección de clientes
             const q = query(clientesRef, where('dni', '==', dni)); // Buscar cliente por DNI
             const querySnapshot = await getDocs(q); // Obtener documentos que coinciden con la consulta
-
+                
             if (!querySnapshot.empty) {
                 for (const doc of querySnapshot.docs) {
                     const userData = doc.data(); // Obtener datos del usuario
                     if (userData.verificado){
                         setVerificado(true);
-
+    
+                        // Calcula el tiempo de inicio
+                        const startTime = new Date(`${fecha}T${hora}`);
+                        const ahora = new Date();
+                        const diferenciaEnMs = startTime - ahora;
+                        const diferenciaEnHoras = diferenciaEnMs / (1000 * 60 * 60);
+    
+                        // Si faltan menos de 4 horas, mostrar alerta y cancelar
+                        if (diferenciaEnHoras < 4) {
+                            Swal.fire({
+                                title: 'Turno cercano',
+                                text: 'Para el turno solicitado faltan menos de 4 horas. Ponte en contacto con el centro o el profesional para reservar el turno.',
+                                icon: 'warning',
+                                background: 'black',
+                                color: 'white',
+                                confirmButtonText: 'Entendido'
+                            });
+                            setLoading(false);
+                            return;
+                        }
+    
                         // Guardar la reserva en Firestore
                         try {
                             const reservasRef = collection(db, 'reservas'); // Referencia a la colección de reservas
-                            
-                            // Calcula el tiempo de fin
-                            const startTime = new Date(`${fecha}T${hora}`);
                             const endTime = new Date(startTime.getTime() + duracionServicio * 60000); // Añade la duración
-
+    
                             await addDoc(reservasRef, {
                                 dni,
                                 nombre,
@@ -286,7 +303,7 @@ const ReservasForm = () => {
                                 uidPeluquero: profesional, // Registrar el UID del peluquero seleccionado
                                 status: 'Sin realizar' // Establecer el estado de la reserva
                             });
-
+    
                             Swal.fire({
                                 title: 'Reserva registrada',
                                 html: 'Tu reserva ha sido creada exitosamente, muchas gracias. <br><br> <strong>IMPORTANTE:</strong> El turno puede verse modificado en +/- 15 minutos, en caso de serlo seras notificado. <br><br>Gracias por su comprensión',
@@ -299,7 +316,7 @@ const ReservasForm = () => {
                         } catch (error) {
                             console.error('Error al crear la reserva:', error);
                         } 
-
+    
                     } else {
                         Swal.fire({
                             title: 'Aun no eres cliente',
@@ -308,18 +325,14 @@ const ReservasForm = () => {
                             showCancelButton: true,
                             confirmButtonText: 'Solicitar Código',
                             cancelButtonText: 'Tengo el codigo',
-                            background: 'black', // Fondo rojo claro
-                            color: 'white', // Texto rojo oscuro
+                            background: 'black',
+                            color: 'white',
                             customClass: {
-                                icon: 'custom-warning-icon', // Clase personalizada para el ícono de advertencia
+                                icon: 'custom-warning-icon',
                             }
                         }).then((result) => {
-                            // Aquí es donde se maneja el evento "click" del botón de confirmación
                             if (result.isConfirmed) {
-                                // Llamar a la función para solicitar el código
                                 handleSolicitarCodigo();
-                            } else if (result.isDismissed) {
-                                /*console.log('El usuario canceló la solicitud de código');*/
                             }
                         });
                         setVerificado(false);
@@ -334,18 +347,14 @@ const ReservasForm = () => {
                     showCancelButton: true,
                     confirmButtonText: 'Solicitar Código',
                     cancelButtonText: 'Tengo el codigo',
-                    background: 'black', // Fondo rojo claro
-                    color: 'white', // Texto rojo oscuro
+                    background: 'black',
+                    color: 'white',
                     customClass: {
-                        icon: 'custom-warning-icon', // Clase personalizada para el ícono de advertencia
+                        icon: 'custom-warning-icon',
                     }
                 }).then((result) => {
-                    // Aquí es donde se maneja el evento "click" del botón de confirmación
                     if (result.isConfirmed) {
-                        // Llamar a la función para solicitar el código
                         handleSolicitarCodigo();
-                    } else if (result.isDismissed) {
-                        /*console.log('El usuario canceló la solicitud de código');*/
                     }
                 });
                 setVerificado(false);
@@ -353,7 +362,7 @@ const ReservasForm = () => {
             }
         } catch (error) {
             console.error('Error verificando usuario:', error);
-        } finally{
+        } finally {
             setLoading(false);
         }
     };

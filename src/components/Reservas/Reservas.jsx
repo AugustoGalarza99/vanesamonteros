@@ -271,62 +271,113 @@ const finalizarTurno = async (reserva) => {
     console.error('Error al finalizar el turno:', error.message);
   }
 };
-const editarDuracionYHoraTurno = async (reservaId, nuevaDuracion, nuevaHoraInicio) => {
+const esDiaLaboral = async (fecha, uidPeluquero) => {
   try {
-    // Calcular nueva hora de finalización
-    const [horas, minutos] = nuevaHoraInicio.split(":").map(Number);
-    const nuevaHoraInicioDate = new Date();
-    nuevaHoraInicioDate.setHours(horas, minutos);
+    const horariosRef = doc(db, 'horarios', uidPeluquero);
+    const horariosSnap = await getDoc(horariosRef);
 
-    const nuevaHoraFinDate = new Date(nuevaHoraInicioDate);
-    nuevaHoraFinDate.setMinutes(nuevaHoraInicioDate.getMinutes() + nuevaDuracion);
+    if (!horariosSnap.exists()) return false;
 
-    const nuevaHoraFin = `${String(nuevaHoraFinDate.getHours()).padStart(2, "0")}:${String(
-      nuevaHoraFinDate.getMinutes()
-    ).padStart(2, "0")}`;
+    const horarios = horariosSnap.data();
+    const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 
-    // Actualizar la base de datos en Firebase
+    // 🔄 PARSEO SEGURO (sin UTC ni desfase horario)
+    const [año, mes, diaStr] = fecha.split('-').map(Number);
+    const dateObj = new Date(año, mes - 1, diaStr);
+    const dia = diasSemana[dateObj.getDay()];
+
+    return horarios[dia]?.isWorking === true;
+  } catch (error) {
+    console.error('Error verificando día laboral:', error);
+    return false;
+  }
+};
+
+
+const editarDuracionHoraYFechaTurno = async (reservaId, nuevaDuracion, nuevaHoraInicio, nuevaFecha, uidPeluquero) => {
+  try {
+    // ✅ Verificar si la nueva fecha es un día laboral
+    const diaLaboral = await esDiaLaboral(nuevaFecha, uidPeluquero);
+    if (!diaLaboral) {
+      Swal.fire({
+        title: 'Día no laborable',
+        text: 'El profesional no trabaja en la fecha seleccionada. Por favor, elige otro día.',
+        icon: 'error',
+        background: 'black',
+        color: 'white',
+      });
+      return;
+    }
+
+    const startTime = new Date(`${nuevaFecha}T${nuevaHoraInicio}`);
+    const endTime = new Date(startTime.getTime() + nuevaDuracion * 60000);
+
+    // ✅ Verificar solapamientos
+    const reservasRef = collection(db, 'reservas');
+    const q = query(reservasRef, where('fecha', '==', nuevaFecha), where('uidPeluquero', '==', uidPeluquero));
+    const querySnapshot = await getDocs(q);
+
+    const solapa = querySnapshot.docs.some(docSnap => {
+      const data = docSnap.data();
+      if (docSnap.id === reservaId) return false;
+
+      const reservaStart = new Date(`${nuevaFecha}T${data.hora}`);
+      const reservaEnd = new Date(reservaStart.getTime() + (data.duracion || 0) * 60000);
+      return reservaStart < endTime && reservaEnd > startTime;
+    });
+
+    if (solapa) {
+      Swal.fire({
+        title: 'Conflicto de horario',
+        text: 'Ya hay una reserva en ese horario. Por favor, elige otro horario o fecha.',
+        icon: 'error',
+        background: 'black',
+        color: 'white',
+      });
+      return;
+    }
+
+    // ✅ Actualizar la reserva
+    const horaFinStr = `${String(endTime.getHours()).padStart(2, '0')}:${String(endTime.getMinutes()).padStart(2, '0')}`;
     const reservaRef = doc(db, "reservas", reservaId);
+
     await updateDoc(reservaRef, {
       duracion: nuevaDuracion,
       hora: nuevaHoraInicio,
-      horaInicio: nuevaHoraInicio, // Mantener consistencia
-      horaFin: nuevaHoraFin, // Actualizar hora de finalización
+      horaInicio: nuevaHoraInicio,
+      horaFin: horaFinStr,
+      fecha: nuevaFecha
     });
 
-    // Actualizar el estado local
-    setReservasLocal((prevReservas) =>
-      prevReservas.map((reserva) =>
-        reserva.id === reservaId
-          ? {
-              ...reserva,
-              duracion: nuevaDuracion,
-              hora: nuevaHoraInicio,
-              horaInicio: nuevaHoraInicio,
-              horaFin: nuevaHoraFin, // Actualizar también localmente
-            }
-          : reserva
+    setReservasLocal(prev =>
+      prev.map(r =>
+        r.id === reservaId
+          ? { ...r, duracion: nuevaDuracion, hora: nuevaHoraInicio, horaFin: horaFinStr, fecha: nuevaFecha }
+          : r
       )
     );
 
     Swal.fire({
-      title: "Horario Actualizado",
-      text: "La duración, hora de inicio y hora de finalización se han actualizado correctamente.",
+      title: "Turno actualizado",
+      text: "La reserva fue modificada correctamente.",
       icon: "success",
-      background: "black",
-      color: "white",
+      background: 'black',
+      color: 'white'
     });
+
   } catch (error) {
-    console.error("Error actualizando el horario:", error);
+    console.error("Error actualizando la reserva:", error);
     Swal.fire({
       title: "Error",
-      text: "No se pudo actualizar el horario.",
+      text: "No se pudo actualizar la reserva.",
       icon: "error",
-      background: "black",
-      color: "white",
+      background: 'black',
+      color: 'white'
     });
   }
 };
+
+
 
 
 const notificarCambioHorario = (reserva) => {
@@ -548,38 +599,44 @@ const handleCancelTurn = async (reserva) => {
       document.getElementById("editarDuracionBtn")?.addEventListener("click", () => {
         // Abrir un Swal para editar la duración y la hora de inicio
         Swal.fire({
-          title: 'Editar duración y hora de inicio',
+          title: 'Editar turno',
           html: `
-          <div>
-            <label for="duracionInput" class="label-edit">Nueva duración (en minutos):</label>
-            <input id="duracionInput" class="swal2-input" type="number" value="${reserva.duracion}" min="1" max="180" step="1">
-          </div>
-          <div>
-            <label for="horaInicioInput">Nueva hora de inicio:</label>
-            <input id="horaInicioInput" class="swal2-input" type="time" value="${reserva.hora || reserva.horaInicio}">
-          </div>
+            <div>
+              <label>Duración (minutos):</label>
+              <input id="duracionInput" class="swal2-input" type="number" value="${reserva.duracion}" min="1" max="180">
+            </div>
+            <div>
+              <label>Hora de inicio:</label>
+              <input id="horaInput" class="swal2-input" type="time" value="${reserva.hora}">
+            </div>
+            <div>
+              <label>Fecha:</label>
+              <input id="fechaInput" class="swal2-input" type="date" value="${reserva.fecha}">
+            </div>
           `,
           showCancelButton: true,
           confirmButtonText: 'Guardar Cambios',
           background: 'black',
           color: 'white',
           preConfirm: () => {
-            const nuevaDuracion = parseInt(document.getElementById('duracionInput').value, 10);
-            const nuevaHoraInicio = document.getElementById('horaInicioInput').value;
+            const nuevaDuracion = parseInt(document.getElementById('duracionInput').value);
+            const nuevaHoraInicio = document.getElementById('horaInput').value;
+            const nuevaFecha = document.getElementById('fechaInput').value;
         
-            if (!isNaN(nuevaDuracion) && nuevaDuracion > 0 && nuevaHoraInicio) {
-              return { nuevaDuracion, nuevaHoraInicio };
-            } else {
-              Swal.showValidationMessage('Por favor, ingresa valores válidos');
+            if (!nuevaDuracion || !nuevaHoraInicio || !nuevaFecha) {
+              Swal.showValidationMessage('Todos los campos son obligatorios.');
+              return false;
             }
+        
+            return { nuevaDuracion, nuevaHoraInicio, nuevaFecha };
           }
-        }).then((result) => {
+        }).then(result => {
           if (result.isConfirmed) {
-            const { nuevaDuracion, nuevaHoraInicio } = result.value;
-            // Llamar a la función para actualizar Firebase
-            editarDuracionYHoraTurno(reserva.id, nuevaDuracion, nuevaHoraInicio);
+            const { nuevaDuracion, nuevaHoraInicio, nuevaFecha } = result.value;
+            editarDuracionHoraYFechaTurno(reserva.id, nuevaDuracion, nuevaHoraInicio, nuevaFecha, reserva.uidPeluquero);
           }
         });
+        
       });
     } else if (status === 'en proceso') {
         Swal.fire({
