@@ -325,32 +325,54 @@ const estaDeVacaciones = (fechaISO) => {
     
                         // Guardar la reserva en Firestore
                         try {
-                            const reservasRef = collection(db, 'reservas'); // Referencia a la colección de reservas
-                            const endTime = new Date(startTime.getTime() + duracionServicio * 60000); // Añade la duración
-    
-                            await addDoc(reservasRef, {
-                                dni,
-                                nombre,
-                                apellido,
-                                telefono,
-                                servicio,
-                                fecha,
-                                hora,
-                                costoServicio, // Incluye el costo del servicio
-                                duracion: duracionServicio, // Guarda la duración
-                                horaFin: endTime.toISOString(), // Guarda la hora de fin
-                                uidPeluquero: profesional, // Registrar el UID del peluquero seleccionado
-                                status: 'Sin realizar' // Establecer el estado de la reserva
-                            });
-    
-                            Swal.fire({
-                                title: 'Reserva registrada',
-                                html: 'Tu reserva ha sido creada exitosamente, muchas gracias. <br><br> <strong>IMPORTANTE:</strong> El turno puede verse modificado en +/- 15 minutos, en caso de serlo seras notificado. <br><br>Gracias por su comprensión',
-                                icon: 'success',
-                                background: 'black', 
-                                color: 'white', 
-                                confirmButtonText: 'Ok'
-                            });
+                            // Verificar si ya existe una reserva para ese horario
+                                const reservasRef = collection(db, 'reservas');
+                                const startTime = new Date(`${fecha}T${hora}`);
+                                const endTime = new Date(startTime.getTime() + duracionServicio * 60000);
+
+                                // 1. Verificar solapamiento
+                                const q = query(reservasRef, where('fecha', '==', fecha), where('uidPeluquero', '==', profesional));
+                                const querySnapshot = await getDocs(q);
+
+                                const existeSolapamiento = querySnapshot.docs.some(doc => {
+                                    const data = doc.data();
+                                    const turnoStart = new Date(`${data.fecha}T${data.hora}`);
+                                    const turnoEnd = new Date(turnoStart.getTime() + (data.duracion || 0) * 60000);
+                                    return turnoStart < endTime && turnoEnd > startTime;
+                                });
+
+                                if (existeSolapamiento) {
+                                    setLoading(false);
+                                    return;
+                                }
+
+                                // 2. Normalizar teléfono
+                                const telefonoNormalizado = "+549" + telefono.replace(/\D/g, "").replace(/^549/, "").replace(/^9/, "");
+
+                                // 3. Guardar la reserva
+                                await addDoc(reservasRef, {
+                                    dni,
+                                    nombre,
+                                    apellido,
+                                    telefono: telefonoNormalizado,
+                                    servicio,
+                                    fecha,
+                                    hora,
+                                    costoServicio,
+                                    duracion: duracionServicio,
+                                    horaFin: endTime.toISOString(),
+                                    uidPeluquero: profesional,
+                                    status: 'Sin realizar'
+                                });
+
+                                Swal.fire({
+                                    title: 'Reserva registrada',
+                                    html: 'Tu reserva ha sido creada exitosamente, muchas gracias. <br><br> <strong>IMPORTANTE:</strong> El turno puede verse modificado en +/- 15 minutos, en caso de serlo serás notificado. <br><br>Gracias por su comprensión',
+                                    icon: 'success',
+                                    background: 'black',
+                                    color: 'white',
+                                    confirmButtonText: 'Ok'
+                                });
                             navigate('/estado'); // Redirigir al inicio o a otra página después de crear la reserva
                         } catch (error) {
                             console.error('Error al crear la reserva:', error);

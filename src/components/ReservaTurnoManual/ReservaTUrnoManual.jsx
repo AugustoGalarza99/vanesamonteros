@@ -308,13 +308,15 @@ const handleAgendar = async (e) => {
     try {
         const reservas = [];
         let currentFecha = new Date(`${fecha}T${hora}`);
+        // Normalizar teléfono: eliminar símbolos y forzar +549
+        const telefonoNormalizado = "+549" + telefono.replace(/\D/g, "").replace(/^549/, "").replace(/^9/, "");
 
         for (let i = 0; i < (esRecurrente ? 10 : 1); i++) {
             reservas.push({
                 nombre,
                 apellido,
                 dni: dni || null,
-                telefono,
+                telefono: telefonoNormalizado,
                 servicio,
                 fecha: currentFecha.toISOString().split('T')[0],
                 hora: currentFecha.toTimeString().split(' ')[0].slice(0, 5),
