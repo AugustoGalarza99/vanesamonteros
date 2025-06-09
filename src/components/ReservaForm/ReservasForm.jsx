@@ -6,6 +6,25 @@ import { RxCalendar } from "react-icons/rx";
 import Swal from 'sweetalert2';
 import './ReservaForm.css';
 
+const fechasVacaciones = {
+  "0tbdEJCfC9ZBVq833kC6qSHKyXp1": generarRangoFechas("2025-07-07", "2025-07-18"),
+  "3tWKj7mw7rMZHMqFp4nINXrhln62": generarRangoFechas("2025-07-07", "2025-07-18"),
+  "gt7YqVp8HISoCi3dv5gOENDE1Sg2": generarRangoFechas("2025-07-07", "2025-07-18"),
+  "wpL6peq4pwf5kelrAPMmz1ntMmG2": generarRangoFechas("2025-07-07", "2025-07-18"),
+};
+
+// Utilidad para generar array de fechas entre dos fechas
+function generarRangoFechas(inicio, fin) {
+  const fechas = [];
+  let actual = new Date(inicio);
+  const final = new Date(fin);
+  while (actual <= final) {
+    fechas.push(actual.toISOString().split('T')[0]); // formato YYYY-MM-DD
+    actual.setDate(actual.getDate() + 1);
+  }
+  return fechas;
+}
+
 const ReservasForm = () => {
     const [dni, setDni] = useState('');
     const [telefono, setTelefono] = useState('');
@@ -28,6 +47,23 @@ const ReservasForm = () => {
     const profesionalSeleccionado = peluqueros.find(p => p.id === profesional)?.nombre || '';
     const intervaloTurnos = horariosDisponibles.intervalo || 15;
     const navigate = useNavigate();
+
+    useEffect(() => {
+  Swal.fire({
+    title: '¡Vacaciones de invierno!',
+    text: 'Algunos profesionales estarán de vacaciones entre el 7 y el 18 de julio. Solo estara disponible el servicio de Masajes Terapeuticos. Por favor reservar sus turnos con anticipación',
+    icon: 'info',
+    background: 'black',
+    color: 'white',
+    confirmButtonText: 'Entendido'
+  });
+}, []);
+const estaDeVacaciones = (fechaISO) => {
+  const fechas = fechasVacaciones[profesional] || [];
+  return fechas.includes(fechaISO);
+};
+
+
 
     // Obtener peluqueros al montar el componente
     useEffect(() => {
@@ -600,7 +636,31 @@ const ReservasForm = () => {
                 </div>                
                 <div className='div-date'>
                 <label className='titulo-servicio'>Elige tu fecha</label>
-                    <input
+                <input
+                    className="select-seccion2"
+                    type="date"
+                    value={fecha}
+                    onChange={(e) => {
+                        const nuevaFecha = e.target.value;
+                        if (estaDeVacaciones(nuevaFecha)) {
+                        Swal.fire({
+                            title: 'Fecha no disponible',
+                            text: 'El profesional seleccionado estará de vacaciones en esa fecha. Por favor, elegí otro día.',
+                            icon: 'warning',
+                            background: 'black',
+                            color: 'white',
+                            confirmButtonText: 'Ok',
+                        });
+                        setFecha('');
+                        } else {
+                        setFecha(nuevaFecha);
+                        }
+                    }}
+                    min={obtenerFechaActual()}
+                    max={obtenerFechaMaxima()}
+                    required
+                    />
+                    {/*<input
                     className='select-seccion2'
                         type="date"
                         value={fecha}
@@ -608,7 +668,7 @@ const ReservasForm = () => {
                         min={obtenerFechaActual()}
                         max={obtenerFechaMaxima()}
                         required
-                    />
+                    />*/}
                 </div>
                 <div className='div-date'>
                 <label className='titulo-servicio'>Elige tu hora</label>
