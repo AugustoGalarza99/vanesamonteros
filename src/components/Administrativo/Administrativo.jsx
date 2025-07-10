@@ -12,11 +12,11 @@ const Administrativo = () => {
 
   return (
     <div>
-      
 
+      
       {/* Componente visible para todos los roles, incluido peluquero */}
       {(role === "peluquero" || role === "administrador") && (
-        <CambiarContraseña />
+        <CambiarContraseña />        
       )}
 
       {/* Componentes visibles solo para el rol administrador */}

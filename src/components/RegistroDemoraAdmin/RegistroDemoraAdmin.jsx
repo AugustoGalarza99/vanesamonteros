@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../firebaseConfig"; // Ajusta la ruta a tu configuración de Firebase
-import { collection, getDocs, doc, setDoc, Timestamp } from "firebase/firestore";
+import { collection, getDocs, doc, setDoc, Timestamp, updateDoc, getDoc } from "firebase/firestore";
 import Swal from 'sweetalert2';
 import './RegistroDemoraAdmin.css';
 
 const RegistroDemoraAdmin = () => {
     const [profesionales, setProfesionales] = useState([]);
     const [demoras, setDemoras] = useState({});
+    const [mostrarDemoras, setMostrarDemoras] = useState(false);
 
     useEffect(() => {
         const fetchProfesionales = async () => {
@@ -17,8 +18,28 @@ const RegistroDemoraAdmin = () => {
             }));
             setProfesionales(data);
         };
+        
+        const fetchConfiguracion = async () => {
+        const docRef = doc(db, "config", "demoras");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            setMostrarDemoras(docSnap.data().mostrar);
+        }
+        };        
+
         fetchProfesionales();
+        fetchConfiguracion();
     }, []);
+
+    const toggleMostrarDemoras = async () => {
+        try {
+            const docRef = doc(db, "config", "demoras");
+            await updateDoc(docRef, { mostrar: !mostrarDemoras });
+            setMostrarDemoras((prev) => !prev);
+        } catch (error) {
+            console.error("Error actualizando visibilidad:", error);
+        }
+    };
 
     const handleDemoraChange = (id, value) => {
         setDemoras((prevDemoras) => ({
@@ -61,39 +82,42 @@ const RegistroDemoraAdmin = () => {
         }
     };
 
-    return (
-        <div className="demoras-container">
-            <h2 className="demoras-title">Registro de demoras</h2>
-            <table className="demoras-table">
-                <thead>
-                    <tr>
-                        <th>Profesional</th>
-                        <th>Demora (minutos)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {profesionales.map((prof) => (
-                        <tr key={prof.id}>
-                            <td>{prof.nombre}</td>
-                            <td>
-                                <input
-                                    type="number"
-                                    className="demoras-input"
-                                    value={demoras[prof.id] || ""}
-                                    onChange={(e) =>
-                                        handleDemoraChange(prof.id, e.target.value)
-                                    }
-                                />
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            <button className="demoras-button" onClick={saveDemoras}>
-                Guardar Demoras
-            </button>
+return (
+    <div className="demoras-container-admin">
+        <h2 className="demoras-title-admin">Registro de demoras</h2>
+
+        <div className="demoras-profesionales">
+            {profesionales.map((prof) => (
+                <div className="demora-card-admin" key={prof.id}>
+                    <span className="demora-nombre">{prof.nombre}</span>
+                    <input
+                        type="number"
+                        className="demora-input"
+                        placeholder="Ej: 10"
+                        value={demoras[prof.id] || ""}
+                        onChange={(e) => handleDemoraChange(prof.id, e.target.value)}
+                    />
+                </div>
+            ))}
         </div>
-    );
+
+        <div className="mostrar-check">
+            <label className="checkbox-label">
+                <input
+                    type="checkbox"
+                    checked={mostrarDemoras}
+                    onChange={toggleMostrarDemoras}
+                />
+                Mostrar estado de demoras en el sitio público
+            </label>
+        </div>
+
+        <button className="demoras-button" onClick={saveDemoras}>
+            Guardar Demoras
+        </button>
+    </div>
+);
+
 };
 
 export default RegistroDemoraAdmin;

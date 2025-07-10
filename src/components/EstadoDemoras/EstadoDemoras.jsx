@@ -1,13 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { db } from "../../firebaseConfig"; // Ajusta la ruta a tu configuración de Firebase
-import { collection, getDocs, onSnapshot } from "firebase/firestore";
+import { db } from "../../firebaseConfig";
+import { collection, getDocs, onSnapshot, doc, getDoc } from "firebase/firestore";
 import './EstadoDemoras.css';
 
 const EstadoDemoras = () => {
-    const [demoras, setDemoras] = useState([]); // Estado para almacenar las demoras
-    const [isDataLoaded, setIsDataLoaded] = useState(false); // Controlar si los datos se cargaron inicialmente
+    const [demoras, setDemoras] = useState([]);
+    const [isDataLoaded, setIsDataLoaded] = useState(false);
+    const [mostrar, setMostrar] = useState(false);
 
-    // Función para cargar datos desde Firestore
+    // 🔍 Verifica si mostrar o no el componente desde config/demoras
+    const verificarMostrarDemoras = async () => {
+        try {
+            const docRef = doc(db, "config", "demoras");
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                setMostrar(!!docSnap.data().mostrar);
+            }
+        } catch (error) {
+            console.error("Error verificando visibilidad de demoras:", error);
+        }
+    };
+
+    // Carga las demoras por única vez
     const fetchDemoras = async () => {
         try {
             const snapshot = await getDocs(collection(db, "demoras"));
@@ -16,14 +30,14 @@ const EstadoDemoras = () => {
                 ...doc.data(),
             }));
             setDemoras(data);
-            localStorage.setItem("demoras", JSON.stringify(data)); // Almacenar en localStorage
+            localStorage.setItem("demoras", JSON.stringify(data));
             setIsDataLoaded(true);
         } catch (error) {
             console.error("Error al obtener demoras:", error);
         }
     };
 
-    // Verificar si hay cambios en Firestore y actualizar localStorage
+    // Escucha en tiempo real cambios en la colección demoras
     const subscribeToUpdates = () => {
         const unsubscribe = onSnapshot(
             collection(db, "demoras"),
@@ -33,40 +47,32 @@ const EstadoDemoras = () => {
                     ...doc.data(),
                 }));
                 setDemoras(data);
-                localStorage.setItem("demoras", JSON.stringify(data)); // Actualizar localStorage
+                localStorage.setItem("demoras", JSON.stringify(data));
             },
             (error) => console.error("Error al escuchar demoras:", error)
         );
-
         return unsubscribe;
     };
 
     useEffect(() => {
-        // Cargar datos desde localStorage si están disponibles
+        verificarMostrarDemoras();
+
         const cachedData = localStorage.getItem("demoras");
         if (cachedData) {
             setDemoras(JSON.parse(cachedData));
             setIsDataLoaded(true);
         } else {
-            // Si no hay datos en caché, hacer la consulta inicial
             fetchDemoras();
         }
 
-        // Suscribirse a cambios en Firestore
         const unsubscribe = subscribeToUpdates();
-
-        return () => {
-            unsubscribe(); // Limpiar listener al desmontar el componente
-        };
+        return () => unsubscribe();
     }, []);
 
-    // Verificar si una fecha corresponde al día de hoy
     const isToday = (timestamp) => {
         if (!timestamp) return false;
-
-        const fechaActual = new Date(); // Fecha actual
-        const fechaDemora = timestamp.toDate ? timestamp.toDate() : new Date(timestamp); // Convertir a Date
-
+        const fechaActual = new Date();
+        const fechaDemora = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
         return (
             fechaActual.getDate() === fechaDemora.getDate() &&
             fechaActual.getMonth() === fechaDemora.getMonth() &&
@@ -74,46 +80,40 @@ const EstadoDemoras = () => {
         );
     };
 
-    // Obtener el estado de demora del profesional
     const getEstadoProfesional = (demora) => {
         if (isToday(demora.fecha)) {
             if (demora.demora === 0) {
-                return "El profesional no tiene demora"; // Si la demora es 0
+                return "El profesional no tiene demora";
             }
-            return `Demora de ${demora.demora} minutos`; // Si la fecha es de hoy
+            return `Demora de ${demora.demora} minutos`;
         }
-        return "El profesional no tiene demora"; // Si no hay demora para hoy
+        return "El profesional no tiene demora";
     };
+
+    // 🚫 Oculta el componente si está desactivado desde Firestore
+    if (!mostrar) return null;
 
     return (
         <div className="estado-demoras-container">
-            {!isDataLoaded ? (
-                <p>Cargando datos...</p>
-            ) : (
-                <table className="estado-demoras-table">
-                    <thead>
-                        <tr>
-                            <th>Profesional</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {demoras.length > 0 ? (
-                            demoras.map((demora) => (
-                                <tr key={demora.id}>
-                                    <td>{demora.nombre || "Sin Nombre"}</td>
-                                    <td>{getEstadoProfesional(demora)}</td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="2">No hay información de demoras registrada.</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            )}
-        </div>
+        {!isDataLoaded ? (
+            <p className="estado-demoras-cargando">Cargando datos...</p>
+        ) : (
+            <div className="estado-demoras-grid">
+                {demoras.length > 0 ? (
+                    demoras.map((demora) => (
+                        <div key={demora.id} className="demora-card-cliente">
+                            <h3 className="h3-demora">{demora.nombre || "Sin Nombre"}</h3>
+                            <p>{getEstadoProfesional(demora)}</p>
+                        </div>
+                    ))
+                ) : (
+                    <div className="demora-card">
+                        <p>No hay información de demoras registrada.</p>
+                    </div>
+                )}
+            </div>
+        )}
+    </div>
     );
 };
 

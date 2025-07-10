@@ -1,229 +1,137 @@
-.div-config{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    max-width: 100%;
+.div-config {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  font-family: 'Segoe UI', sans-serif;
+  color: #222;
+  box-sizing: border-box;
 }
 
-.div-day{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 60%;
-    margin-bottom: 20px;
-    border: var(--border-input);
-    border-radius: 10px;
-}
-.div-trabajo{
-    display: flex;
-    align-items: center;
-    width: 100%;
-    justify-content: center;
-    label{
-        margin: 10px 0px;
-        input{
-            margin-left: 15px;
-        }
-    }
+.h2-horarios {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 2.5rem;
+  color: #2c3e50;
 }
 
-
-.div-hora1{
-    
-    label{
-        padding: 0px;
-        input{
-            margin: 10px;
-        }
-    }
-}
-.div-hora2{
-    
-    label{
-        padding: 0px;
-        input{
-            margin: 10px;
-        }
-    }
+.div-day {
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  border-radius: 16px;
+  background: #ffffffea;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.cyberpunk-checkbox-label{
-    justify-content: end;
-    align-items: end;
+.div-day:hover {
+  transform: translateY(-2px);
 }
 
+.div-trabajo {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
 
+.div-trabajo h3 {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin: 0;
+}
 
-/* From Uiverse.io by adamgiebl */ 
+.cyberpunk-checkbox-label {
+  display: flex;
+  align-items: center;
+}
+
 .cyberpunk-checkbox {
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border: 2px solid black;
-    border-radius: 5px;
-    background-color: transparent;
-    display: inline-block;
-    position: relative;   
-    cursor: pointer;
+  width: 20px;
+  height: 20px;
+  accent-color: #4e73df;
+}
 
-  }
+.div-hora1,
+.div-hora2,
+.div-intervalo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
 
-  .h2-horarios{
-      font-family: var(--font);
-      margin-top: 15px;
-      font-size: 24px;  
-      text-align: center;
-  }
-  
-  .cyberpunk-checkbox:before {
-    content: "";
-    background-color: green;
-    display: block;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    width: 10px;
-    height: 10px;
-    border-radius: 3px;
-    transition: all 0.3s ease-in-out;
-  }
-  
-  .cyberpunk-checkbox:checked:before {
-    transform: translate(-50%, -50%) scale(1);
-  }
-  
-  .button-horario {
-    margin-top: 10px;
-    margin-bottom: 15px;
-    position: relative;
-    display: inline-block;
-    /*background: linear-gradient(to bottom, #1b1c3f, #4a4e91);*/
-    background: var(--color-boton);
-   /* Gradient background */
-    color: white;
-   /* White text color */
-    font-family: "Segoe UI", sans-serif;
-   /* Stylish and legible font */
-    font-weight: bold;
-    font-size: 18px;
-   /* Large font size */
-    border: none;
-   /* No border */
-    border-radius: 30px;
-   /* Rounded corners */
-    padding: 14px 28px;
-   /* Large padding */
-    cursor: pointer;
-   /* Cursor on hover */
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-   /* Subtle shadow */
-    animation: button-shimmer 2s infinite;
-    transition: all 0.3s ease-in-out;
-   /* Smooth transition */
-  }
-  
-  /* Hover animation */
-  .button-horario:hover {
-    background: var(--color-boton);
-    animation: button-particles 1s ease-in-out infinite;
-    transform: translateY(-2px);
-  }
-  
-  /* Click animation */
-  .button-horario:active {
-    transform: scale(0.95);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  }
-  .div-intervalo{
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    align-content: center;
-    text-align: center;
-  }
-  .input-hora{
-    outline: none;
-    border: var(--border-input);
-    max-width: 30%;
-   
-    margin-top: 10px;
-    margin-bottom: 10px;
-    font-size: 14px;
-    border-radius:1rem;
-    background: none;
-    padding: 0.5rem;
-    font-size: 1rem;
-    color: var(--color-letras);
-    transition: border 150ms cubic-bezier(0.4,0,0.2,1);
-    box-sizing: border-box;
-  }
-  .select-intervalo{
-    outline: none;
-    border: var(--border-input);
-    max-width: 40%;
-    width: 100%;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    font-size: 14px;
-    border-radius:1rem;
-    background: none;
-    padding: 0.5rem;
-    font-size: 1rem;
-    color: var(--color-letras);
-    transition: border 150ms cubic-bezier(0.4,0,0.2,1);
-    box-sizing: border-box;
-  }
-  /* Shimmer animation */
-  @keyframes button-shimmer {
-    0% {
-      background-position: left top;
-    }
-  
-    100% {
-      background-position: right bottom;
-    }
-  }
-  
-  /* Particle animation */
-  @keyframes button-particles {
-    0% {
-      background-position: left top;
-    }
-  
-    100% {
-      background-position: right bottom;
-    }
+.div-hora1 label,
+.div-hora2 label,
+.div-intervalo label {
+  flex: 1 1 45%;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.input-hora,
+.select-intervalo {
+  margin-top: 0.3rem;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  width: 100%;
+  background-color: #fefefe;
+  transition: border-color 0.3s;
+}
+
+.input-hora:focus,
+.select-intervalo:focus {
+  border-color: #4e73df;
+  outline: none;
+}
+
+.select-intervalo {
+  cursor: pointer;
+}
+
+.button-horario {
+  display: block;
+  margin: 2.5rem auto 0;
+  background: var(--color-boton, #4e73df);
+  color: white;
+  padding: 0.85rem 1.8rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.button-horario:hover {
+  background: #3c5ccf;
+  transform: scale(1.02);
+}
+
+/* 📱 Responsive */
+@media (max-width: 768px) {
+  .div-hora1 label,
+  .div-hora2 label,
+  .div-intervalo label {
+    flex: 1 1 100%;
   }
 
-
-      /*VISTA MOBILE*/
-      @media (max-width: 600px) {
-        .div-day{
-            display: flex;
-            width: 90%;
-            justify-content: center;
-        }
-        .input-service{
-            max-width: 70%;
-        }
-        .input-hora{
-          width: 95px;
-        }
-      }
-    
-    
-      /*VISTA ESCRITORIO*/
-      @media (min-width: 600px) {
-        .div-service{
-            display: flex;
-            width: 100%;
-            justify-content: center;
-        }
-        .input-service{
-            max-width: 70%;
-        }
-      }
+  .div-trabajo {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

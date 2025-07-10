@@ -1,150 +1,126 @@
-.form-service{
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+.servicios-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 18px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.15);
+  font-family: 'Segoe UI', sans-serif;
 }
-.h2-service{
-  font-family: var(--font);
-  margin-top: 15px;
-  font-size: 24px;  
+
+.servicios-titulo {
+  font-size: 2rem;
   text-align: center;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
 }
-h3{
-  display: flex;
-  font-family: var(--font);
-  margin: 30px 0px;
-  font-size: 24px;
-  align-items: center;
-  justify-content: center;
-}
-ul{
+
+.servicio-form {
   display: flex;
   flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.servicio-input {
+  padding: 0.75rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 1rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.servicio-input:focus {
+  border-color: var(--color-boton, #4e73df);
+}
+
+.servicio-btn {
+  padding: 0.75rem;
+  background: var(--color-boton, #4e73df);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.servicio-subtitulo {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.servicio-lista {
   list-style: none;
   padding: 0;
-  justify-content: center;
-  align-items: center;
+  margin: 0;
 }
-.div-config{
+
+.servicio-card {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
+  gap: 0.6rem;
 }
-.li-service{
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  border: var(--border-input);
-  color: var(--color-letras);
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 10px;
-  width: 80%;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+
+.servicio-nombre {
+  font-size: 1.2rem;
+  color: #222;
 }
-.li-service strong {
-  font-size: 18px;
-  margin-bottom: 10px;
-  text-align: center;
-}
-.li-service div {
-  font-size: 14px;
-  margin-bottom: 10px;
-  text-align: center;
-}
-.li-service button {
-  margin: 5px;
-  padding: 8px 12px;
-  font-family: var(--font);
-  border: none;
-  border-radius: 30px;
-  font-size: 14px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  background: var(--color-boton);
-  color: var(--color-letras-boton);
-  cursor: pointer;
-}
-.input-service{        
-  font-size: 14px;
-  width: 80%;
-  border-radius:1rem;
-  background: none;
-  padding: 1rem;
+
+.servicio-datos {
   font-size: 1rem;
-  color: var(--color-letras);
-  transition: border 150ms cubic-bezier(0.4,0,0.2,1);
-  outline: none;
-  border: var(--border-input);
-  margin: 10px 10px;
+  color: #555;
 }
-  .button-service {
-    margin-top: 20px;
-    position: relative;
-    display: inline-block;
-    background: var(--color-boton);
-    color: var(--color-letras-boton);
-    font-family: var(--font);
-    font-weight: bold;
-    font-size: 18px;
-    border: none;
-    border-radius: 30px;
-    padding: 14px 28px;
-    cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    animation: button-shimmer 2s infinite;
-    transition: all 0.3s ease-in-out;
+
+.servicio-editar span {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.servicio-editar input {
+  margin-left: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
+.servicio-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.servicio-actions button {
+  flex: 1;
+  padding: 0.6rem;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--color-boton, #4e73df);
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+
+@media (max-width: 480px) {
+  .servicio-actions {
+    flex-direction: column;
   }
-  .button-service:hover {
-  background: var(--color-boton);
-  animation: button-particles 1s ease-in-out infinite;
-  transform: translateY(-2px);
+
+  .servicio-card {
+    padding: 1rem;
   }
-  .button-service:active {
-    transform: scale(0.95);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  }  
-  @keyframes button-shimmer {
-    0% {
-      background-position: left top;
-    }  
-    100% {
-      background-position: right bottom;
-    }
-  }  
-  @keyframes button-particles {
-    0% {
-      background-position: left top;
-    }  
-    100% {
-      background-position: right bottom;
-    }
-  }
-    /*VISTA MOBILE*/
-    @media (max-width: 600px) {
-        .div-service{
-            display: flex;
-            width: 100%;
-            justify-content: center;
-        }
-        .input-service{ 
-            max-width: 80%;
-        }
-        .li-service{
-          max-width: 80%;
-        }
-      }    
-      /*VISTA ESCRITORIO*/
-      @media (min-width: 600px) {
-        .div-service{
-            display: flex;
-            width: 100%;
-            justify-content: center;
-        }
-        .input-service{
-            max-width: 50%;
-        }
-        .li-service{
-          max-width: 50%;
-        }
-      }
+}

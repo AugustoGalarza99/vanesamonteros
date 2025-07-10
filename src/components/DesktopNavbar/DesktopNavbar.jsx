@@ -17,7 +17,7 @@ function DesktopNavbar() {
 
   return (
     <nav className="desktop-navbar">
-      <ul>
+      <ul className='ul-nav'>
         {/* Enlaces visibles para todos */}
         <li><Link to="/"><FiHome size={24} /> Inicio</Link></li>
         <li><Link to="/estado"><FiInfo size={24} /> Estado</Link></li>

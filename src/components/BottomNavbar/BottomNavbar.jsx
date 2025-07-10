@@ -37,7 +37,7 @@ function BottomNavbar() {
 
       {isMenuOpen && (
         <div className="dropdown-menu">
-          <ul>
+          <ul className='ul-nav'>
             <li><Link to="/" onClick={() => setIsMenuOpen(false)}><RxCalendar size={16} /> Reservar turno</Link></li>
             <li><Link to="/estado" onClick={() => setIsMenuOpen(false)}><FiInfo size={16} /> Estado</Link></li>
             {role === 'peluquero' && (

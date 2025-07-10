@@ -74,23 +74,47 @@ const AgregarServicios = () => {
 
     // Eliminar servicio
     const handleEliminarServicio = async (id) => {
-        if (!uid) return;
+    if (!uid) return;
+
+    const confirmacion = await Swal.fire({
+        title: '¿Eliminar servicio?',
+        text: 'Esta acción no se puede deshacer.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c', // rojo
+        cancelButtonColor: '#3498db', // azul
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        background: 'black',
+        color: 'white',
+    });
+
+    if (confirmacion.isConfirmed) {
         try {
             await deleteDoc(doc(db, `profesionales/${uid}/servicios`, id));
             setServicios(servicios.filter(servicio => servicio.id !== id));
             Swal.fire({
-                    title: "Servicio eliminado correctamente",
-                    text: " ",
-                    icon: "success",
-                    background: "black",
-                    color: "white",
-                    confirmButtonText: "Ok",
-                });
+                title: "Servicio eliminado correctamente",
+                text: " ",
+                icon: "success",
+                background: "black",
+                color: "white",
+                confirmButtonText: "Ok",
+            });
         } catch (error) {
             console.error('Error eliminando servicio:', error);
-            Swal.fire('Error al eliminar el servicio', '', 'error');
+            Swal.fire({
+                title: 'Error al eliminar el servicio',
+                icon: 'error',
+                background: "black",
+                color: "white",
+                confirmButtonText: "Cerrar"
+            });
         }
-    };
+    }
+};
+
+
 
     // Habilitar edición de servicio
     const handleEditarServicio = (servicio) => {
@@ -127,83 +151,84 @@ const AgregarServicios = () => {
     };
 
     return (
-        <div>
-            <h2 className='h2-service'>Agregar Servicio</h2>
-            <form onSubmit={handleAgregarServicio} className='form-service'>
-                <div className='div-service'>
-                    <input
-                        className='input-service'
-                        type="text"
-                        placeholder="Nombre del servicio"
-                        value={nombreServicio}
-                        onChange={(e) => setNombreServicio(e.target.value)}
-                        required
-                    />
-                </div>
-                <div className='div-service'>
-                    <input
-                        className='input-service'
-                        type="number"
-                        placeholder="Duración en minutos"
-                        value={duracion}
-                        onChange={(e) => setDuracion(e.target.value)}
-                        required
-                    />
-                </div>
-                <div className='div-service'>
-                    <input
-                        className='input-service'
-                        type="number"
-                        placeholder="Precio del servicio"
-                        value={precio}
-                        onChange={(e) => setPrecio(e.target.value)}
-                        required
-                    />
-                </div>
-                <button type="submit" className='button-service'>Agregar Servicio</button>
-            </form>
+    <div className="servicios-container">
+        <h2 className="servicios-titulo">Agregar Servicio</h2>
 
-            <h3>Lista de Servicios</h3>
-            <ul>
-                {servicios.map(servicio => (
-                    <li key={servicio.id} className='li-service'>
-                        <strong>{servicio.nombre}</strong>
-                        {editandoServicio === servicio.id ? (
-                            <>
-                                <div className='div-config'>
-                                    Duración: 
-                                    <input 
-                                        className='input-service'
-                                        type="number" 
-                                        value={editDuracion} 
-                                        onChange={(e) => setEditDuracion(e.target.value)} 
-                                    />
-                                    Precio: $
-                                    <input 
-                                        className='input-service'
-                                        type="number" 
-                                        value={editPrecio} 
-                                        onChange={(e) => setEditPrecio(e.target.value)} 
-                                    />
-                                </div>
-                                <div>
-                                    <button onClick={() => handleGuardarCambios(servicio.id)}>Guardar cambios</button>
-                                    <button onClick={() => handleEliminarServicio(servicio.id)}>Eliminar</button>
-                                </div>
-                            </>
-                        ) : (
-                            <> 
-                                <div>Duración: {servicio.duracion} minutos - Precio: ${servicio.precio}</div>
-                                <div>
-                                    <button onClick={() => handleEditarServicio(servicio)}>Editar</button>
-                                    <button onClick={() => handleEliminarServicio(servicio.id)}>Eliminar</button>
-                                </div>
-                            </>
-                        )}
-                    </li>
-                ))}
-            </ul>
-        </div>
+        <form onSubmit={handleAgregarServicio} className="servicio-form">
+        <input
+            className="servicio-input"
+            type="text"
+            placeholder="Nombre del servicio"
+            value={nombreServicio}
+            onChange={(e) => setNombreServicio(e.target.value)}
+            required
+        />
+        <input
+            className="servicio-input"
+            type="number"
+            placeholder="Duración en minutos"
+            value={duracion}
+            onChange={(e) => setDuracion(e.target.value)}
+            required
+        />
+        <input
+            className="servicio-input"
+            type="number"
+            placeholder="Precio del servicio"
+            value={precio}
+            onChange={(e) => setPrecio(e.target.value)}
+            required
+        />
+        <button type="submit" className="servicio-btn">
+            Agregar Servicio
+        </button>
+        </form>
+
+        <h3 className="servicio-subtitulo">Lista de Servicios</h3>
+        <ul className="servicio-lista">
+        {servicios.map((servicio) => (
+            <li key={servicio.id} className="servicio-card">
+            <strong className="servicio-nombre">{servicio.nombre}</strong>
+            {editandoServicio === servicio.id ? (
+                <>
+                <div className="servicio-editar">
+                    <span>
+                    Duración:
+                    <input
+                        type="number"
+                        value={editDuracion}
+                        onChange={(e) => setEditDuracion(e.target.value)}
+                    />
+                    </span>
+                    <span>
+                    Precio: $
+                    <input
+                        type="number"
+                        value={editPrecio}
+                        onChange={(e) => setEditPrecio(e.target.value)}
+                    />
+                    </span>
+                </div>
+                <div className="servicio-actions">
+                    <button onClick={() => handleGuardarCambios(servicio.id)}>Guardar</button>
+                    <button onClick={() => handleEliminarServicio(servicio.id)}>Eliminar</button>
+                </div>
+                </>
+            ) : (
+                <>
+                <div className="servicio-datos">
+                    Duración: {servicio.duracion} min · Precio: ${servicio.precio}
+                </div>
+                <div className="servicio-actions">
+                    <button onClick={() => handleEditarServicio(servicio)}>Editar</button>
+                    <button onClick={() => handleEliminarServicio(servicio.id)}>Eliminar</button>
+                </div>
+                </>
+            )}
+            </li>
+        ))}
+        </ul>
+    </div>
     );
 };
 

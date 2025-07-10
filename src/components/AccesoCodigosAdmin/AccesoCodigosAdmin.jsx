@@ -49,24 +49,23 @@ const AccesoCodigosAdmin = () => {
   }
 
   return (
-    <div className='codigos'>
-      <h3>Códigos de Verificación</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Código de Verificación</th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className="codigos-admin">
+      <h2 className="codigos-title">Códigos de Verificación</h2>
+
+      {loading ? (
+        <p className="loader-codigos">Cargando códigos de verificación...</p>
+      ) : error ? (
+        <p className="error-codigos">{error}</p>
+      ) : (
+        <div className="codigos-grid">
           {codigos.map((codigo) => (
-            <tr key={codigo.uid}>
-              <td>{codigo.nombre}</td>
-              <td>{codigo.codigoVerificacion}</td>
-            </tr>
+            <div key={codigo.uid} className="codigo-card">
+              <h4>{codigo.nombre}</h4>
+              <p className="codigo-texto">{codigo.codigoVerificacion}</p>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      )}
     </div>
   );
 };

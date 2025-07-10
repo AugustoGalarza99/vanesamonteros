@@ -66,7 +66,7 @@ const GeneradorCodigo = () => {
     return (
         <div className="code">
             <button className="button-codigo" onClick={generarCodigo} disabled={loading}>
-                {loading ? 'Generando...' : 'Generar código de verificación'}
+                {loading ? 'Generando...' : 'Generar nuevo código de verificación'}
             </button>
             {codigo && (
                 <div className="div-code">

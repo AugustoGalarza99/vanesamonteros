@@ -4,7 +4,7 @@ import { Table, TableHead, TableRow, TableCell, TableBody, MenuItem, Select, Inp
 import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where, setDoc } from "firebase/firestore";
 import { limpiarReservasAntiguas } from '../../reservaService'
 import Swal from "sweetalert2";
-import './AgendaDos.css'
+import './Agendados.css'
 
 const ReservasDos = ({ uidPeluquero }) => {
   const [rolUsuario, setRolUsuario] = useState("peluquero");

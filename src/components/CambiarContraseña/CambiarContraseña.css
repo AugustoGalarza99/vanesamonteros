@@ -1,47 +1,45 @@
 .cambiar-contraseña-container {
-    max-width: 400px;
-    margin: 0 auto;
-    margin-bottom: 30px;
-    padding: 20px;
-    background-color: #f9f9f9; /* Fondo suave */
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .titulo {
-    text-align: center;
-    color: #333;
-    margin-bottom: 20px;
-  }
-  
-  .input-contraseña {
-    margin-bottom: 20px;
-    font-size: 1rem;
-  }
-  
-  .boton-cambiar {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    font-size: 1rem;
-    background-color: #007bff !important; /* Azul vibrante */
-    color: #fff !important;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-  }
-  
-  .boton-cambiar:hover {
-    background-color: #0056b3 !important; /* Azul más oscuro al pasar el mouse */
-  }
-  
-  .mensaje {
-    margin-top: 15px;
-    text-align: center;
-    color: #27ae60; /* Verde para éxito */
-    font-weight: bold;
-  }
-  
-  .mensaje.error {
-    color: #e74c3c; /* Rojo para errores */
-  }
-  
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+  text-align: center;
+}
+
+.titulo {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+
+.input-contraseña .MuiInputBase-root {
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.boton-cambiar {
+  margin-top: 1.5rem;
+  background-color: var(--color-boton) !important;
+  color: white !important;
+  font-weight: bold;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  transition: background-color 0.3s;
+}
+
+.boton-cambiar:hover {
+  background-color: #3c5ccf !important;
+}
+
+.mensaje {
+  margin-top: 1rem;
+  color: red;
+  font-size: 0.95rem;
+}

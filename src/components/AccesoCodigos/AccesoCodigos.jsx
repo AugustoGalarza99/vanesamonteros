@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db, auth } from "../../firebaseConfig"; // Asegúrate de importar auth
+import GeneradorCodigo from "../GeneradorCodigo/GeneradorCodigo";
 
 const AccesoCodigos = () => {
   const [codigo, setCodigo] = useState(null);
@@ -16,7 +17,6 @@ const AccesoCodigos = () => {
           setLoading(false);
           return;
         }
-
         const docRef = doc(db, "codigos_verificacion", user.uid);
         const docSnap = await getDoc(docRef);
 
@@ -45,22 +45,15 @@ const AccesoCodigos = () => {
   }
 
   return (
-    <div className="codigos">
-      <h3>Tu Código de Verificación</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Código de Verificación</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{codigo?.nombre}</td>
-            <td>{codigo?.codigoVerificacion}</td>
-          </tr>
-        </tbody>
-      </table>
+    <div className="codigos-admin">
+      <h2 className="codigos-title">Tu Código de Verificación</h2>
+      <div className="codigos-grid">
+        <div className="codigo-card">
+          <h4>{codigo?.nombre}</h4>
+          <p className="codigo-texto"><strong>Código:</strong> {codigo?.codigoVerificacion}</p>
+        </div>
+      </div>
+      <GeneradorCodigo/>
     </div>
   );
 };

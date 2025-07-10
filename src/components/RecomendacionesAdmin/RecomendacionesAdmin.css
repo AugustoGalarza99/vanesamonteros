@@ -1,0 +1,189 @@
+.recomendaciones-admin {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', sans-serif;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.recomendaciones-admin h2,
+.recomendaciones-admin h3 {
+  margin-bottom: 1rem;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.form-reco {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.form-reco input,
+.form-reco textarea {
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  font-family: inherit;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: border 0.3s ease;
+}
+
+.form-reco input:focus,
+.form-reco textarea:focus {
+  border-color: var(--color-boton);
+  outline: none;
+}
+
+.form-reco textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-reco button {
+  align-self: flex-start;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-boton);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  min-width: 150px;
+  height: 100%;
+}
+
+.form-reco button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+.lista-reco {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.reco-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 0.7rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.reco-titulo {
+  flex: 2;
+  font-weight: 600;
+  color: #333;
+  min-width: 150px;
+}
+
+.reco-precio {
+  flex: 1;
+  font-size: 1rem;
+  color: #2e7d32;
+  font-weight: 600;
+  min-width: 70px;
+  text-align: center;
+}
+
+.reco-item.activa {
+  background-color: #e9f4ff;
+}
+
+.lista-reco li {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  gap: 1rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.lista-reco li.activa {
+  background-color: rgba(209, 230, 255, 0.6);
+  font-weight: 600;
+  border-left: 4px solid var(--color-boton);
+}
+
+.reco-actions {
+  flex: 3;
+  display: flex;
+
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  min-width: 220px;
+
+  box-sizing: border-box;
+}
+
+.reco-actions button,
+.reco-check input[type="checkbox"] {
+  height: 36px;
+  padding: 0 12px;
+  background: var(--color-boton);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.reco-actions button:hover {
+  background-color: #444;
+}
+
+.reco-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.reco-actions input[type="checkbox"] {
+  transform: scale(1.3);
+  accent-color: var(--color-boton);
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+/* ✅ Para pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .reco-titulo{
+    text-align: center;
+  }
+  .reco-actions {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .reco-actions button,
+  .reco-actions label {
+    width: 60%;
+    justify-content: center;
+  }
+}

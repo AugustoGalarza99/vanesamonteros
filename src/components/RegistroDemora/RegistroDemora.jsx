@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { db, auth } from "../../firebaseConfig"; // Asegúrate de importar auth
 import { collection, getDocs, query, where, doc, setDoc, Timestamp } from "firebase/firestore";
+import './RegistroDemora.css';
 import Swal from "sweetalert2";
 
 
@@ -64,27 +65,22 @@ const RegistroDemora = () => {
         <div className="demoras-container">
             <h2 className="demoras-title">Registro de demora</h2>
             {profesional ? (
-                <table className="demoras-table">
-                    <thead>
-                        <tr>
-                            <th>Profesional</th>
-                            <th>Demora (minutos)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{profesional.nombre}</td>
-                            <td>
-                                <input
-                                    type="number"
-                                    className="demoras-input"
-                                    value={demora}
-                                    onChange={handleDemoraChange}
-                                />
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div className="demora-card">
+                    <div className="demora-item">
+                        <label className="demora-label">Profesional:</label>
+                        <span className="demora-nombre">{profesional.nombre}</span>
+                    </div>
+                    <div className="demora-item">
+                        <label className="demora-label">Demora (minutos):</label>
+                        <input
+                            type="number"
+                            className="demoras-input"
+                            value={demora}
+                            onChange={handleDemoraChange}
+                            placeholder="Ej: 15"
+                        />
+                    </div>
+                </div>
             ) : (
                 <p>Cargando datos...</p>
             )}

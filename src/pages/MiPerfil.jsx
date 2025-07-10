@@ -2,17 +2,22 @@ import React from "react";
 import RegistroDemora from "../components/RegistroDemora/RegistroDemora";
 import Administrativo from "../components/Administrativo/Administrativo";
 import AccesoCodigos from "../components/AccesoCodigos/AccesoCodigos";
-import GeneradorCodigo from "../components/GeneradorCodigo/GeneradorCodigo";
+import PanelAdministrativo from "../components/PanelAdministrativo/PanelAdministrativo";
 
 
 
 const MiPerfil = () => {
   return (
     <div>
+      <PanelAdministrativo titulo="Demoras">
         <RegistroDemora />
-        <GeneradorCodigo />
-        <AccesoCodigos />        
+      </PanelAdministrativo>
+      <PanelAdministrativo titulo="Codigo de verificación">
+        <AccesoCodigos />
+      </PanelAdministrativo>
+      <PanelAdministrativo titulo="Mi perfil">   
         <Administrativo />
+      </PanelAdministrativo> 
     </div>
   );
 };

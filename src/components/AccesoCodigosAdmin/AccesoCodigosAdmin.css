@@ -1,27 +1,86 @@
-table {
-    width: 80%;
-    border-collapse: collapse;
-    margin: 20px auto;
-    background: #f9f9f9;
+.codigos-admin {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.codigos-title {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #2c3e50;
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+
+.codigos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.codigo-card {
+  background: white;
+  border-radius: 14px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+  text-align: center;
+}
+
+.codigo-card:hover {
+  transform: translateY(-3px);
+}
+
+.codigo-card h4 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.codigo-texto {
+  font-size: 1.2rem;
+  color: #4e73df;
+  font-weight: bold;
+  word-break: break-all;
+}
+
+.loader-codigos,
+.error-codigos {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #555;
+  margin-top: 2rem;
+}
+
+@media (max-width: 480px) {
+  .codigos-title {
+    font-size: 1.5rem;
   }
 
-  .codigos{
-    font-family: var(--font);
-    width: 80%;
-    margin: 20px auto;
-    padding: 20px;
-    background: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  .codigo-card h4 {
+    font-size: 1rem;
   }
-  
-  th, td {
-    padding: 12px;
-    border: 1px solid #ddd;
-    text-align: left;
+
+  .codigo-texto {
+    font-size: 1rem;
   }
-  
-  th {
-    background-color: #f4f4f4;
+}
+@media (max-width: 400px) {
+  .codigos-grid {
+    grid-template-columns: 1fr;
   }
-  
+
+  .codigo-card {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .codigo-texto {
+    font-size: 1rem;
+  }
+}
