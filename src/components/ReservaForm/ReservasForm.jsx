@@ -59,7 +59,7 @@ const ReservasForm = () => {
                 return {
                     id: doc.id,
                     nombre: data.nombre,
-                    fotoPerfil: data.fotoPerfil || "/vanesamonterosfavicon.jpg"  // usa imagen por defecto si no hay
+                    fotoPerfil: data.fotoPerfil || "/vanesamonteros.jpg"  // usa imagen por defecto si no hay
                 };
                 });
     

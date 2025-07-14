@@ -296,7 +296,7 @@
 
 .prof-card.selected {
   background: rgba(30, 30, 30, 0.384);
-  border-color: var(--color-boton, #4e73df);
+  border: var(--border-input);
   box-shadow: 0 8px 20px rgba(78, 115, 223, 0.3);
 }
 
