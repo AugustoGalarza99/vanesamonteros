@@ -47,6 +47,22 @@ const ReservasForm = () => {
     const profesionalSeleccionado = peluqueros.find(p => p.id === profesional)?.nombre || '';
     const intervaloTurnos = horariosDisponibles.intervalo || 15;
     const navigate = useNavigate();
+    
+    useEffect(() => {
+    Swal.fire({
+    title: '¡Vacaciones de invierno!',
+    text: 'Algunos profesionales estarán de vacaciones entre el 7 y el 18 de julio. Solo estara disponible el servicio de Masajes Terapeuticos. Por favor reservar sus turnos con anticipación',
+    icon: 'info',
+    background: 'black',
+    color: 'white',
+    confirmButtonText: 'Entendido'
+    });
+    }, []);
+    const estaDeVacaciones = (fechaISO) => {
+    const fechas = fechasVacaciones[profesional] || [];
+    return fechas.includes(fechaISO);
+    };
+
 
     // Obtener peluqueros al montar el componente
     useEffect(() => {
@@ -662,13 +678,28 @@ const ReservasForm = () => {
                 <div className='div-date'>
                 <label className='titulo-servicio'>Elige tu fecha</label>
                     <input
-                    className='select-seccion2'
-                        type="date"
-                        value={fecha}
-                        onChange={(e) => setFecha(e.target.value)}
-                        min={obtenerFechaActual()}
-                        max={obtenerFechaMaxima()}
-                        required
+                    className="select-seccion2"
+                    type="date"
+                    value={fecha}
+                    onChange={(e) => {
+                        const nuevaFecha = e.target.value;
+                        if (estaDeVacaciones(nuevaFecha)) {
+                        Swal.fire({
+                            title: 'Fecha no disponible',
+                            text: 'El profesional seleccionado estará de vacaciones en esa fecha. Por favor, elegí otro día.',
+                            icon: 'warning',
+                            background: 'black',
+                            color: 'white',
+                            confirmButtonText: 'Ok',
+                        });
+                        setFecha('');
+                        } else {
+                        setFecha(nuevaFecha);
+                        }
+                    }}
+                    min={obtenerFechaActual()}
+                    max={obtenerFechaMaxima()}
+                    required
                     />
                 </div>
                 <div className='div-date'>

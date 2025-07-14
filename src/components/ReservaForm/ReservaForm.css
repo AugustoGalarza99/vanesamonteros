@@ -297,7 +297,7 @@
 .prof-card.selected {
   background: rgba(30, 30, 30, 0.384);
   border: var(--border-input);
-  box-shadow: 0 8px 20px rgba(78, 115, 223, 0.3);
+  box-shadow: 0 8px 20px rgba(146, 70, 8, 0.562);
 }
 
 .prof-card-img {
