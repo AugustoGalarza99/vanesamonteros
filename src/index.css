@@ -65,8 +65,8 @@ html, body, #root {
   --color-letras-boton: white;
   --color-boton: #e66938;
   color: black;
-  background: -webkit-linear-gradient(180deg, #ededed,#fee0c4,#c74410);/* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(180deg, #ededed,#fee0c4,#c74410);/* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background: -webkit-linear-gradient(180deg, #ededed65,#fee0c4,#c7441049);/* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(180deg, #ededed65,#fee0c4,#c7441049);/* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
   input::placeholder { color: rgba(0, 0, 0, 0.493);}
 }
 @media (max-width: 1000px) {

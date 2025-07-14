@@ -3,12 +3,14 @@ import RegistroDemora from "../components/RegistroDemora/RegistroDemora";
 import Administrativo from "../components/Administrativo/Administrativo";
 import AccesoCodigos from "../components/AccesoCodigos/AccesoCodigos";
 import PanelAdministrativo from "../components/PanelAdministrativo/PanelAdministrativo";
+import PerfilProfesional from "../components/PerfilProfesional/PrefilProfesional";
 
 
 
 const MiPerfil = () => {
   return (
     <div>
+      <PerfilProfesional/>
       <PanelAdministrativo titulo="Demoras">
         <RegistroDemora />
       </PanelAdministrativo>

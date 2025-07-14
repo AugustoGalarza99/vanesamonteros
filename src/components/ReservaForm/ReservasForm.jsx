@@ -48,34 +48,19 @@ const ReservasForm = () => {
     const intervaloTurnos = horariosDisponibles.intervalo || 15;
     const navigate = useNavigate();
 
-    useEffect(() => {
-  Swal.fire({
-    title: '¡Vacaciones de invierno!',
-    text: 'Algunos profesionales estarán de vacaciones entre el 7 y el 18 de julio. Solo estara disponible el servicio de Masajes Terapeuticos. Por favor reservar sus turnos con anticipación',
-    icon: 'info',
-    background: 'black',
-    color: 'white',
-    confirmButtonText: 'Entendido'
-  });
-}, []);
-const estaDeVacaciones = (fechaISO) => {
-  const fechas = fechasVacaciones[profesional] || [];
-  return fechas.includes(fechaISO);
-};
-
-
-
     // Obtener peluqueros al montar el componente
     useEffect(() => {
         const fetchPeluqueros = async () => {
             try {
                 const peluquerosRef = collection(db, 'peluqueros');
                 const querySnapshot = await getDocs(peluquerosRef);
-                const peluquerosList = [];
-    
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    peluquerosList.push({ id: doc.id, nombre: data.nombre });
+                const peluquerosList = querySnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    nombre: data.nombre,
+                    fotoPerfil: data.fotoPerfil || "/vanesamonterosfavicon.jpg"  // usa imagen por defecto si no hay
+                };
                 });
     
                 // Filtrar el peluquero que deseas excluir (por ejemplo, con un id específico)
@@ -364,17 +349,31 @@ const estaDeVacaciones = (fechaISO) => {
                                     uidPeluquero: profesional,
                                     status: 'Sin realizar'
                                 });
-
                                 Swal.fire({
-                                    title: 'Reserva registrada',
+                                    title: 'Turno reservado con éxito 🎉',
                                     html: 'Tu reserva ha sido creada exitosamente, muchas gracias. <br><br> <strong>IMPORTANTE:</strong> El turno puede verse modificado en +/- 15 minutos, en caso de serlo serás notificado. <br><br>Gracias por su comprensión',
+                                    text: '¿Querés agendar otro turno con los mismos datos?',
                                     icon: 'success',
                                     background: 'black',
                                     color: 'white',
-                                    confirmButtonText: 'Ok'
-                                });
-                            navigate('/estado'); // Redirigir al inicio o a otra página después de crear la reserva
-                        } catch (error) {
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Agregar otro turno',
+                                    cancelButtonText: 'Listo',
+                                    customClass: {
+                                        popup: 'glass-popup',
+                                        confirmButton: 'glass-button',
+                                        cancelButton: 'glass-button',
+                                    }
+                                    }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        // 🧠 Conserva datos del cliente, limpia fecha y hora
+                                        setFecha('');
+                                        setHora('');
+                                    } else {
+                                        navigate('/estado'); // Redirigir al inicio o a otra página después de crear la reserva
+                                    }
+                                    });
+                            } catch (error) {
                             console.error('Error al crear la reserva:', error);
                         } 
     
@@ -629,18 +628,22 @@ const estaDeVacaciones = (fechaISO) => {
                 <input className='input-gral2' type="text" placeholder='Ingresa tu apellido' value={apellido} onChange={(e) => setApellido(e.target.value)} required />
                 <input className='input-gral2' type="text" placeholder='Ingresa tu número de teléfono incluyendo caracteristica' value={telefono} onChange={(e) => {const value = e.target.value; if (/^\d*$/.test(value)) {setTelefono(value);}}} required />
             </div>
-            <div className='div-date'>
-                <label className='titulo-servicio'>Selecciona tu profesional</label>
-                    <select
-                        className='select-seccion'
-                        value={profesional}
-                        onChange={(e) => setProfesional(e.target.value)}
-                    >
-                        {peluqueros.map((p) => (
-                            <option key={p.id} value={p.id}>{p.nombre}</option>
-                        ))}
-                    </select>
+            <div className="profesionales-selector">
+            {peluqueros.map((prof) => (
+                <div
+                key={prof.id}
+                className={`prof-card ${prof.id === profesional ? 'selected' : ''}`}
+                onClick={() => setProfesional(prof.id)}
+                >
+                <img
+                    src={prof.fotoPerfil}
+                    alt={prof.nombre}
+                    className="prof-card-img"
+                />
+                <p>{prof.nombre}</p>
                 </div>
+            ))}
+            </div>
             <div className='seccion-2'>
                 <div className='div-serv'>
                     <label className='titulo-servicio'>Selecciona el servicio</label>
@@ -658,31 +661,7 @@ const estaDeVacaciones = (fechaISO) => {
                 </div>                
                 <div className='div-date'>
                 <label className='titulo-servicio'>Elige tu fecha</label>
-                <input
-                    className="select-seccion2"
-                    type="date"
-                    value={fecha}
-                    onChange={(e) => {
-                        const nuevaFecha = e.target.value;
-                        if (estaDeVacaciones(nuevaFecha)) {
-                        Swal.fire({
-                            title: 'Fecha no disponible',
-                            text: 'El profesional seleccionado estará de vacaciones en esa fecha. Por favor, elegí otro día.',
-                            icon: 'warning',
-                            background: 'black',
-                            color: 'white',
-                            confirmButtonText: 'Ok',
-                        });
-                        setFecha('');
-                        } else {
-                        setFecha(nuevaFecha);
-                        }
-                    }}
-                    min={obtenerFechaActual()}
-                    max={obtenerFechaMaxima()}
-                    required
-                    />
-                    {/*<input
+                    <input
                     className='select-seccion2'
                         type="date"
                         value={fecha}
@@ -690,7 +669,7 @@ const estaDeVacaciones = (fechaISO) => {
                         min={obtenerFechaActual()}
                         max={obtenerFechaMaxima()}
                         required
-                    />*/}
+                    />
                 </div>
                 <div className='div-date'>
                 <label className='titulo-servicio'>Elige tu hora</label>

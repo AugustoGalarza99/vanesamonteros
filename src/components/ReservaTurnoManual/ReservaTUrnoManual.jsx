@@ -348,11 +348,24 @@ const handleAgendar = async (e) => {
             icon: 'success',
             background: 'black',
             color: 'white',
-            confirmButtonText: 'Ok',
-        });
-
-        navigate('/agenda');
-    } catch (error) {
+            showCancelButton: true,
+            confirmButtonText: 'Agregar otro turno',
+            cancelButtonText: 'Listo',
+            customClass: {
+                popup: 'glass-popup',
+                confirmButton: 'glass-button',
+                cancelButton: 'glass-button',
+            }
+            }).then((result) => {
+            if (result.isConfirmed) {
+                // 🧠 Conserva datos del cliente, limpia fecha y hora
+                setFecha('');
+                setHora('');
+            } else {
+                navigate('/estado'); // Redirigir al inicio o a otra página después de crear la reserva
+            }
+            });
+        } catch (error) {
         console.error('Error al crear la reserva:', error);
     } finally {
         setLoading(false);
