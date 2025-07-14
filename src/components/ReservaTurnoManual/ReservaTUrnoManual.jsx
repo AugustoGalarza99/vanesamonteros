@@ -34,11 +34,13 @@ const ReservaTurnoManual = () => {
             try {
                 const peluquerosRef = collection(db, 'peluqueros');
                 const querySnapshot = await getDocs(peluquerosRef);
-                const peluquerosList = [];
-
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    peluquerosList.push({ id: doc.id, nombre: data.nombre });
+                const peluquerosList = querySnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    nombre: data.nombre,
+                    fotoPerfil: data.fotoPerfil || "/vanesamonteros.jpg"  // usa imagen por defecto si no hay
+                };
                 });
 
                 setPeluqueros(peluquerosList);
@@ -412,20 +414,21 @@ const handleAgendar = async (e) => {
                     />
                     </div>
                 
-                {/*</div>*/}
-                <div className='div-date'>
-                    <label className='titulo-servicio' >Profesional:</label>
-
-                    <select
-                        className='select-seccion'
-                        value={profesional}
-                        onChange={(e) => setProfesional(e.target.value)}
+                <div className="profesionales-selector">
+                {peluqueros.map((prof) => (
+                    <div
+                    key={prof.id}
+                    className={`prof-card ${prof.id === profesional ? 'selected' : ''}`}
+                    onClick={() => setProfesional(prof.id)}
                     >
-                        {peluqueros.map((p) => (
-                            <option key={p.id} value={p.id}>{p.nombre}</option>
-                        ))}
-                    </select>
-
+                    <img
+                        src={prof.fotoPerfil}
+                        alt={prof.nombre}
+                        className="prof-card-img"
+                    />
+                    <p>{prof.nombre}</p>
+                    </div>
+                ))}
                 </div>
                 <div className='seccion-2'>
                     <div className='div-serv' >
