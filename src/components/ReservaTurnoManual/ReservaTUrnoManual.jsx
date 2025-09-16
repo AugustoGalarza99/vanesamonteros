@@ -311,14 +311,47 @@ const handleAgendar = async (e) => {
         const reservas = [];
         let currentFecha = new Date(`${fecha}T${hora}`);
         // Normalizar teléfono: eliminar símbolos y forzar +549
-        const telefonoNormalizado = "+549" + telefono.replace(/\D/g, "").replace(/^549/, "").replace(/^9/, "");
+        const telefonoNormalizado = (input) => {
+            if (!input) return null;
+
+            // Solo números
+            let num = input.replace(/\D/g, "");
+
+            // Si empieza con 54 y después un 0 → quitamos ese 0
+            // Ej: 54903572... → queda 5493572...
+            num = num.replace(/^54(0\d+)/, "54$1".replace(/^540/, "54"));
+
+            // Si empieza con 5490 → quitamos ese 0
+            num = num.replace(/^5490/, "549");
+
+            // Si empieza con 0 (cuando todavía no tenía prefijo) → lo sacamos
+            if (num.startsWith("0")) {
+                num = num.slice(1);
+            }
+
+            // Si después de la característica viene un "15", lo sacamos
+            // Ej: 357215438785 → 3572438785
+            num = num.replace(/(\d{2,4})15(\d+)/, "$1$2");
+
+            // Si empieza con 54 pero sin 9 → agregamos el 9
+            if (num.startsWith("54") && !num.startsWith("549")) {
+                num = "549" + num.slice(2);
+            }
+
+            // Si no empieza con 549 → agregamos prefijo completo
+            if (!num.startsWith("549")) {
+                num = "549" + num;
+            }
+
+            return "+" + num;
+            };
 
         for (let i = 0; i < (esRecurrente ? 10 : 1); i++) {
             reservas.push({
                 nombre,
                 apellido,
                 dni: dni || null,
-                telefono: telefonoNormalizado,
+                telefono: telefonoNormalizado(telefono),
                 servicio,
                 fecha: currentFecha.toISOString().split('T')[0],
                 hora: currentFecha.toTimeString().split(' ')[0].slice(0, 5),
