@@ -102,7 +102,7 @@ const ReservasForm = () => {
         const obtenerFechaMaxima = () => {
             const hoy = new Date();
             const fechaMaxima = new Date(hoy);
-            fechaMaxima.setDate(hoy.getDate() + 60); // Sumar 60 días
+            fechaMaxima.setDate(hoy.getDate() + 120); // Sumar 60 días
             return fechaMaxima.toISOString().split('T')[0];
         };
         const filtrarHorariosDelDia = (fechaSeleccionada) => {

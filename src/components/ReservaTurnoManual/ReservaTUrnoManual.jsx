@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { db } from '../../firebaseConfig';
 import { collection, getDocs, addDoc, query, where, doc, getDoc, setDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
@@ -27,6 +28,49 @@ const ReservaTurnoManual = () => {
         // Nuevos estados para recurrencia
         const [esRecurrente, setEsRecurrente] = useState(false);
         const [intervaloRecurrencia, setIntervaloRecurrencia] = useState(7);
+        
+        const location = useLocation();
+        const prefilledOnceRef = useRef(false);
+
+        useEffect(() => {
+        if (prefilledOnceRef.current) return; // evita ejecutar dos veces en StrictMode
+        prefilledOnceRef.current = true;
+
+        let payload = location?.state?.prefillCliente
+            ? { prefillCliente: location.state.prefillCliente }
+            : null;
+
+        if (!payload) {
+            try {
+            const raw = sessionStorage.getItem("prefillClienteReservaManual");
+            if (raw) payload = JSON.parse(raw);
+            } catch (_) {}
+        }
+
+        if (payload?.prefillCliente) {
+            const { dni: dniVal, nombre: nomVal, apellido: apeVal, telefono: telVal } = payload.prefillCliente;
+
+            // Prefill (si preferís pisar siempre, quitá los === "")
+            if (typeof dniVal !== "undefined" && dni === "") setDni(dniVal || "");
+            if (nomVal && nombre === "") setNombre(nomVal);
+            if (apeVal && apellido === "") setApellido(apeVal);
+            if (telVal && telefono === "") setTelefono(telVal);
+
+            // 🔴 Limpieza inmediata para que NO se re-aplique al refrescar
+            sessionStorage.removeItem("prefillClienteReservaManual");
+
+            // 🔴 Limpia el state de la ruta (así no queda en el history)
+            // Usa la misma ruta, replace, y state vacío
+            navigate(location.pathname, { replace: true, state: null });
+        }
+
+        // Cleanup adicional por si el componente se desmonta
+        return () => {
+            sessionStorage.removeItem("prefillClienteReservaManual");
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, []);
+
 
     // Obtener peluqueros al montar el componente
     useEffect(() => {
@@ -96,7 +140,7 @@ const ReservaTurnoManual = () => {
     const obtenerFechaMaxima = () => {
         const hoy = new Date();
         const fechaMaxima = new Date(hoy);
-        fechaMaxima.setDate(hoy.getDate() + 60); // Sumar 60 días
+        fechaMaxima.setDate(hoy.getDate() + 120); // Sumar 60 días
         return fechaMaxima.toISOString().split('T')[0];
     };
     const filtrarHorariosDelDia = (fechaSeleccionada) => {
