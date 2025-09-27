@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { db } from "../../firebaseConfig";
 import { Table, TableHead, TableRow, TableCell, TableBody, MenuItem, Select, InputLabel, FormControl, Button, TableContainer, Paper, TextField } from "@mui/material";
 import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where, setDoc } from "firebase/firestore";
@@ -389,6 +390,8 @@ const handleCancelTurn = async (reserva) => {
           footer: `
             <button id="editarDuracionBtn" class="btn btn-info">Editar duración y hora de inicio</button>
             <button id="notificarCambioBtn" class="btn btn-cambio">Notificar Cambio</button>
+            <button id="editarTelefonoBtn" class="btn btn-info">Editar teléfono</button>
+            <button id="reservarManualPrefillBtn" class="btn btn-cambio">Reserva nueva con datos del cliente</button>
           `,
           background: 'black',
           color: 'white',
@@ -404,6 +407,21 @@ const handleCancelTurn = async (reserva) => {
               Swal.close(); // Cerrar el Swal actual
               notificarCambioHorario(reserva); // Llama a la función para notificar cambio
             });
+            document.getElementById("reservarManualPrefillBtn")?.addEventListener("click", async () => {
+              Swal.close();
+              await irAReservaManualConCliente(reserva);
+            });
+            // 👇 NUEVO: vincula el botón "Editar teléfono" al flujo que lee el doc en "clientes" y sobreescribe SOLO el campo telefono
+            document.getElementById('editarTelefonoBtn')?.addEventListener('click', async () => {
+              Swal.close();
+              await editarTelefonoSoloReserva(reserva);
+            }, { once: true });
+
+            // (Opcional) si también querés que funcione el de "Agregar otra reserva (mismo cliente)"
+            document.getElementById('agregarReservaMismoClienteBtn')?.addEventListener('click', () => {
+              Swal.close();
+              agendarReservaMismoCliente(reserva);
+            }, { once: true });
           },
         }).then(async (result) => {
           if (result.isConfirmed) {
@@ -570,7 +588,75 @@ const handleCancelTurn = async (reserva) => {
               });
               
             }
-          });
+        });
+      }
+    };
+    const navigate = useNavigate();
+    
+      const irAReservaManualConCliente = (reserva) => {
+        // usamos EXCLUSIVAMENTE los campos que vienen en la reserva
+        const cliente = {
+          dni: (reserva.dni && String(reserva.dni).trim() !== "") ? reserva.dni : null,
+          nombre: reserva.nombre || "",
+          apellido: reserva.apellido || "",
+          telefono: reserva.telefono || "", // puede venir vacío si la reserva vieja no lo tenía
+        };
+    
+        const payload = { prefillCliente: cliente };
+    
+        // guardamos para prefill one-shot en /reservamanual (tu pantalla ya lo limpia al montar)
+        sessionStorage.setItem("prefillClienteReservaManual", JSON.stringify(payload));
+    
+        navigate("/reservamanual", { state: payload });
+      
+      };
+    
+    const editarTelefonoSoloReserva = async (reserva) => {
+      try {
+        const { isConfirmed, value: nuevoTel } = await Swal.fire({
+          title: 'Editar teléfono (esta reserva)',
+          input: 'text',
+          inputLabel: 'Número de teléfono',
+          inputValue: reserva.telefono || '',
+          showCancelButton: true,
+          confirmButtonText: 'Guardar',
+          background: 'black',
+          color: 'white',
+          preConfirm: (val) => {
+            const limpio = (val || '').replace(/[^\d+]/g, ''); // solo dígitos y +
+            if (!limpio) {
+              Swal.showValidationMessage('Ingresá un número válido');
+              return false;
+            }
+            return limpio;
+          }
+        });
+    
+        if (!isConfirmed) return;
+    
+        // 🔧 Actualiza SOLO el campo "telefono" en el doc de reservas (si no existía, lo crea)
+        await updateDoc(doc(db, 'reservas', reserva.id), { telefono: nuevoTel });
+    
+        // 🧠 Refrescar estado local para que la UI muestre el cambio
+        setReservasLocal(prev => prev.map(r => r.id === reserva.id ? { ...r, telefono: nuevoTel } : r));
+        setReservas(prev => prev.map(r => r.id === reserva.id ? { ...r, telefono: nuevoTel } : r));
+    
+        await Swal.fire({
+          title: 'Teléfono actualizado',
+          text: 'Se actualizó el teléfono SOLO en esta reserva.',
+          icon: 'success',
+          background: 'black',
+          color: 'white',
+        });
+      } catch (e) {
+        console.error(e);
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo actualizar el teléfono de la reserva.',
+          icon: 'error',
+          background: 'black',
+          color: 'white',
+        });
       }
     };
 
