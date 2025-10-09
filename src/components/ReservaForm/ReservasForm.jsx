@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebaseConfig';
-import { doc, getDoc, collection, getDocs, query, where, addDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, query, where, addDoc, setDoc, orderBy } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { RxCalendar } from "react-icons/rx";
 import Swal from 'sweetalert2';
@@ -62,30 +62,37 @@ const ReservasForm = () => {
     
 
     // Obtener servicios del profesional seleccionado
-    useEffect(() => {
+        useEffect(() => {
         const fetchServicios = async () => {
             if (!profesional) return; // Si no hay un profesional seleccionado, no hacer nada
 
             try {
+                // 🔹 Creamos una consulta ordenada por el campo "orden"
                 const serviciosRef = collection(db, 'profesionales', profesional, 'servicios');
-                const querySnapshot = await getDocs(serviciosRef);
-                const serviciosList = [];
+                const q = query(serviciosRef, orderBy('orden', 'asc')); // 👈 Aquí el cambio
+                const querySnapshot = await getDocs(q);
 
+                const serviciosList = [];
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     serviciosList.push({
                         id: doc.id,
                         nombre: data.nombre,
                         duracion: data.duracion,
-                        precio: data.precio, // Asegúrate de que el campo precio exista en los documentos
+                        precio: data.precio,
+                        orden: data.orden ?? 0, // Por si algunos no tienen el campo todavía
                     });
                 });
 
+                // 🔹 Por seguridad, ordenamos también localmente (aunque ya viene ordenado)
+                serviciosList.sort((a, b) => a.orden - b.orden);
+
                 setServicios(serviciosList);
+
                 if (serviciosList.length > 0) {
-                    setServicio(serviciosList[0].nombre); // Seleccionar el primer servicio por defecto
-                    setDuracionServicio(serviciosList[0].duracion); // Guardar la duración del primer servicio
-                    setCostoServicio(serviciosList[0].precio); // Guardar el costo del primer servicio
+                    setServicio(serviciosList[0].nombre);
+                    setDuracionServicio(serviciosList[0].duracion);
+                    setCostoServicio(serviciosList[0].precio);
                 }
             } catch (error) {
                 console.error('Error obteniendo servicios:', error);
@@ -93,8 +100,7 @@ const ReservasForm = () => {
         };
 
         fetchServicios();
-    }, [profesional]); // Este efecto se ejecuta cada vez que cambia el valor de 'profesional'
-
+    }, [profesional]);
         const obtenerFechaActual = () => {
             const hoy = new Date();
             return hoy.toISOString().split('T')[0]; // Formato YYYY-MM-DD
@@ -256,6 +262,33 @@ const ReservasForm = () => {
 
     const handleAgendar = async (e) => {
         e.preventDefault(); // Evitar el comportamiento predeterminado del formulario
+
+        // 🧠 Verificar si la versión local coincide con la última del servidor
+        try {
+            const res = await fetch('/meta.json', { cache: 'no-cache' });
+            const data = await res.json();
+            const current = localStorage.getItem('build_hash');
+
+            if (!current || current !== data.build) {
+            await Swal.fire({
+                title: 'Versión desactualizada',
+                text: 'Hay una nueva versión de la aplicación. Debés recargar antes de continuar.',
+                icon: 'warning',
+                confirmButtonText: 'Recargar ahora',
+                background: 'black',
+                color: 'white',
+                allowOutsideClick: false,
+                allowEscapeKey: false
+            });
+
+            localStorage.setItem('build_hash', data.build);
+            window.location.reload();
+            return; // 🚫 Cancelar la función para evitar crear reservas viejas
+            }
+        } catch (err) {
+            console.warn('No se pudo verificar la versión actual', err);
+        }
+
         if (loading) return;
         setLoading(true);
         try {
@@ -316,33 +349,33 @@ const ReservasForm = () => {
                                 const telefonoNormalizado = (input) => {
                                 if (!input) return null;
 
-                                // Solo números
+                                // 1. Quitar todo lo que no sea número
                                 let num = input.replace(/\D/g, "");
 
-                                // Si empieza con 54 y después un 0 → quitamos ese 0
-                                // Ej: 54903572... → queda 5493572...
-                                num = num.replace(/^54(0\d+)/, "54$1".replace(/^540/, "54"));
+                                // 2. Si empieza con "00" (algunos escriben 0054...), lo pasamos a "+"
+                                if (num.startsWith("00")) num = num.slice(2);
 
-                                // Si empieza con 5490 → quitamos ese 0
-                                num = num.replace(/^5490/, "549");
-
-                                // Si empieza con 0 (cuando todavía no tenía prefijo) → lo sacamos
-                                if (num.startsWith("0")) {
+                                // 3. Si empieza con "54" o "+54", quitamos el "+"
+                                if (num.startsWith("54")) {
+                                    num = num;
+                                } else if (num.startsWith("9")) {
+                                    // Si alguien pone 9 al principio (como 9 3572...), se lo quitamos para procesar
+                                    num = num.slice(1);
+                                } else if (num.startsWith("0")) {
+                                    // Si empieza con 0, lo sacamos
                                     num = num.slice(1);
                                 }
 
-                                // Si después de la característica viene un "15", lo sacamos
-                                // Ej: 357215438785 → 3572438785
+                                // 4. Si contiene "15" después del código de área (2 a 4 dígitos), lo eliminamos
                                 num = num.replace(/(\d{2,4})15(\d+)/, "$1$2");
 
-                                // Si empieza con 54 pero sin 9 → agregamos el 9
-                                if (num.startsWith("54") && !num.startsWith("549")) {
-                                    num = "549" + num.slice(2);
+                                // 5. Asegurar prefijo +549
+                                if (!num.startsWith("54")) {
+                                    num = "54" + num;
                                 }
 
-                                // Si no empieza con 549 → agregamos prefijo completo
                                 if (!num.startsWith("549")) {
-                                    num = "549" + num;
+                                    num = "549" + num.slice(2);
                                 }
 
                                 return "+" + num;
@@ -640,7 +673,7 @@ const ReservasForm = () => {
                 <div className='div-tel'>
                 <input className='input-gral2' type="text" placeholder='Ingresa tu nombre' value={nombre} onChange={(e) => setNombre(e.target.value)} required />
                 <input className='input-gral2' type="text" placeholder='Ingresa tu apellido' value={apellido} onChange={(e) => setApellido(e.target.value)} required />
-                <input className='input-gral2' type="text" placeholder='Ingresa tu número de teléfono incluyendo caracteristica' value={telefono} onChange={(e) => {const value = e.target.value; if (/^\d*$/.test(value)) {setTelefono(value);}}} required />
+                <input className='input-gral2' type="text" placeholder='Ingresa tu telefono (caracteristica + numero)' value={telefono} onChange={(e) => {const value = e.target.value; if (/^\d*$/.test(value)) {setTelefono(value);}}} required />
             </div>
             <div className="profesionales-selector">
             {peluqueros.map((prof) => (

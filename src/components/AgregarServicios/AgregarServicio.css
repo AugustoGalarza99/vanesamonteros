@@ -124,3 +124,30 @@
     padding: 1rem;
   }
 }
+.servicio-orden-buttons {
+  display: flex;
+  gap: 0.3rem;
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+}
+
+.servicio-orden-buttons button {
+  background: #e0e0e0;
+  border: none;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.servicio-orden-buttons button:hover {
+  background: var(--color-boton, #4e73df);
+  color: white;
+}
+
+.servicio-card {
+  position: relative;
+}

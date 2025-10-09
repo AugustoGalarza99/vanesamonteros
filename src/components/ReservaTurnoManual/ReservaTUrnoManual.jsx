@@ -356,39 +356,39 @@ const handleAgendar = async (e) => {
         let currentFecha = new Date(`${fecha}T${hora}`);
         // Normalizar teléfono: eliminar símbolos y forzar +549
         const telefonoNormalizado = (input) => {
-            if (!input) return null;
+        if (!input) return null;
 
-            // Solo números
-            let num = input.replace(/\D/g, "");
+        // 1. Quitar todo lo que no sea número
+        let num = input.replace(/\D/g, "");
 
-            // Si empieza con 54 y después un 0 → quitamos ese 0
-            // Ej: 54903572... → queda 5493572...
-            num = num.replace(/^54(0\d+)/, "54$1".replace(/^540/, "54"));
+        // 2. Si empieza con "00" (algunos escriben 0054...), lo pasamos a "+"
+        if (num.startsWith("00")) num = num.slice(2);
 
-            // Si empieza con 5490 → quitamos ese 0
-            num = num.replace(/^5490/, "549");
+        // 3. Si empieza con "54" o "+54", quitamos el "+"
+        if (num.startsWith("54")) {
+            num = num;
+        } else if (num.startsWith("9")) {
+            // Si alguien pone 9 al principio (como 9 3572...), se lo quitamos para procesar
+            num = num.slice(1);
+        } else if (num.startsWith("0")) {
+            // Si empieza con 0, lo sacamos
+            num = num.slice(1);
+        }
 
-            // Si empieza con 0 (cuando todavía no tenía prefijo) → lo sacamos
-            if (num.startsWith("0")) {
-                num = num.slice(1);
-            }
+        // 4. Si contiene "15" después del código de área (2 a 4 dígitos), lo eliminamos
+        num = num.replace(/(\d{2,4})15(\d+)/, "$1$2");
 
-            // Si después de la característica viene un "15", lo sacamos
-            // Ej: 357215438785 → 3572438785
-            num = num.replace(/(\d{2,4})15(\d+)/, "$1$2");
+        // 5. Asegurar prefijo +549
+        if (!num.startsWith("54")) {
+            num = "54" + num;
+        }
 
-            // Si empieza con 54 pero sin 9 → agregamos el 9
-            if (num.startsWith("54") && !num.startsWith("549")) {
-                num = "549" + num.slice(2);
-            }
+        if (!num.startsWith("549")) {
+            num = "549" + num.slice(2);
+        }
 
-            // Si no empieza con 549 → agregamos prefijo completo
-            if (!num.startsWith("549")) {
-                num = "549" + num;
-            }
-
-            return "+" + num;
-            };
+        return "+" + num;
+        };
 
         for (let i = 0; i < (esRecurrente ? 10 : 1); i++) {
             reservas.push({
@@ -483,7 +483,7 @@ const handleAgendar = async (e) => {
                 
                     <input
                         className='input-gral2'
-                        placeholder='Ingresa numero de telefono incluyendo caracteristica'
+                        placeholder='Ingresa telefono (caracteristica + numero)'
                         type="text"
                         value={telefono}
                         onChange={(e) => setTelefono(e.target.value)}

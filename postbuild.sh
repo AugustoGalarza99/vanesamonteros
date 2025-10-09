@@ -1,0 +1,1 @@
+echo "{\"build\":\"$(date +%s)\"}" > dist/meta.json
