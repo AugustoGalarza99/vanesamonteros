@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { db } from '../../firebaseConfig';
-import { collection, getDocs, addDoc, query, where, doc, getDoc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, where, doc, getDoc, setDoc, orderBy } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { RxCalendar } from "react-icons/rx";
 import Swal from 'sweetalert2';
@@ -100,38 +100,45 @@ const ReservaTurnoManual = () => {
     }, []);
 
     // Obtener servicios del profesional seleccionado
-    useEffect(() => {
-        const fetchServicios = async () => {
-            if (!profesional) return; // Si no hay un profesional seleccionado, no hacer nada
-
-            try {
-                const serviciosRef = collection(db, 'profesionales', profesional, 'servicios');
-                const querySnapshot = await getDocs(serviciosRef);
-                const serviciosList = [];
-
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    serviciosList.push({
-                        id: doc.id,
-                        nombre: data.nombre,
-                        duracion: data.duracion,
-                        precio: data.precio, // Asegúrate de que el campo precio exista en los documentos
+            useEffect(() => {
+            const fetchServicios = async () => {
+                if (!profesional) return; // Si no hay un profesional seleccionado, no hacer nada
+    
+                try {
+                    // 🔹 Creamos una consulta ordenada por el campo "orden"
+                    const serviciosRef = collection(db, 'profesionales', profesional, 'servicios');
+                    const q = query(serviciosRef, orderBy('orden', 'asc')); // 👈 Aquí el cambio
+                    const querySnapshot = await getDocs(q);
+    
+                    const serviciosList = [];
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        serviciosList.push({
+                            id: doc.id,
+                            nombre: data.nombre,
+                            duracion: data.duracion,
+                            precio: data.precio,
+                            orden: data.orden ?? 0, // Por si algunos no tienen el campo todavía
+                        });
                     });
-                });
-
-                setServicios(serviciosList);
-                if (serviciosList.length > 0) {
-                    setServicio(serviciosList[0].nombre); // Seleccionar el primer servicio por defecto
-                    setDuracionServicio(serviciosList[0].duracion); // Guardar la duración del primer servicio
-                    setCostoServicio(serviciosList[0].precio); // Guardar el costo del primer servicio
+    
+                    // 🔹 Por seguridad, ordenamos también localmente (aunque ya viene ordenado)
+                    serviciosList.sort((a, b) => a.orden - b.orden);
+    
+                    setServicios(serviciosList);
+    
+                    if (serviciosList.length > 0) {
+                        setServicio(serviciosList[0].nombre);
+                        setDuracionServicio(serviciosList[0].duracion);
+                        setCostoServicio(serviciosList[0].precio);
+                    }
+                } catch (error) {
+                    console.error('Error obteniendo servicios:', error);
                 }
-            } catch (error) {
-                console.error('Error obteniendo servicios:', error);
-            }
-        };
-
-        fetchServicios();
-    }, [profesional]); // Este efecto se ejecuta cada vez que cambia el valor de 'profesional'
+            };
+    
+            fetchServicios();
+        }, [profesional]);
 
     const obtenerFechaActual = () => {
         const hoy = new Date();
