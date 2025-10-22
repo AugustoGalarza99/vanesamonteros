@@ -410,7 +410,11 @@ const ReservasForm = () => {
 
                                 if (subscriber.length < 6) return null;
 
-                                return "+549" + area + subscriber;
+                                // 💪 Aseguramos que siempre tenga el prefijo correcto
+                                let result = "+549" + area + subscriber;
+                                if (!result.startsWith("+549")) result = "+549" + result.replace(/^\+?/, "");
+
+                                return result;
                                 };
 
                                 // 3. Guardar la reserva

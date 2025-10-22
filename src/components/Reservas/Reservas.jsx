@@ -297,6 +297,20 @@ const esDiaLaboral = async (fecha, uidPeluquero) => {
 
 const editarDuracionHoraYFechaTurno = async (reservaId, nuevaDuracion, nuevaHoraInicio, nuevaFecha, uidPeluquero) => {
   try {
+    // 🔹 Obtener datos actuales de la reserva por ID (por si necesitamos valores originales)
+    const reservaRef = doc(db, "reservas", reservaId);
+    const reservaSnap = await getDoc(reservaRef);
+    if (!reservaSnap.exists()) {
+      throw new Error("Reserva no encontrada");
+    }
+
+    const reservaActual = reservaSnap.data();
+
+    // 🔹 Usar los valores originales si los nuevos vienen vacíos o undefined
+    const horaInicioFinal = nuevaHoraInicio || reservaActual.hora || reservaActual.horaInicio;
+    const fechaFinal = nuevaFecha || reservaActual.fecha;
+    const duracionFinal = nuevaDuracion || reservaActual.duracion;
+    
     // ✅ Verificar si la nueva fecha es un día laboral
     const diaLaboral = await esDiaLaboral(nuevaFecha, uidPeluquero);
     if (!diaLaboral) {
@@ -340,20 +354,29 @@ const editarDuracionHoraYFechaTurno = async (reservaId, nuevaDuracion, nuevaHora
 
     // ✅ Actualizar la reserva
     const horaFinStr = `${String(endTime.getHours()).padStart(2, '0')}:${String(endTime.getMinutes()).padStart(2, '0')}`;
-    const reservaRef = doc(db, "reservas", reservaId);
 
+
+    // ✅ Actualizar la reserva en Firebase
     await updateDoc(reservaRef, {
-      duracion: nuevaDuracion,
-      hora: nuevaHoraInicio,
-      horaInicio: nuevaHoraInicio,
+      duracion: duracionFinal,
+      hora: horaInicioFinal,
+      horaInicio: horaInicioFinal,
       horaFin: horaFinStr,
-      fecha: nuevaFecha
+      fecha: fechaFinal
     });
 
+    // ✅ Actualizar en el estado local
     setReservasLocal(prev =>
       prev.map(r =>
         r.id === reservaId
-          ? { ...r, duracion: nuevaDuracion, hora: nuevaHoraInicio, horaFin: horaFinStr, fecha: nuevaFecha }
+          ? {
+              ...r,
+              duracion: duracionFinal,
+              hora: horaInicioFinal,
+              horaInicio: horaInicioFinal,   // 🔹 agregar esto
+              horaFin: horaFinStr,
+              fecha: fechaFinal
+            }
           : r
       )
     );
@@ -403,9 +426,13 @@ const notificarCambioHorario = (reserva) => {
 Nueva fecha y hora: ${fechaLocal.toLocaleDateString()} a las ${horaInicio}. 
 Duración estimada: ${reserva.duracion} minutos. Gracias por tu comprensión.`;
 
-  const whatsappURL = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
-  window.open(whatsappURL, '_blank'); // Abrir WhatsApp
-};
+  const whatsappBaseURL = navigator.userAgent.includes('Windows') || navigator.userAgent.includes('Mac')
+      ? 'https://web.whatsapp.com'
+      : 'https://api.whatsapp.com';
+
+    const whatsappURL = `${whatsappBaseURL}/send?phone=${telefono}&text=${encodeURIComponent(mensaje)}`;
+    window.open(whatsappURL, '_blank');
+  };
 const actualizarEstadoTurno = async (reservaId, nuevoEstado) => {
   try {
     const reservaRef = doc(db, "reservas", reservaId);
