@@ -422,7 +422,7 @@ const ReservasForm = () => {
                                     dni,
                                     nombre,
                                     apellido,
-                                    telefono: telefonoNormalizado(telefono),
+                                    telefono: telefonoNormalizado("+549" + telefono),
                                     servicio,
                                     fecha,
                                     hora,

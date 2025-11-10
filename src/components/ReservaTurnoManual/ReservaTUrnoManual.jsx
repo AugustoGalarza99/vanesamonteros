@@ -438,7 +438,7 @@ const handleAgendar = async (e) => {
                 nombre,
                 apellido,
                 dni: dni || null,
-                telefono: telefonoNormalizado(telefono),
+                telefono: telefonoNormalizado("+549" + telefono),
                 servicio,
                 fecha: currentFecha.toISOString().split('T')[0],
                 hora: currentFecha.toTimeString().split(' ')[0].slice(0, 5),
