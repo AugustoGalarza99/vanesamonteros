@@ -177,24 +177,31 @@ const ReservaTurnoManual = () => {
         }
     }, [fecha]); // Solo ejecuta el efecto cuando cambia `fecha`
 
-    const guardarClienteVerificadoSiNoExiste = async () => {
-        try {
-            const clienteRef = doc(db, 'clientes', telefono);
-            const clienteSnap = await getDoc(clienteRef);
-    
-            if (!clienteSnap.exists() || !clienteSnap.data().verificado) {
-                await setDoc(clienteRef, {
-                    dni,
-                    telefono,
-                    nombre,
-                    apellido,
-                    verificado: true,
-                });
-            }
-        } catch (error) {
-            console.error('Error al guardar el cliente como verificado:', error);
-        }
-    };
+const guardarClienteVerificadoSiNoExiste = async () => {
+  try {
+    const telefonoNormalizadoFinal = telefonoNormalizado(telefono);
+    if (!telefonoNormalizadoFinal) {
+      console.error('Teléfono inválido, no se puede guardar cliente.');
+      return;
+    }
+
+    const clienteRef = doc(db, 'clientes', telefonoNormalizadoFinal);
+    const clienteSnap = await getDoc(clienteRef);
+
+    if (!clienteSnap.exists() || !clienteSnap.data().verificado) {
+      await setDoc(clienteRef, {
+        dni,
+        telefono: telefonoNormalizadoFinal,
+        nombre,
+        apellido,
+        verificado: true,
+      });
+    }
+  } catch (error) {
+    console.error('Error al guardar el cliente como verificado:', error);
+  }
+};
+
     
 
 
