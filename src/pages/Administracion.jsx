@@ -4,6 +4,7 @@ import RegistroDemoraAdmin from "../components/RegistroDemoraAdmin/RegistroDemor
 import AccesoCodigosAdmin from "../components/AccesoCodigosAdmin/AccesoCodigosAdmin";
 import RecomendacionesAdmin from "../components/RecomendacionesAdmin/RecomendacionesAdmin";
 import PanelAdministrativo from "../components/PanelAdministrativo/PanelAdministrativo";
+import BloqueoAgenda from "../components/BloqueoAgenda/BloqueoAgenda.JSX";
 
 const Administracion = () => {
   return (
@@ -13,6 +14,9 @@ const Administracion = () => {
       </PanelAdministrativo>
       <PanelAdministrativo titulo="Codigos de verificación">
         <AccesoCodigosAdmin />
+      </PanelAdministrativo>
+      <PanelAdministrativo titulo="Vacaciones / feriados">
+        <BloqueoAgenda />
       </PanelAdministrativo>
       <PanelAdministrativo titulo="Recomendaciones">
         <RecomendacionesAdmin />

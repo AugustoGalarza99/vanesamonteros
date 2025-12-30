@@ -78,6 +78,11 @@ const ReservasDos = ({ uidPeluquero }) => {
                 id: docReserva.id,
                 horaFin: horaFinTexto, // Agregamos la hora de finalización
                 nombrePeluquero,
+                // Nuevos campos (usamos ?? para valores por defecto seguros)
+                aviso: reserva.aviso ?? false,
+                recManiana: reserva.recManiana ?? false,
+                recTarde: reserva.recTarde ?? false,
+                costoServicio: reserva.costoServicio ?? 0,
               };
             })
           );
@@ -373,6 +378,49 @@ const handleCancelTurn = async (reserva) => {
   });
 };
 
+const actualizarCostoServicio = async (reservaId, nuevoCosto) => {
+  try {
+    const reservaRef = doc(db, "reservas", reservaId);
+    
+    await updateDoc(reservaRef, { 
+      costoServicio: Number(nuevoCosto) 
+    });
+
+    // Actualizar estado local
+    setReservasLocal(prev => 
+      prev.map(r => 
+        r.id === reservaId ? { ...r, costoServicio: Number(nuevoCosto) } : r
+      )
+    );
+
+    // También actualizamos reservasFiltradas para que se vea inmediatamente
+    setReservasFiltradas(prev => 
+      prev.map(r => 
+        r.id === reservaId ? { ...r, costoServicio: Number(nuevoCosto) } : r
+      )
+    );
+
+    Swal.fire({
+      title: "¡Actualizado!",
+      text: "El costo del servicio ha sido modificado correctamente.",
+      icon: "success",
+      background: 'black',
+      color: 'white',
+      timer: 1800,
+      showConfirmButton: false
+    });
+  } catch (error) {
+    console.error("Error al actualizar costo:", error);
+    Swal.fire({
+      title: "Error",
+      text: "No se pudo actualizar el costo. Intenta nuevamente.",
+      icon: "error",
+      background: 'black',
+      color: 'white'
+    });
+  }
+};
+
 
   const manejarClickReserva = (reserva) => {
       const { status, id, duracion, horaInicio, fecha, telefono } = reserva;
@@ -392,10 +440,15 @@ const handleCancelTurn = async (reserva) => {
             <button id="notificarCambioBtn" class="btn btn-cambio">Notificar Cambio</button>
             <button id="editarTelefonoBtn" class="btn btn-info">Editar teléfono</button>
             <button id="reservarManualPrefillBtn" class="btn btn-cambio">Reserva nueva con datos del cliente</button>
+            <button id="editarCostoBtn" class="btn btn-warning">Modificar costo</button>
           `,
           background: 'black',
           color: 'white',
           didRender: () => {
+            document.getElementById('editarCostoBtn')?.addEventListener('click', () => {
+            Swal.close();
+            editarCostoTurno(reserva);
+          });
             // Agregar evento para el botón de Editar
             document.getElementById('editarDuracionBtn')?.addEventListener('click', () => {
               Swal.close(); // Cerrar el Swal actual
@@ -591,6 +644,46 @@ const handleCancelTurn = async (reserva) => {
         });
       }
     };
+    
+    const editarCostoTurno = (reserva) => {
+      Swal.fire({
+        title: 'Modificar costo del servicio',
+        html: `
+          <div style="margin: 20px 0;">
+            <p style="margin-bottom: 12px;">Servicio actual: <strong>${reserva.servicio || '—'}</strong></p>
+            <label style="display: block; margin-bottom: 8px;">Nuevo costo ($):</label>
+            <input 
+              id="nuevoCostoInput" 
+              class="swal2-input" 
+              type="number" 
+              value="${reserva.costoServicio || 0}" 
+              min="0" 
+              step="100"
+              style="width: 180px; text-align: right;"
+            >
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Guardar costo',
+        cancelButtonText: 'Cancelar',
+        background: 'black',
+        color: 'white',
+        preConfirm: () => {
+          const nuevoCosto = document.getElementById('nuevoCostoInput').value;
+          if (!nuevoCosto || isNaN(nuevoCosto) || Number(nuevoCosto) < 0) {
+            Swal.showValidationMessage('Ingrese un monto válido (número positivo)');
+            return false;
+          }
+          return Number(nuevoCosto);
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          actualizarCostoServicio(reserva.id, result.value);
+        }
+      });
+    };
+
+
     const navigate = useNavigate();
     
       const irAReservaManualConCliente = (reserva) => {
@@ -660,6 +753,23 @@ const handleCancelTurn = async (reserva) => {
       }
     };
 
+    // Función auxiliar para mostrar icono de recordatorio
+  const getRecordatorioIcon = (reserva) => {
+    if (reserva.recManiana) return "✓";
+    if (reserva.recTarde) return "✓";
+    return "—";
+  };
+
+  const formatearPrecio = (valor) => {
+  if (!valor && valor !== 0) return "—";
+  return new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(valor);
+};
+
   return (
     <div className="reservas-container">
       <div>
@@ -685,8 +795,11 @@ const handleCancelTurn = async (reserva) => {
                   <TableCell>Hora Fin</TableCell>
                   <TableCell>Cliente</TableCell>
                   <TableCell>Servicio</TableCell>
+                  <TableCell>Costo</TableCell>
                   <TableCell>Profesional</TableCell>
                   <TableCell>Estado</TableCell>
+                  <TableCell align="center">Aviso</TableCell>
+                  <TableCell align="center">Recordatorio</TableCell>
                   <TableCell>Acciones</TableCell>
                 </TableRow>
               </TableHead>
@@ -700,20 +813,23 @@ const handleCancelTurn = async (reserva) => {
                 <TableCell>{reserva.horaFin}</TableCell>
                 <TableCell>{`${reserva.nombre} ${reserva.apellido}`}</TableCell>
                 <TableCell>{reserva.servicio}</TableCell>
-                <TableCell>{reserva.nombrePeluquero}</TableCell>
+                <TableCell className="costo-cell">{formatearPrecio(reserva.costoServicio)}</TableCell>
+                <TableCell>{reserva.nombrePeluquero}</TableCell>                  
                 <TableCell>
-                                    <span
-                                      className={`status-label ${
-                                        reserva.status === "Sin realizar"
-                                          ? "status-sin-realizar"
-                                          : reserva.status === "finalizado"
-                                          ? "status-finalizado"
-                                          : ""
-                                      }`}
-                                    >
-                                      {reserva.status}
-                                    </span>
-                                  </TableCell>
+                  <span className={`status-label status-${reserva.status?.toLowerCase().replace(" ", "-")}`}>
+                    {reserva.status || "—"}
+                  </span>
+                </TableCell>
+                <TableCell align="center">
+                  <span className={`indicator ${reserva.aviso ? "success" : "danger"}`}>
+                    {reserva.aviso ? "✓" : "✗"}
+                  </span>
+                </TableCell>
+                <TableCell align="center">
+                  <span className={`recordatorio ${reserva.recManiana ? "maniana" : reserva.recTarde ? "tarde" : "none"}`}>
+                    {getRecordatorioIcon(reserva)}
+                  </span>
+                </TableCell>
                 <TableCell>
                   <Button
                     className="button-acciones"
@@ -755,22 +871,29 @@ const handleCancelTurn = async (reserva) => {
                       <p>{reserva.servicio}</p>
                     </div>
                     <div className="card-row">
+                      <span>Costo:</span>
+                      <p className="costo-card">{formatearPrecio(reserva.costoServicio)}</p>
+                    </div>
+                    <div className="card-row">
                       <span>Profesional:</span>
                       <p>{reserva.nombrePeluquero}</p>
                     </div>
-                    <div className="card-row">
-                      <span>Estado:</span>
-                      <p
-                        className={
-                          reserva.status === "Sin realizar"
-                            ? "status-sin-realizar"
-                            : reserva.status === "finalizado"
-                            ? "status-finalizado"
-                            : ""
-                        }
-                      >
-                        {reserva.status}
+                    <div className="card-row"><span>Estado:</span>
+                      <p className={`status-${reserva.status?.toLowerCase().replace(" ", "-")}`}>
+                        {reserva.status || "—"}
                       </p>
+                    </div>
+                    <div className="card-row">
+                      <span>Aviso:</span>
+                      <span className={`indicator ${reserva.aviso ? "success" : "danger"}`}>
+                        {reserva.aviso ? "✓" : "✗"}
+                      </span>
+                    </div>
+                    <div className="card-row">
+                      <span>Recordatorio:</span>
+                      <span className={`recordatorio ${reserva.recManiana ? "maniana" : reserva.recTarde ? "tarde" : "none"}`}>
+                        {getRecordatorioIcon(reserva)}
+                      </span>
                     </div>
                     <Button
                       className="button-acciones"

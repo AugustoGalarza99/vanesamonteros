@@ -192,3 +192,155 @@ h3 {
   color: #000000; /* Letras negras */
   }
   
+
+
+  /* Indicadores de Aviso */
+.indicator {
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.indicator.success {
+  color: #2ecc71;
+}
+
+.indicator.danger {
+  color: #e74c3c;
+}
+
+/* Recordatorio */
+.recordatorio {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.recordatorio.maniana {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #2ecc71; /* naranja cálido - mañana */
+}
+
+.recordatorio.tarde {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #2ecc71; /* violeta suave - tarde */
+}
+
+.recordatorio.none {
+  color: #95a5a6;
+  font-style: italic;
+}
+
+/* Mejora visual de la tabla */
+.custom-table th {
+  background-color: var(--color-boton);
+  color: white;
+  font-weight: 600;
+}
+
+.custom-table tbody tr:hover {
+  background-color: rgba(52, 152, 219, 0.08);
+  transition: background-color 0.2s;
+}
+
+/* Alineación y tamaño columnas nuevas */
+.custom-table td:nth-child(8), /* Aviso */
+.custom-table td:nth-child(9)  /* Recordatorio */
+{
+  text-align: center;
+  width: 90px;
+  font-size: 1.1rem;
+}
+
+/* Tarjetas móviles - más limpias */
+.reservas-card {
+  background: #f8f9fa;
+  border-left: 4px solid #3498db;
+  transition: all 0.15s ease;
+}
+
+.reservas-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+
+
+
+
+
+
+
+/* Para que las celdas no se vean tan apretadas */
+.custom-table td, .custom-table th {
+  padding: 0.65rem 0.8rem;
+  font-size: 0.875rem;          /* 14px */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;             /* importante para cliente y servicio */
+}
+
+/* Tooltip bonito al hover en columnas con ellipsis */
+td[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  background: #1e1e1e;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  z-index: 10;
+  pointer-events: none;
+  white-space: pre-wrap;
+  max-width: 300px;
+}
+
+/* Costo destacado */
+.costo-cell {
+  font-weight: 600;
+  color: #2ecc71;
+  text-align: right;
+}
+
+/* Iconos pequeños y discretos en +Info */
+.extra-info {
+  display: flex;
+  gap: 10px;
+  font-size: 1.1rem;
+  opacity: 0.85;
+}
+
+/* Costo en tabla */
+.costo-cell {
+  font-weight: 600;
+  color: #27ae60;
+  text-align: right;
+  white-space: nowrap;
+  min-width: 90px;
+}
+
+/* Costo en tarjetas móviles */
+.costo-card {
+  font-weight: 700;
+  color: #27ae60;
+  margin: 0;
+}
+
+/* Ajuste general columnas para pantallas medianas */
+@media (max-width: 1280px) {
+  .custom-table td, .custom-table th {
+    padding: 0.6rem 0.7rem;
+    font-size: 0.84rem;
+  }
+  
+  .cliente-cell, .servicio-cell {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+
+

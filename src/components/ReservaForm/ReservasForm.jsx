@@ -6,6 +6,28 @@ import { RxCalendar } from "react-icons/rx";
 import Swal from 'sweetalert2';
 import './ReservaForm.css';
 
+const fechasVacaciones = {
+  "0tbdEJCfC9ZBVq833kC6qSHKyXp1": generarRangoFechas("2026-02-02", "2026-02-17"),
+  "3tWKj7mw7rMZHMqFp4nINXrhln62": generarRangoFechas("2026-02-02", "2026-02-17"),
+  "5HxTZfiSGUO2ypwojYu5zfXy3K62": generarRangoFechas("2026-02-02", "2026-02-17"),
+  "DHbAf3YHY1TCBHet3Rq3c9TRT2J2": generarRangoFechas("2026-02-02", "2026-02-17"),
+  "gt7YqVp8HISoCi3dv5gOENDE1Sg2": generarRangoFechas("2026-02-02", "2026-02-17"),
+  "sZqQh0TghhSJ0CXRHY81McaemGa2": generarRangoFechas("2026-02-02", "2026-02-17"),  
+  "wpL6peq4pwf5kelrAPMmz1ntMmG2": generarRangoFechas("2026-02-02", "2026-02-17"),
+};
+
+// Utilidad para generar array de fechas entre dos fechas
+function generarRangoFechas(inicio, fin) {
+  const fechas = [];
+  let actual = new Date(inicio);
+  const final = new Date(fin);
+  while (actual <= final) {
+    fechas.push(actual.toISOString().split('T')[0]); // formato YYYY-MM-DD
+    actual.setDate(actual.getDate() + 1);
+  }
+  return fechas;
+}
+
 const ReservasForm = () => {
     const [dni, setDni] = useState('');
     const [telefono, setTelefono] = useState('');
@@ -28,6 +50,21 @@ const ReservasForm = () => {
     const profesionalSeleccionado = peluqueros.find(p => p.id === profesional)?.nombre || '';
     const intervaloTurnos = horariosDisponibles.intervalo || 15;
     const navigate = useNavigate();    
+
+    useEffect(() => {
+    Swal.fire({
+    title: '¡Vacaciones de verano!',
+    text: 'Nos tomaremos un descanso para volver recargados y seguir brindandote el mejor servicio. El centro permanecera cerrado desde el 2 de Febrero al 17 de Febrero inclusive. Por favor reservar sus turnos con anticipación',
+    icon: 'info',
+    background: 'black',
+    color: 'white',
+    confirmButtonText: 'Entendido'
+    });
+    }, []);
+    const estaDeVacaciones = (fechaISO) => {
+    const fechas = fechasVacaciones[profesional] || [];
+    return fechas.includes(fechaISO);
+    };
 
     // Obtener peluqueros al montar el componente
     useEffect(() => {
@@ -139,6 +176,18 @@ const ReservasForm = () => {
                     if (peluqueroDoc.exists()) {
                         const peluqueroData = peluqueroDoc.data();
                         const uidPeluquero = peluqueroData.uid;
+
+                        const bloqueosRef = collection(db, "bloqueos");
+                        const qBloqueos = query(
+                        bloqueosRef,
+                        where("uidPeluquero", "==", profesional),
+                        where("fechaDesde", "<=", fecha),
+                        where("fechaHasta", ">=", fecha)
+                        );
+
+                        const bloqueosSnap = await getDocs(qBloqueos);
+
+                        const bloqueos = bloqueosSnap.docs.map(d => d.data());
         
                         const horariosRef = doc(db, 'horarios', uidPeluquero);
                         const horariosDoc = await getDoc(horariosRef);
@@ -206,12 +255,29 @@ const ReservasForm = () => {
         
                                 // Filtrar horarios disponibles sin solapamientos
                                 const horariosFiltrados = availableSlots.filter(slot => {
-                                    const slotStartTime = new Date(`${fecha}T${slot}`);
-                                    const slotEndTime = new Date(slotStartTime.getTime() + duracionServicio * 60000);
-        
-                                    return !ocupados.some(({ start, end }) => (
-                                        start < slotEndTime && end > slotStartTime
-                                    ));
+                                const slotStart = new Date(`${fecha}T${slot}`);
+                                const slotEnd = new Date(slotStart.getTime() + duracionServicio * 60000);
+
+                                // ❌ solapa con reservas
+                                const solapaReserva = ocupados.some(({ start, end }) =>
+                                    start < slotEnd && end > slotStart
+                                );
+
+                                if (solapaReserva) return false;
+
+                                // ❌ solapa con bloqueos
+                                const solapaBloqueo = bloqueos.some(b => {
+                                    // día completo
+                                    if (b.tipo === "dia_completo") return true;
+
+                                    // rango horario
+                                    const bStart = new Date(`${fecha}T${b.horaDesde}`);
+                                    const bEnd = new Date(`${fecha}T${b.horaHasta}`);
+
+                                    return bStart < slotEnd && bEnd > slotStart;
+                                });
+
+                                return !solapaBloqueo;
                                 });
         
                                 const horariosUnicos = [...new Set(horariosFiltrados)];
@@ -748,7 +814,22 @@ const ReservasForm = () => {
                         className="select-seccion2"
                         type="date"
                         value={fecha}
-                        onChange={(e) => setFecha(e.target.value)}
+                        onChange={(e) => {
+                            const nuevaFecha = e.target.value;
+                            if (estaDeVacaciones(nuevaFecha)) {
+                            Swal.fire({
+                                title: 'Fecha no disponible',
+                                text: 'El profesional seleccionado estará de vacaciones en esa fecha. Por favor, elegí otro día.',
+                                icon: 'warning',
+                                background: 'black',
+                                color: 'white',
+                                confirmButtonText: 'Ok',
+                            });
+                            setFecha('');
+                            } else {
+                            setFecha(nuevaFecha);
+                            }
+                        }}
                         min={obtenerFechaActual()}
                         max={obtenerFechaMaxima()}
                         required

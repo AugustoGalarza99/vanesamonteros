@@ -1,0 +1,88 @@
+/* NAVBAR SUPERIOR */
+.desktop-navbar2 {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 64px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 24px;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* LISTA DERECHA → IZQUIERDA */
+.nav-right-to-left {
+  list-style: none;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* ITEMS */
+.desktop-navbar2 li {
+  display: flex;
+  align-items: center;
+}
+
+/* LINKS Y BOTONES */
+.desktop-navbar2 a,
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 8px;
+  transition: all 0.25s ease;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* HOVER */
+.desktop-navbar2 a:hover,
+.logout-btn:hover {
+  background-color: #ffcc00;
+  color: #222;
+  transform: translateY(-1px);
+}
+
+/* ICONOS */
+.desktop-navbar2 svg {
+  flex-shrink: 0;
+}
+
+/* LOGOUT */
+.logout-btn {
+  font-family: inherit;
+}
+
+/* ESPACIO PARA EL CONTENIDO */
+body {
+  padding-top: 64px;
+}
+
+
+
+
+@media (max-width: 1239px) {
+  .desktop-navbar2 a,
+  .logout-btn {
+    font-size: 14px;
+    padding: 6px 8px;
+    gap: 5px;
+  }
+}
