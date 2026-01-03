@@ -25,6 +25,78 @@ const ReservaTurnoManual = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
+    // 2. Normalizar teléfono
+    const telefonoNormalizado = (input) => {
+    if (!input) return null;
+
+    // 1️⃣ quitar todo lo que no sea número
+    let s = input.replace(/\D/g, "");
+
+    // 2️⃣ quitar prefijos internacionales redundantes
+    if (s.startsWith("00")) s = s.slice(2);
+    if (s.startsWith("54")) s = s.slice(2);
+
+    // 3️⃣ casos comunes mal escritos
+    if (s.startsWith("9") && s.length > 0) s = s.slice(1);
+    if (s.startsWith("0")) s = s.slice(1);
+
+    // --- 🔹 CASO ESPECIAL: Buenos Aires (código 11)
+    if (s.startsWith("11")) {
+        // eliminar el "15" si aparece justo después de 11
+        s = s.replace(/^11\s*15/, "11");
+        // asegurarse de tener los últimos 8 dígitos de número
+        if (s.length > 10) s = s.slice(0, 10);
+        return "+549" + s;
+    }
+
+    // --- 🔹 CASOS GENERALES (códigos de 3 a 4 dígitos)
+    // 4️⃣ Si hay EXACTAMENTE area(3-4) + 15 + subscriber(6-8) -> quitar el 15
+    let m = s.match(/^(\d{3,4})15(\d{6,8})$/);
+    if (m) {
+        const area = m[1];
+        const subscriber = m[2];
+        return "+549" + area + subscriber;
+    }
+
+    // 5️⃣ Si no hay match estricto, intentamos elegir área 3–4 y suscribirse 6–8
+    for (let areaLen = 3; areaLen <= 4; areaLen++) {
+        if (s.length - areaLen >= 6 && s.length - areaLen <= 8) {
+        const area = s.slice(0, areaLen);
+        let subscriber = s.slice(areaLen);
+
+        // si subscriber comienza con "15" lo quitamos
+        if (subscriber.startsWith("15") && subscriber.length - 2 >= 6) {
+            subscriber = subscriber.slice(2);
+        }
+
+        return "+549" + area + subscriber;
+        }
+    }
+
+    // 6️⃣ Intentar detectar patrón laxo area+15+rest
+    m = s.match(/^(\d{3,4})15(\d+)$/);
+    if (m) {
+        const area = m[1];
+        let subscriber = m[2];
+        if (subscriber.length > 8) subscriber = subscriber.slice(-8);
+        return "+549" + area + subscriber;
+    }
+
+    // 7️⃣ Fallback final
+    let area = s.length >= 11 ? s.slice(0, 3) : s.slice(0, Math.min(3, s.length - 6));
+    if (!area || area.length < 2) area = s.slice(0, 2);
+    let subscriber = s.slice(area.length);
+    if (subscriber.length > 8) subscriber = subscriber.slice(-8);
+
+    if (subscriber.length < 6) return null;
+
+    // 💪 Aseguramos que siempre tenga el prefijo correcto
+    let result = "+549" + area + subscriber;
+    if (!result.startsWith("+549")) result = "+549" + result.replace(/^\+?/, "");
+
+    return result;
+    };
+
         // Nuevos estados para recurrencia
         const [esRecurrente, setEsRecurrente] = useState(false);
         const [intervaloRecurrencia, setIntervaloRecurrencia] = useState(7);
