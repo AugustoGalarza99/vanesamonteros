@@ -327,6 +327,18 @@ td[title]:hover::after {
   margin: 0;
 }
 
+.btn {
+  border: 0;
+  border-radius: 12px;
+  padding: .85rem 1.1rem;
+  font-weight: 700;
+  font-size: .95rem;
+  cursor: pointer;
+  transition: transform .06s ease, background .2s ease, box-shadow .2s ease;
+  box-shadow: 0 6px 14px rgba(0,0,0,.08);
+}
+
+
 /* Ajuste general columnas para pantallas medianas */
 @media (max-width: 1280px) {
   .custom-table td, .custom-table th {

@@ -189,38 +189,43 @@ useEffect(() => {
 
   
 
-  const handleRemindTurn = (reserva) => {
+  const handleRemindTurn = async (reserva) => {
     const fechaTurno = new Date(reserva.fecha);
     const fechaLocal = new Date(fechaTurno.getTime() + (fechaTurno.getTimezoneOffset() * 60000)); 
-  
+
     const message = `Hola! 👋
-Te esperamos para tu turno el 
-🗓 ${fechaLocal.toLocaleDateString()} a las ${reserva.hora} en Monteros Vanesa Espacio. 
+  Te esperamos para tu turno el 
+  🗓 ${fechaLocal.toLocaleDateString()} a las ${reserva.hora} en Monteros Vanesa Espacio. 
 
-En caso de no poder asistir por favor avísanos 🙌🏽
-¡Gracias! ❤`;
+  En caso de no poder asistir por favor avísanos 🙌🏽
+  ¡Gracias! ❤`;
 
-    const phoneNumber = reserva.telefono; 
+    const phoneNumber = reserva.telefono;
 
-    if (phoneNumber) {
-        // Detecta si la aplicación de WhatsApp está instalada
-        const whatsappBaseURL = navigator.userAgent.includes('Windows') || navigator.userAgent.includes('Mac') 
-            ? 'https://web.whatsapp.com' // Usa WhatsApp Web si estás en PC
-            : 'https://api.whatsapp.com'; // Usa WhatsApp App si no se detecta escritorio
-
-        const whatsappURL = `${whatsappBaseURL}/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
-        window.open(whatsappURL, '_blank'); 
-    } else {
-        Swal.fire({
-            title: 'Error',
-            text: 'No se encontró el número de teléfono para el cliente',
-            icon: 'error',
-            background: 'black',
-            color: 'white',
-            confirmButtonText: 'Ok'
-        });
+    if (!phoneNumber) {
+      await Swal.fire({
+        title: 'Error',
+        text: 'No se encontró el número de teléfono para el cliente',
+        icon: 'error',
+        background: 'black',
+        color: 'white',
+      });
+      return;
     }
-};
+
+    const isDesktop = /Windows|Mac/i.test(navigator.userAgent);
+    const baseURL = isDesktop
+      ? 'https://web.whatsapp.com/send'
+      : 'https://api.whatsapp.com/send';
+
+    const whatsappURL = `${baseURL}?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+
+    // 👉 usa siempre la misma pestaña
+    window.open(whatsappURL, 'whatsapp-reminder');
+
+    return true;
+  };
+
 const verificarPrimerTurnoDelDia = async () => {
   const now = new Date();
   const hoy = now.toISOString().split('T')[0]; // Fecha actual en formato "YYYY-MM-DD"  
@@ -681,14 +686,60 @@ const actualizarCostoServicio = async (reservaId, nuevoCosto) => {
             });
           }
         } else if (result.isDenied) {
-          handleRemindTurn(reserva);
+          const enviado = await handleRemindTurn(reserva);
+          if (!enviado) return;
+
           Swal.fire({
             title: 'Recordatorio enviado',
-            icon: 'success',
+            text: '¿Deseás marcar este turno como recordado?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Marcar',
+            cancelButtonText: 'No marcar',
             background: 'black',
             color: 'white',
+          }).then(async (res) => {
+            if (res.isConfirmed) {
+              try {
+                await updateDoc(doc(db, 'reservas', reserva.id), {
+                  recTarde: true,
+                });
+
+                // 🔄 actualizar estado local
+                setReservasLocal(prev =>
+                  prev.map(r =>
+                    r.id === reserva.id ? { ...r, recTarde: true } : r
+                  )
+                );
+                setReservas(prev =>
+                  prev.map(r =>
+                    r.id === reserva.id ? { ...r, recTarde: true } : r
+                  )
+                );
+
+                Swal.fire({
+                  title: 'Marcado',
+                  text: 'El recordatorio quedó marcado.',
+                  icon: 'success',
+                  background: 'black',
+                  color: 'white',
+                  timer: 1500,
+                  showConfirmButton: false,
+                });
+              } catch (e) {
+                console.error(e);
+                Swal.fire({
+                  title: 'Error',
+                  text: 'No se pudo marcar el recordatorio.',
+                  icon: 'error',
+                  background: 'black',
+                  color: 'white',
+                });
+              }
+            }
           });
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
+        }
+        else if (result.dismiss === Swal.DismissReason.cancel) {
           handleCancelTurn(reserva);
         }
       });
