@@ -187,44 +187,134 @@ useEffect(() => {
   filtrarReservas();
 }, [peluqueroSeleccionado, fechaSeleccionada, reservasLocal]);
 
-  
 
-  const handleRemindTurn = async (reserva) => {
-    const fechaTurno = new Date(reserva.fecha);
-    const fechaLocal = new Date(fechaTurno.getTime() + (fechaTurno.getTimezoneOffset() * 60000)); 
+const handleWhatsappSend = ({ telefono, mensaje }) => {
+  if (!telefono) {
+    Swal.fire({
+      title: 'Error',
+      text: 'No se encontró el número de teléfono para el cliente',
+      icon: 'error',
+      background: 'black',
+      color: 'white',
+    });
+    return false;
+  }
 
-    const message = `Hola! 👋
-  Te esperamos para tu turno el 
-  🗓 ${fechaLocal.toLocaleDateString()} a las ${reserva.hora} en Monteros Vanesa Espacio. 
+  const isDesktop = /Windows|Mac/i.test(navigator.userAgent);
+  const baseURL = isDesktop
+    ? 'https://web.whatsapp.com/send'
+    : 'https://api.whatsapp.com/send';
 
-  En caso de no poder asistir por favor avísanos 🙌🏽
-  ¡Gracias! ❤`;
+  const whatsappURL = `${baseURL}?phone=${telefono}&text=${encodeURIComponent(mensaje)}`;
 
-    const phoneNumber = reserva.telefono;
+  // 👉 misma pestaña siempre
+  window.open(whatsappURL, 'whatsapp-actions');
 
-    if (!phoneNumber) {
-      await Swal.fire({
-        title: 'Error',
-        text: 'No se encontró el número de teléfono para el cliente',
-        icon: 'error',
-        background: 'black',
-        color: 'white',
-      });
-      return;
+  return true;
+};
+
+const buildMensajeRecordatorio = (reserva) => {
+  const fechaTurno = new Date(reserva.fecha);
+  const fechaLocal = new Date(
+    fechaTurno.getTime() + fechaTurno.getTimezoneOffset() * 60000
+  );
+
+  return `Hola! 👋
+Te esperamos para tu turno el 
+🗓 ${fechaLocal.toLocaleDateString()} a las ${reserva.hora} en Monteros Vanesa Espacio. 
+
+En caso de no poder asistir por favor avísanos 🙌🏽
+¡Gracias! ❤`;
+};
+
+const buildMensajeConfirmacion = (data) => {
+  const fechaTurno = new Date(data.fecha);
+  const fechaNatural = fechaTurno.toLocaleDateString('es-AR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+
+  return `¡Hola ${data.nombre}! 👋
+Tu reserva para "${data.servicio}" fue registrada con éxito 🙌🏽
+*${fechaNatural}* a las *${data.hora}*.
+
+Te esperamos 🌸❤`;
+};
+
+const accionesWhatsapp = async (reserva) => {
+  const { isConfirmed, isDenied } = await Swal.fire({
+    title: 'Acciones WhatsApp',
+    text: '¿Qué mensaje deseas enviar?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Confirmación turno',
+    denyButtonText: 'Recordar turno',
+    showDenyButton: true,
+    background: 'black',
+    color: 'white',
+  });
+
+  // 👉 RECORDATORIO
+  if (isDenied) {
+    const mensaje = buildMensajeRecordatorio(reserva);
+    const enviado = handleWhatsappSend({
+      telefono: reserva.telefono,
+      mensaje,
+    });
+
+    if (!enviado) return;
+
+    const res = await Swal.fire({
+      title: 'Recordatorio enviado',
+      text: '¿Deseás marcar este turno como recordado?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Marcar',
+      cancelButtonText: 'No marcar',
+      background: 'black',
+      color: 'white',
+    });
+
+    if (res.isConfirmed) {
+      await updateDoc(doc(db, 'reservas', reserva.id), { recTarde: true });
+
+      setReservasLocal(prev =>
+        prev.map(r => r.id === reserva.id ? { ...r, recTarde: true } : r)
+      );
     }
+  }
 
-    const isDesktop = /Windows|Mac/i.test(navigator.userAgent);
-    const baseURL = isDesktop
-      ? 'https://web.whatsapp.com/send'
-      : 'https://api.whatsapp.com/send';
+  // 👉 CONFIRMACIÓN
+  if (isConfirmed) {
+    const mensaje = buildMensajeConfirmacion(reserva);
+    const enviado = handleWhatsappSend({
+      telefono: reserva.telefono,
+      mensaje,
+    });
 
-    const whatsappURL = `${baseURL}?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+    if (!enviado) return;
 
-    // 👉 usa siempre la misma pestaña
-    window.open(whatsappURL, 'whatsapp-reminder');
+    const res = await Swal.fire({
+      title: 'Confirmación enviada',
+      text: '¿Deseás marcar este turno como avisado?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Marcar realizado',
+      cancelButtonText: 'No marcar',
+      background: 'black',
+      color: 'white',
+    });
 
-    return true;
-  };
+    if (res.isConfirmed) {
+      await updateDoc(doc(db, 'reservas', reserva.id), { aviso: true });
+
+      setReservasLocal(prev =>
+        prev.map(r => r.id === reserva.id ? { ...r, aviso: true } : r)
+      );
+    }
+  }
+};
 
 const verificarPrimerTurnoDelDia = async () => {
   const now = new Date();
@@ -558,7 +648,7 @@ const actualizarCostoServicio = async (reservaId, nuevoCosto) => {
         confirmButtonText: 'Turno realizado',
         cancelButtonText: 'Cancelar Turno',
         showDenyButton: true,
-        denyButtonText: 'Recordar Turno',
+        denyButtonText: 'Acciones WhatsApp',
         footer: `
           <button id="editarDuracionBtn" class="btn btn-info">Editar duración y hora de inicio</button>
           <button id="notificarCambioBtn" class="btn btn-cambio">Notificar Cambio</button>
@@ -686,58 +776,7 @@ const actualizarCostoServicio = async (reservaId, nuevoCosto) => {
             });
           }
         } else if (result.isDenied) {
-          const enviado = await handleRemindTurn(reserva);
-          if (!enviado) return;
-
-          Swal.fire({
-            title: 'Recordatorio enviado',
-            text: '¿Deseás marcar este turno como recordado?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Marcar',
-            cancelButtonText: 'No marcar',
-            background: 'black',
-            color: 'white',
-          }).then(async (res) => {
-            if (res.isConfirmed) {
-              try {
-                await updateDoc(doc(db, 'reservas', reserva.id), {
-                  recTarde: true,
-                });
-
-                // 🔄 actualizar estado local
-                setReservasLocal(prev =>
-                  prev.map(r =>
-                    r.id === reserva.id ? { ...r, recTarde: true } : r
-                  )
-                );
-                setReservas(prev =>
-                  prev.map(r =>
-                    r.id === reserva.id ? { ...r, recTarde: true } : r
-                  )
-                );
-
-                Swal.fire({
-                  title: 'Marcado',
-                  text: 'El recordatorio quedó marcado.',
-                  icon: 'success',
-                  background: 'black',
-                  color: 'white',
-                  timer: 1500,
-                  showConfirmButton: false,
-                });
-              } catch (e) {
-                console.error(e);
-                Swal.fire({
-                  title: 'Error',
-                  text: 'No se pudo marcar el recordatorio.',
-                  icon: 'error',
-                  background: 'black',
-                  color: 'white',
-                });
-              }
-            }
-          });
+          accionesWhatsapp(reserva); 
         }
         else if (result.dismiss === Swal.DismissReason.cancel) {
           handleCancelTurn(reserva);
@@ -1004,7 +1043,7 @@ const editarTelefonoSoloReserva = async (reserva) => {
               <TableCell>Costo</TableCell>
               <TableCell>Profesional</TableCell>
               <TableCell>Estado</TableCell>
-              <TableCell align="center">Aviso</TableCell>
+              <TableCell align="center">Confirmacion</TableCell>
               <TableCell align="center">Recordatorio</TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
@@ -1091,7 +1130,7 @@ const editarTelefonoSoloReserva = async (reserva) => {
                 </p>
               </div>
               <div className="card-row">
-                <span>Aviso:</span>
+                <span>Confirmacion:</span>
                 <span className={`indicator ${reserva.aviso ? "success" : "danger"}`}>
                   {reserva.aviso ? "✓" : "✗"}
                 </span>
