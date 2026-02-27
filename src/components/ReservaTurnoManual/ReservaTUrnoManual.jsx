@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { db } from '../../firebaseConfig';
-import { collection, getDocs, addDoc, query, where, doc, getDoc, setDoc, orderBy } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, where, doc, getDoc, setDoc, orderBy, updateDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { RxCalendar } from "react-icons/rx";
 import Swal from 'sweetalert2';
@@ -440,6 +440,8 @@ const handleAgendar = async (e) => {
     try {
         const reservas = [];
         let currentFecha = new Date(`${fecha}T${hora}`);
+        let reservaCreadaRef = null; // 🔹 NUEVO: guardamos referencia del doc creado
+
         // Normalizar teléfono: eliminar símbolos y forzar +549
         const telefonoNormalizado = (input) => {
         if (!input) return null;
@@ -536,9 +538,10 @@ const handleAgendar = async (e) => {
 
         await guardarClienteVerificadoSiNoExiste();
 
-
+        // 🔹 MODIFICADO: guardamos referencia del último documento creado
         for (const reserva of reservas) {
-            await addDoc(collection(db, 'reservas'), reserva);
+            const docRef = await addDoc(collection(db, 'reservas'), reserva);
+            reservaCreadaRef = docRef;
         }
 
         Swal.fire({
@@ -550,22 +553,48 @@ const handleAgendar = async (e) => {
             background: 'black',
             color: 'white',
             showCancelButton: true,
-            confirmButtonText: 'Agregar otro turno',
-            cancelButtonText: 'Listo',
+            confirmButtonText: 'Confirmar reserva', // 🔹 CAMBIADO
+            cancelButtonText: 'Agregar otro turno', // 🔹 CAMBIADO
             customClass: {
                 popup: 'glass-popup',
                 confirmButton: 'glass-button',
                 cancelButton: 'glass-button',
             }
-            }).then((result) => {
-            if (result.isConfirmed) {
+            }).then(async (result) => {
+
+            if (result.isConfirmed && reservaCreadaRef) {
+
+                const telefonoFinal = telefonoNormalizado(telefono);
+
+                const mensaje = `Hola ${nombre}
+Tu turno fue confirmado
+
+Fecha: ${fecha}
+Hora: ${hora}
+Servicio: ${servicio}
+
+Te esperamos `;
+
+                // 🔹 Abrir WhatsApp
+                window.open(
+                    `https://wa.me/${telefonoFinal.replace('+','')}?text=${encodeURIComponent(mensaje)}`,
+                    '_blank'
+                );
+
+                // 🔹 Marcar aviso:true en Firebase
+                await updateDoc(
+                    doc(db, 'reservas', reservaCreadaRef.id),
+                    { aviso: true }
+                );
+
+                navigate('/estado');
+            } else {
                 // 🧠 Conserva datos del cliente, limpia fecha y hora
                 setFecha('');
                 setHora('');
-            } else {
-                navigate('/estado'); // Redirigir al inicio o a otra página después de crear la reserva
             }
-            });
+        });
+
         } catch (error) {
         console.error('Error al crear la reserva:', error);
     } finally {
