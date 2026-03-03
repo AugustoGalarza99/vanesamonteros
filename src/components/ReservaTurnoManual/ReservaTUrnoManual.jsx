@@ -394,6 +394,22 @@ useEffect(() => {
     fetchHorariosDisponibles();
 }, [profesional, fecha, duracionServicio]); // Asegúrate de que estas dependencias estén incluidas
 
+const buildMensajeConfirmacion = (data) => {
+  // 🔥 SOLUCIÓN: forzar hora local para evitar corrimiento UTC
+  const fechaTurno = new Date(data.fecha + "T12:00:00");
+
+  const fechaNatural = fechaTurno.toLocaleDateString('es-AR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+
+  return `¡Hola ${data.nombre}! 👋
+Tu reserva para "${data.servicio}" fue registrada con éxito 🙌🏽
+*${fechaNatural}* a las *${data.hora}*.
+
+Te esperamos 🌸❤`;
+};
 
 // En la función handleAgendar
 const handleAgendar = async (e) => {
@@ -566,14 +582,31 @@ const handleAgendar = async (e) => {
 
                 const telefonoFinal = telefonoNormalizado(telefono);
 
-                const mensaje = `Hola ${nombre}
-Tu turno fue confirmado
+                if (result.isConfirmed && reservaCreadaRef) {
 
-Fecha: ${fecha}
-Hora: ${hora}
-Servicio: ${servicio}
+                    const telefonoFinal = telefonoNormalizado(telefono);
 
-Te esperamos `;
+                    const reservaData = {
+                        nombre,
+                        servicio,
+                        fecha,
+                        hora,
+                    };
+
+                    const mensaje = buildMensajeConfirmacion(reservaData);
+
+                    // 👉 Abrir directamente en WhatsApp Web
+                    const url = `https://web.whatsapp.com/send?phone=${telefonoFinal.replace('+','')}&text=${encodeURIComponent(mensaje)}`;
+
+                    window.open(url, '_blank');
+
+                    await updateDoc(
+                        doc(db, 'reservas', reservaCreadaRef.id),
+                        { aviso: true }
+                    );
+
+                    navigate('/estado');
+                }
 
                 // 🔹 Abrir WhatsApp
                 window.open(
