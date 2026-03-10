@@ -173,22 +173,42 @@ const handleWhatsappSend = ({ telefono, mensaje }) => {
   return true;
 };
 
-const buildMensajeRecordatorio = (reserva) => {
-  const fechaTurno = new Date(reserva.fecha);
-  const fechaLocal = new Date(
-    fechaTurno.getTime() + fechaTurno.getTimezoneOffset() * 60000
-  );
+  const buildMensajeRecordatorio = (reserva) => {
+    const nombre = reserva.nombre.toLowerCase();
+    const nombreFormateado = nombre.charAt(0).toUpperCase() + nombre.slice(1);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
 
-  return `Hola! 👋
-Te esperamos para tu turno el 
-🗓 ${fechaLocal.toLocaleDateString()} a las ${reserva.hora} en Monteros Vanesa Espacio. 
+    const [anio, mes, dia] = reserva.fecha.split('-').map(Number);
+    const fechaTurno = new Date(anio, mes - 1, dia);
+    fechaTurno.setHours(0, 0, 0, 0);
 
-En caso de no poder asistir por favor avísanos 🙌🏽
-¡Gracias! ❤`;
-};
+    let cuando = '';
+
+    if (fechaTurno.getTime() === hoy.getTime()) {
+      cuando = 'hoy';
+    } else if (fechaTurno.getTime() === hoy.getTime() + 86400000) {
+      cuando = 'mañana';
+    } else {
+      cuando = fechaTurno.toLocaleDateString('es-AR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+      });
+    }
+
+    return `¡Hola ${nombreFormateado}! 👋
+  Te recordamos tu turno para "${reserva.servicio}" *${cuando}* a las *${reserva.hora}* en Monteros Vanesa Espacio.
+
+  ¡Te esperamos! 🌼
+  En caso de no poder asistir por favor avísanos 🙌🏽
+  ¡Gracias! ❤`;
+  };
 
 const buildMensajeConfirmacion = (data) => {
-  const fechaTurno = new Date(data.fecha);
+  const [anio, mes, dia] = data.fecha.split('-').map(Number);
+
+  const fechaTurno = new Date(anio, mes - 1, dia); // 👈 LOCAL
   const fechaNatural = fechaTurno.toLocaleDateString('es-AR', {
     weekday: 'long',
     day: 'numeric',
@@ -201,6 +221,7 @@ Tu reserva para "${data.servicio}" fue registrada con éxito 🙌🏽
 
 Te esperamos 🌸❤`;
 };
+
 
 const accionesWhatsapp = async (reserva) => {
   const { isConfirmed, isDenied } = await Swal.fire({
@@ -888,10 +909,10 @@ const actualizarCostoServicio = async (reservaId, nuevoCosto) => {
                   <TableCell>Servicio</TableCell>
                   <TableCell>Costo</TableCell>
                   <TableCell>Profesional</TableCell>
-                  <TableCell>Estado</TableCell>
+                  <TableCell>Acciones</TableCell>
                   <TableCell align="center">Confirmacion</TableCell>
                   <TableCell align="center">Recordatorio</TableCell>
-                  <TableCell>Acciones</TableCell>
+                  <TableCell>Estado</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -905,12 +926,16 @@ const actualizarCostoServicio = async (reservaId, nuevoCosto) => {
                 <TableCell>{`${reserva.nombre} ${reserva.apellido}`}</TableCell>
                 <TableCell>{reserva.servicio}</TableCell>
                 <TableCell className="costo-cell">{formatearPrecio(reserva.costoServicio)}</TableCell>
-                <TableCell>{reserva.nombrePeluquero}</TableCell>                  
+                <TableCell>{reserva.nombrePeluquero}</TableCell>  
                 <TableCell>
-                  <span className={`status-label status-${reserva.status?.toLowerCase().replace(" ", "-")}`}>
-                    {reserva.status || "—"}
-                  </span>
-                </TableCell>
+                  <Button
+                    className="button-acciones"
+                    variant="outlined"
+                    onClick={() => manejarClickReserva(reserva)}
+                  >
+                    Acciones
+                  </Button>
+                </TableCell>                
                 <TableCell align="center">
                   <span className={`indicator ${reserva.aviso ? "success" : "danger"}`}>
                     {reserva.aviso ? "✓" : "✗"}
@@ -922,13 +947,9 @@ const actualizarCostoServicio = async (reservaId, nuevoCosto) => {
                   </span>
                 </TableCell>
                 <TableCell>
-                  <Button
-                    className="button-acciones"
-                    variant="outlined"
-                    onClick={() => manejarClickReserva(reserva)}
-                  >
-                    Acciones
-                  </Button>
+                  <span className={`status-label status-${reserva.status?.toLowerCase().replace(" ", "-")}`}>
+                    {reserva.status || "—"}
+                  </span>
                 </TableCell>
               </TableRow>
             ))}

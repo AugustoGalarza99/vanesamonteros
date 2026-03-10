@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { db } from '../../firebaseConfig';
-import { collection, getDocs, addDoc, query, where, doc, getDoc, setDoc, orderBy } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, where, doc, getDoc, setDoc, orderBy, updateDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { RxCalendar } from "react-icons/rx";
 import Swal from 'sweetalert2';
@@ -394,6 +394,32 @@ useEffect(() => {
     fetchHorariosDisponibles();
 }, [profesional, fecha, duracionServicio]); // Asegúrate de que estas dependencias estén incluidas
 
+const buildMensajeConfirmacion = (data) => {
+
+  // 🔥 evitar corrimiento UTC
+  const fechaTurno = new Date(data.fecha + "T12:00:00");
+
+  const fechaNatural = fechaTurno.toLocaleDateString("es-AR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+
+  const mensaje = `¡Hola ${data.nombre}! 👋
+Tu reserva para "${data.servicio}" fue registrada con éxito 🙌🏽
+*${fechaNatural}* a las *${data.hora}*.
+
+Te esperamos 🌸❤`;
+
+  const isDesktop = /Windows|Mac/i.test(navigator.userAgent);
+
+  const baseURL = isDesktop
+    ? "https://web.whatsapp.com/send"
+    : "https://api.whatsapp.com/send";
+
+  return `${baseURL}?phone=${data.telefono}&text=${encodeURIComponent(mensaje)}`;
+};
+
 
 // En la función handleAgendar
 const handleAgendar = async (e) => {
@@ -440,6 +466,8 @@ const handleAgendar = async (e) => {
     try {
         const reservas = [];
         let currentFecha = new Date(`${fecha}T${hora}`);
+        let reservaCreadaRef = null; // 🔹 NUEVO: guardamos referencia del doc creado
+
         // Normalizar teléfono: eliminar símbolos y forzar +549
         const telefonoNormalizado = (input) => {
         if (!input) return null;
@@ -536,9 +564,10 @@ const handleAgendar = async (e) => {
 
         await guardarClienteVerificadoSiNoExiste();
 
-
+        // 🔹 MODIFICADO: guardamos referencia del último documento creado
         for (const reserva of reservas) {
-            await addDoc(collection(db, 'reservas'), reserva);
+            const docRef = await addDoc(collection(db, 'reservas'), reserva);
+            reservaCreadaRef = docRef;
         }
 
         Swal.fire({
@@ -550,22 +579,61 @@ const handleAgendar = async (e) => {
             background: 'black',
             color: 'white',
             showCancelButton: true,
-            confirmButtonText: 'Agregar otro turno',
-            cancelButtonText: 'Listo',
+            confirmButtonText: 'Confirmar reserva', // 🔹 CAMBIADO
+            cancelButtonText: 'Agregar otro turno', // 🔹 CAMBIADO
             customClass: {
                 popup: 'glass-popup',
                 confirmButton: 'glass-button',
                 cancelButton: 'glass-button',
             }
-            }).then((result) => {
-            if (result.isConfirmed) {
+            }).then(async (result) => {
+
+            if (result.isConfirmed && reservaCreadaRef) {
+
+                const telefonoFinal = telefonoNormalizado(telefono);
+
+                if (result.isConfirmed && reservaCreadaRef) {
+
+                    const telefonoFinal = telefonoNormalizado(telefono);
+
+                    const url = buildMensajeConfirmacion({
+                        nombre,
+                        servicio,
+                        fecha,
+                        hora,
+                        telefono: telefonoFinal.replace('+','')
+                    });
+
+                    window.open(url, "_blank");
+
+                    await updateDoc(
+                        doc(db, 'reservas', reservaCreadaRef.id),
+                        { aviso: true }
+                    );
+
+                    navigate('/estado');
+                }
+
+                // 🔹 Abrir WhatsApp
+                window.open(
+                    `https://wa.me/${telefonoFinal.replace('+','')}?text=${encodeURIComponent(mensaje)}`,
+                    '_blank'
+                );
+
+                // 🔹 Marcar aviso:true en Firebase
+                await updateDoc(
+                    doc(db, 'reservas', reservaCreadaRef.id),
+                    { aviso: true }
+                );
+
+                navigate('/estado');
+            } else {
                 // 🧠 Conserva datos del cliente, limpia fecha y hora
                 setFecha('');
                 setHora('');
-            } else {
-                navigate('/estado'); // Redirigir al inicio o a otra página después de crear la reserva
             }
-            });
+        });
+
         } catch (error) {
         console.error('Error al crear la reserva:', error);
     } finally {

@@ -621,20 +621,23 @@ const ReservasForm = () => {
                 if (codigoData.codigoVerificacion === parseInt(codigoVerificacion)) {
                     // Si el código es correcto, guardar el cliente como verificado
                     await guardarClienteVerificado();
-    
-                    // Ahora que el cliente está verificado, crear la reserva
-                    await guardarReserva();
-                    
-                    Swal.fire({
+
+                    const reservaCreada = await guardarReserva();
+
+                    if (!reservaCreada) {
+                        setLoading(false);
+                        return; // ⛔ si no se creó, cortar todo
+                    }
+
+                    await Swal.fire({
                         title: 'Código verificado y reserva creada',
-                        html: 'Tu reserva ha sido creada exitosamente, muchas gracias. <br><br> <strong>IMPORTANTE:</strong> El turno puede verse modificado en +/- 15 minutos, en caso de serlo seras notificado. <br><br>Gracias por su comprensión',
+                        html: 'Tu reserva ha sido creada exitosamente...',
                         icon: 'success',
-                        background: 'black', // Fondo rojo claro
-                        color: 'white', // Texto rojo oscuro
+                        background: 'black',
+                        color: 'white',
                         confirmButtonText: 'Ok'
                     });
-    
-                    // Redirigir al usuario después de la reserva
+
                     navigate('/estado');
                 } else {
                     Swal.fire({
@@ -673,39 +676,89 @@ const ReservasForm = () => {
 
     const guardarReserva = async () => {
         try {
-            const reservasRef = collection(db, 'reservas'); // Referencia a la colección de reservas
-    
-            // Calcula el tiempo de fin de la reserva
+            const reservasRef = collection(db, 'reservas');
+
             const startTime = new Date(`${fecha}T${hora}`);
-            const endTime = new Date(startTime.getTime() + duracionServicio * 60000); // Añade la duración
-    
-            // Guardar la reserva en Firestore
+            const ahora = new Date();
+            const diferenciaEnMs = startTime - ahora;
+            const diferenciaEnHoras = diferenciaEnMs / (1000 * 60 * 60);
+
+            // 🚫 VALIDACIÓN GLOBAL 4 HORAS
+            if (diferenciaEnHoras < 4) {
+                await Swal.fire({
+                    title: 'Turno cercano',
+                    text: 'Para el turno solicitado faltan menos de 4 horas. Ponte en contacto con el centro o el profesional para reservar el turno.',
+                    icon: 'warning',
+                    background: 'black',
+                    color: 'white',
+                    confirmButtonText: 'Entendido'
+                });
+
+                return false; // ⛔ NO se creó
+            }
+
+            const endTime = new Date(startTime.getTime() + duracionServicio * 60000);
+
+            // 🔎 Verificar solapamiento
+            const q = query(
+                reservasRef,
+                where('fecha', '==', fecha),
+                where('uidPeluquero', '==', profesional)
+            );
+
+            const querySnapshot = await getDocs(q);
+
+            const existeSolapamiento = querySnapshot.docs.some(doc => {
+                const data = doc.data();
+                const turnoStart = new Date(`${data.fecha}T${data.hora}`);
+                const turnoEnd = new Date(turnoStart.getTime() + (data.duracion || 0) * 60000);
+                return turnoStart < endTime && turnoEnd > startTime;
+            });
+
+            if (existeSolapamiento) {
+                await Swal.fire({
+                    title: 'Horario ocupado',
+                    text: 'Ese horario ya no está disponible.',
+                    icon: 'warning',
+                    background: 'black',
+                    color: 'white',
+                    confirmButtonText: 'Ok'
+                });
+
+                return false; // ⛔ NO se creó
+            }
+
+            // ✅ Crear reserva
             await addDoc(reservasRef, {
                 dni,
                 nombre,
                 apellido,
-                telefono: telefonoNormalizado(telefono), // ✅ siempre normalizado
+                telefono: telefonoNormalizado(telefono),
                 servicio,
                 fecha,
                 hora,
-                costoServicio, // Incluye el costo del servicio
-                duracion: duracionServicio, // Guarda la duración
-                horaFin: endTime.toISOString(), // Guarda la hora de fin
-                uidPeluquero: profesional, // Registrar el UID del peluquero seleccionado
-                status: 'Sin realizar' // Establecer el estado de la reserva
+                costoServicio,
+                duracion: duracionServicio,
+                horaFin: endTime.toISOString(),
+                uidPeluquero: profesional,
+                status: 'Sin realizar'
             });
-    
-            /*console.log('Reserva creada con éxito');*/
+
+            return true; // ✅ Se creó correctamente
+
         } catch (error) {
             console.error('Error al crear la reserva:', error);
-            Swal.fire({
+
+            await Swal.fire({
                 title: 'Error al crear la reserva',
-                text: 'Ocurrió un error al intentar crear la reserva. Por favor, intenta nuevamente más tarde.',
+                text: 'Ocurrió un error al intentar crear la reserva.',
                 icon: 'error',
-                background: 'black', 
-                color: 'white', 
+                background: 'black',
+                color: 'white',
                 confirmButtonText: 'Ok'
             });
+
+            return false;
         }
     };
     

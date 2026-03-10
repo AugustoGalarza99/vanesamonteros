@@ -278,7 +278,7 @@ h3 {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 180px;             /* importante para cliente y servicio */
+  max-width: 160px;             /* importante para cliente y servicio */
 }
 
 /* Tooltip bonito al hover en columnas con ellipsis */
