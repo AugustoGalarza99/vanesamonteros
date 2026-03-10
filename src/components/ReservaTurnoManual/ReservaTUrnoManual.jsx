@@ -420,23 +420,6 @@ Te esperamos 🌸❤`;
   return `${baseURL}?phone=${data.telefono}&text=${encodeURIComponent(mensaje)}`;
 };
 
-const buildMensajeConfirmacion = (data) => {
-  // 🔥 SOLUCIÓN: forzar hora local para evitar corrimiento UTC
-  const fechaTurno = new Date(data.fecha + "T12:00:00");
-
-  const fechaNatural = fechaTurno.toLocaleDateString('es-AR', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  });
-
-  return `¡Hola ${data.nombre}! 👋
-Tu reserva para "${data.servicio}" fue registrada con éxito 🙌🏽
-*${fechaNatural}* a las *${data.hora}*.
-
-Te esperamos 🌸❤`;
-};
-
 // En la función handleAgendar
 const handleAgendar = async (e) => {
     e.preventDefault(); // Evitar el comportamiento predeterminado del formulario
